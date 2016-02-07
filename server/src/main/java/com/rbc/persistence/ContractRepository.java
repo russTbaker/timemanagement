@@ -12,6 +12,5 @@ import java.util.List;
  */
 @RepositoryRestResource
 public interface ContractRepository extends PagingAndSortingRepository<Contract,Integer>{
-
     List<Contract> findByCustomerName(@Param("customerName") String name);
 }
