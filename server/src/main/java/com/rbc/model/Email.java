@@ -16,6 +16,7 @@ public class Email {
     @org.hibernate.validator.constraints.Email
     private String email;
 
-    @ManyToOne(targetEntity = Customer.class)
-    private Customer customer;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="OWNER_ID")
+    private User user;
 }

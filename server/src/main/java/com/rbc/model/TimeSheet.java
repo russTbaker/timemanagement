@@ -18,4 +18,6 @@ public class TimeSheet {
     @OneToMany
     private List<TimeSheetEntry> timeSheetEntry;
     private Boolean billed;
+    @ManyToOne
+    private Employee employee;
 }
