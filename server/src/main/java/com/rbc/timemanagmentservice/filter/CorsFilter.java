@@ -1,4 +1,4 @@
-package com.rbc.timemanagement.client.filter;
+package com.rbc.timemanagmentservice.filter;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -18,11 +18,13 @@ public class CorsFilter implements Filter{
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
-        if (!request.getMethod().equals("OPTIONS")) {
+
+        if (request.getMethod().equals("OPTIONS")) {
             response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
             response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:8888");
             response.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+        } else {
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:8888");
         }
         try {
             chain.doFilter(req, response);

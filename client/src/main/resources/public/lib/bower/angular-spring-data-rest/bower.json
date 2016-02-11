@@ -1,0 +1,42 @@
+{
+    "name": "angular-spring-data-rest",
+    "version": "0.4.4",
+    "description": "An AngularJS module to ease the work with a Spring Data REST backend.",
+    "main": "./dist/angular-spring-data-rest.js",
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        ".gitignore",
+        "Gruntfile.js",
+        "karma.conf.js",
+        "lib",
+        "src",
+        "test",
+        "node_modules",
+        "bower_components"
+    ],
+    "keywords": [
+        "angular",
+        "angularjs",
+        "spring",
+        "spring data",
+        "spring data rest",
+        "rest",
+        "api"
+    ],
+    "authors": [
+        "Guy Brand <admin@guylabs.org>"
+    ],
+    "homepage": "http://guylabs.ch/project/angular-spring-data-rest",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/guylabs/angular-spring-data-rest.git"
+    },
+    "dependencies": {
+      "angular": "~1.4.8",
+      "angular-resource": "~1.4.8"
+    },
+    "devDependencies": {
+      "angular-mocks": "~1.4.8"
+    }
+}
