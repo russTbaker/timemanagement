@@ -1,14 +1,14 @@
 package com.rbc.timemanagmentservice;
 
-import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.*;
-import org.joda.time.DateTime;
+import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -16,16 +16,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 @SpringBootApplication
 public class TimemanagementServiceApplication {
     private static final Logger LOG = LoggerFactory.getLogger(TimemanagementServiceApplication.class);
 
+    @Autowired
+    private Environment environment;
+
     public static void main(String[] args) {
         SpringApplication.run(TimemanagementServiceApplication.class, args);
     }
-    public static final String CONTACT_NAME = "Jonathan Bein";
+
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -40,58 +42,32 @@ public class TimemanagementServiceApplication {
 
     @Bean
     @Transactional(propagation = Propagation.REQUIRED)
-    public CommandLineRunner demo(TimeSheetRepository timeSheetRepository, CustomerRepository customerRepository,TimeSheetEntryRepository timeSheetEntryRepository, EmployeeRepository employeeRepository,
-                                  ContractRepository contractRepository) {
+    public CommandLineRunner demo(StartupUtility startupUtility) {
         return (args) -> {
-            TimeSheet timeSheet = new TimeSheet();
-            timeSheet.setEmployee(getEmployee(employeeRepository));
-            timeSheet.setBilled(false);
-
-            TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
-            timeSheetEntry.setContract(getContract(contractRepository, customerRepository));
-            timeSheetEntry.setHours(8);
-            timeSheetEntry.setDate(new DateTime());
-
-
-            final TimeSheetEntry entry = timeSheetEntryRepository.save(timeSheetEntry);
-            timeSheet.setTimeSheetEntry(Collections.singletonList(entry));
-            timeSheetRepository.save(timeSheet);
+            if(environment.getActiveProfiles().length != 0 && Arrays.asList(environment.getActiveProfiles()).contains("runtime")){
+                startupUtility.init();
+            }
         };
     }
 
-    private Contract getContract(ContractRepository contractRepository, CustomerRepository customerRepository) {
-        Contract contract = new Contract();
-        contract.setStartDate(new DateTime());
-        contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setRate(87.5);
-        contract.setTerms(Contract.Terms.net15);
-        contract.setCustomer(getCustomer(customerRepository));
-        contract.setValue(87999D);
-        return contractRepository.save(contract);
-    }
-
-    public Employee getEmployee(EmployeeRepository employeeRepository) {
-        Employee employee = new Employee();
-        employee.setFirstName("Russ");
-        employee.setLastName("Baker");
-        employee.setUsername("admin");
-        employee.setPassword("password");
-        employee.setEmails(Arrays.asList(new Email(), new Email()));
-        employee.setRoles(User.Roles.employee);
-        return employeeRepository.save(employee);
-    }
 
 
-    private Customer getCustomer(CustomerRepository customerRepository) {
-        Customer customer = new Customer();
-        customer.setName("TEST");
-        customer.setLastName("CUSTOMER");
-        customer.setName("Z2M4");
-        customer.setContactName(CONTACT_NAME);
-        customer.setRoles(User.Roles.customer);
-        return customerRepository.save(customer);
-    }
-
+    //    @Bean
+//    public ObjectMapper myObjectMapper(Jackson2ObjectMapperBuilder builder) {
+////
+////        return builder
+////                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+////                .build()
+//////                .registerModule(doubleModule)
+////                .setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+//        return builder.build();//.registerModule(new JodaModule()).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+//    }
+//    @Bean
+//    public Jackson2ObjectMapperBuilder jacksonBuilder() {
+//        Jackson2ObjectMapperBuilder b = new Jackson2ObjectMapperBuilder();
+//        b.indentOutput(true).dateFormat(new SimpleDateFormat("yyyy-MM-dd"));b.a
+//        return b;
+//    }
 
 
 }

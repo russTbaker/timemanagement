@@ -1,8 +1,7 @@
-<div class="container" ng-controller="SamplesListEmbeddedItemsController">
+<div class="container" ng-controller="customersController">
     <ul class="list-group">
         <li class="list-group-item" ng-repeat="customer in customers"><strong>{{customer.name}}</strong><br/>
             <small><a href="{{customer._links.self.href}}"><code>{{customer._links.self.href}}</code></a></small>
-            <small><code>{{customer.id}}</code></small>
             <small><code>{{customer.contactName}}</code></small>
         </li>
     </ul>

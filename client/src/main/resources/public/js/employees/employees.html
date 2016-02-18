@@ -1,0 +1,18 @@
+<div class="container" ng-controller="employeesController">
+    <div class="list-group-item" ng-repeat="employee in employees">
+        <strong>{{employee.firstName}}</strong> <strong>{{employee.lastName}}</strong><br/>
+        <div class="list-group-item" ng-repeat="timesheet in employee.timesheets">
+            <table class="table-responsive">
+                <th><strong>Latest Timesheet</strong></br>
+                    <strong>Billed: {{timesheet.billed}}</strong></th>
+                <tr>
+                    <td class="list-group-item" ng-repeat="timesheentry in timesheet.timeSheetEntries">
+                        <strong>Date:</strong><input type="text" class="form-control" ng-model="timesheentry.date" value="{{timesheentry.date | date:'yyyy-MM-dd'}}">
+                        <strong>Hours:</strong><input type="text" class="form-control" ng-model="timesheentry.hours" value="{{timesheentry.hours}}">
+                    </td>
+                    <td><button class="btn" ng-click="onClickAdd(timesheentry,'api/timeSheets/' + timesheet.id + '/timeSheetEntries/')">Add</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

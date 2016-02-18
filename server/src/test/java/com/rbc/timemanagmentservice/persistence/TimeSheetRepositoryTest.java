@@ -1,7 +1,9 @@
 package com.rbc.timemanagmentservice.persistence;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.TimeSheet;
+import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,8 +12,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 /**
@@ -26,67 +27,37 @@ public class TimeSheetRepositoryTest {
     @Autowired
     private TimeSheetRepository timeSheetRepository;
 
-@Autowired
-private TimeSheetEntryRepository timeSheetEntryRepository;
-
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private TimeSheetEntryRepository timeSheetEntryRepository;
 
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private ContractRepository contractRepository;
 
     @Test
     public void whenInsertingTimeSheet_expectTimesheetCreated() throws Exception {
         // Assemble
-        TimeSheet timeSheet = new TimeSheet();
-        timeSheet.setEmployee(getEmployee());
+        Employee employee = new Employee();
+        TimeSheet timeSheet = new TimeSheet(employee);
         timeSheet.setBilled(false);
 
         TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
-        timeSheetEntry.setContract(getContract());
         timeSheetEntry.setHours(8);
         timeSheetEntry.setDate(new DateTime());
 
         final TimeSheetEntry savedEntry = timeSheetEntryRepository.save(timeSheetEntry);
-        timeSheet.setTimeSheetEntry(Arrays.asList(savedEntry));
+        timeSheet.getTimeSheetEntries().add(timeSheetEntry);
 
         // Act
-        assertNotNull("No timesheet returned.",timeSheetRepository.save(timeSheet));
+        TimeSheet savedTimesheet = timeSheetRepository.save(timeSheet);
+        assertNotNull("No timesheet returned.", savedTimesheet);
+
+        // Assert
+        assertEquals("Wrong timesheet entry", timeSheetEntry, timeSheetRepository.findOne(savedTimesheet.getId())
+                .getTimeSheetEntries().get(0));
     }
 
-    private Contract getContract() {
-        Contract contract = new Contract();
-        contract.setStartDate(new DateTime());
-        contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setRate(87.5);
-        contract.setTerms(Contract.Terms.net15);
-        contract.setCustomer(getCustomer());
-        contract.setValue(87999D);
-        return contractRepository.save(contract);
-    }
-
-    public Employee getEmployee() {
-        Employee employee = new Employee();
-        employee.setFirstName("Russ");
-        employee.setLastName("Baker");
-        employee.setUsername("admin");
-        employee.setPassword("password");
-        employee.setEmails(Arrays.asList(new Email(), new Email()));
-        employee.setRoles(User.Roles.employee);
-        return employeeRepository.save(employee);
-    }
+    @Test
+    public void whenCreatingTimeSheetWithEntries_expectEntriesSaved() throws Exception {
 
 
-    private Customer getCustomer() {
-        Customer customer = new Customer();
-        customer.setName("TEST");
-        customer.setLastName("CUSTOMER");
-        customer.setName("Z2M4");
-        customer.setContactName(CONTACT_NAME);
-        customer.setRoles(User.Roles.customer);
-        return customerRepository.save(customer);
     }
+
 }

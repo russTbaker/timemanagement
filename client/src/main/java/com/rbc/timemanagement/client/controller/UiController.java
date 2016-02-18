@@ -27,7 +27,7 @@ import java.util.UUID;
  * Created by rbaker on 2/6/16.
  */
 @RestController
-@EnableRedisHttpSession
+//@EnableRedisHttpSession
 public class UiController {
     @RequestMapping("/resource")
     public Map<String, Object> home() {

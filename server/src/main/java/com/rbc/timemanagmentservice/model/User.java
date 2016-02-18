@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
@@ -34,13 +35,14 @@ public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    protected Integer id;
 
 
     @Enumerated(value = EnumType.STRING)
     private Roles roles;
     private String firstName;
     private String lastName;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JsonProperty(value = "emails")
     private List<Email> emails;
 }
