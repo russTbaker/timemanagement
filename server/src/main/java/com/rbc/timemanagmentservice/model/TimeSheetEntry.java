@@ -22,6 +22,8 @@ public class TimeSheetEntry {
         this.contract = contract;
     }
 
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -38,6 +40,11 @@ public class TimeSheetEntry {
     public Integer getContractId(){
         return contract.getId();
     }
+
+//    @JsonProperty(value = "contract")
+//    public void setContractId(Integer contractId){
+//        this.contract.setId(contractId);
+//    }
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime date;

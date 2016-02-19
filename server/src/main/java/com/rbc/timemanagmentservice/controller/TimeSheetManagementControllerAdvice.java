@@ -13,8 +13,8 @@ import javax.ws.rs.NotFoundException;
  * Created by russbaker on 2/16/16.
  */
 @ControllerAdvice
-public class EmployeeControllerAdvice {
-    public EmployeeControllerAdvice() {
+public class TimeSheetManagementControllerAdvice {
+    public TimeSheetManagementControllerAdvice() {
         super();
     }
 

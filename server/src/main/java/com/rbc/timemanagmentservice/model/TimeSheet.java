@@ -2,6 +2,8 @@ package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
@@ -32,10 +34,10 @@ public class TimeSheet {
     @JsonIgnore
     private Employee employee;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="MST")
+    @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime startDate;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="MST")
+    @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime endDate;
 
 

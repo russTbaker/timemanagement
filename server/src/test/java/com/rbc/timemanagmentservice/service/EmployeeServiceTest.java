@@ -135,7 +135,7 @@ public class EmployeeServiceTest {
         timeSheetEntry.setHours(HOURS);
 
         // Act
-        employeeService.addTimeSheet(employee.getId(),timeSheets.get(0));
+        employeeService.addTimeSheetEntry(employee.getId(),timeSheets.get(0).getId(), timeSheetEntry, timeSheetEntry.getId());
 
         // Assert
         Employee result = employeeService.findEmployee(employee.getId());

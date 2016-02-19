@@ -2,6 +2,8 @@ package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import lombok.ToString;
 import org.joda.time.DateTime;
 
@@ -24,16 +26,16 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @ManyToOne(targetEntity = Customer.class)
-    @JoinColumn(name="customer_id")
+    @ManyToOne//(targetEntity = Customer.class)
+//    @JoinColumn//(name="customer_id")
     private Customer customer;
 
     private Double value;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="MST")
+    @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime startDate;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="MST")
+    @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime endDate;
 
     private Double rate;

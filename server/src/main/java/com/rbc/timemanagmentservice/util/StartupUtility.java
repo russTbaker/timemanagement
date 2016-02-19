@@ -3,6 +3,7 @@ package com.rbc.timemanagmentservice.util;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.persistence.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +40,9 @@ public class StartupUtility {
 
     public Employee init(){
         final Employee employee = getEmployee();
-        employee.getTimesheets().add(getTimeSheet(employee,getContract()));
+        final Contract contract = getContract();
+        employee.getTimesheets().add(getTimeSheet(employee, contract));
+        employee.getContracts().add(contract);
         employeeRepository.save(employee);
         return employee;
     }
@@ -50,9 +53,14 @@ public class StartupUtility {
         contract.setEndDate(new DateTime().plusMonths(6));
         contract.setRate(87.5);
         contract.setTerms(Contract.Terms.net15);
-        contract.setCustomer(getCustomer());
         contract.setValue(87999D);
-        return contractRepository.save(contract);
+
+        final Customer customer = getCustomer();
+        contract.setCustomer(customer);
+
+        customer.getContracts().add(contract);//contractRepository.save(contract));
+        customerRepository.save(customer);
+        return customer.getContracts().get(0);
     }
 
     public static Employee getEmployee() {
@@ -67,7 +75,7 @@ public class StartupUtility {
     }
 
 
-    private static Customer getCustomer() {
+    public static Customer getCustomer() {
         Customer customer = new Customer();
         customer.setName("TEST");
         customer.setFirstName("Jonathan");
@@ -75,9 +83,8 @@ public class StartupUtility {
         customer.setName("Z2M4");
         customer.setContactName(CONTACT_NAME);
         customer.setRoles(User.Roles.customer);
-        Customer savedCustomer = customerRepository.save(customer);
-        savedCustomer.setEmails(Arrays.asList(getEmail(),getEmail()));
-        return savedCustomer;
+        customer.setEmails(Arrays.asList(getEmail(),getEmail()));
+        return customerRepository.save(customer);
     }
 
     private static Email getEmail(){
@@ -92,15 +99,19 @@ public class StartupUtility {
                                    Contract contract){
         TimeSheet timeSheet = new TimeSheet(employee);
         timeSheet.setBilled(false);
+        timeSheet.setStartDate(new DateTime());
+        timeSheet.setEndDate(timeSheet.getStartDate().plusDays(7));
         timeSheetRepository.save(timeSheet);
+        contractRepository.save(contract);
+        for(int i=0;i<7;i++){
+            TimeSheetEntry timeSheetEntry = new TimeSheetEntry(timeSheet, contract);
+            timeSheetEntry.setHours(8);
+            timeSheetEntry.setDate(new DateTime().plusDays(i));
+            timeSheetEntryRepository.save(timeSheetEntry);
+            timeSheet.getTimeSheetEntries().add(timeSheetEntry);
+            contract.getTimeSheetEntries().add(timeSheetEntry);
+        }
 
-        TimeSheetEntry timeSheetEntry = new TimeSheetEntry(timeSheet,contract);
-        timeSheetEntry.setHours(8);
-        timeSheetEntry.setDate(new DateTime());
-        timeSheetEntryRepository.save(timeSheetEntry);
-
-        timeSheet.getTimeSheetEntries().add(timeSheetEntry);
-        contract.getTimeSheetEntries().add(timeSheetEntry);
         return timeSheet;
     }
 }

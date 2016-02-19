@@ -6,6 +6,7 @@ import com.rbc.timemanagmentservice.model.TimeSheet;
 import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
@@ -85,12 +86,18 @@ public class EmployeeService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addTimeSheet(Integer employeeId, TimeSheet timeSheet) {
+    public void addTimeSheetEntry(Integer employeeId, Integer timeSheetId, TimeSheetEntry timeSheetEntry,
+                                  Integer timeSheetEntryId) {
         final Employee employee = employeeRepository.findOne(employeeId);
-        employee.getTimesheets()
+        final TimeSheetEntry existingTimeSheet = employee.getTimesheets()
                 .stream()
-                .filter(timeSheet1 -> timeSheet1.getId().equals(timeSheet.getId()))
-                .forEach(timeSheet1 -> timeSheet1.getTimeSheetEntries().addAll(timeSheet.getTimeSheetEntries()));
+                .filter(timeSheet1 -> timeSheet1.getId().equals(timeSheetId))
+                .findFirst().get()
+                .getTimeSheetEntries()
+                .stream()
+                .filter(timeSheetEntry1 -> timeSheetEntry1.getId().equals(timeSheetEntryId))
+                .findFirst().get();
+        BeanUtils.copyProperties(timeSheetEntry,existingTimeSheet,"id");
         employeeRepository.save(employee);
     }
 
