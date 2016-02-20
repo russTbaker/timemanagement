@@ -2,6 +2,7 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Customer;
+import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -18,10 +19,12 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final ContractRepository contractRepository;
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, ContractRepository contractRepository) {
         this.customerRepository = customerRepository;
+        this.contractRepository = contractRepository;
     }
 
     public List<Customer> findAll() {
@@ -38,15 +41,24 @@ public class CustomerService {
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public Customer addContractToCustomer(Customer customer, Contract contract) {
-        final Customer cust = getCustomer(customer.getId());
-        contract.setCustomer(cust);
-        cust.getContracts().add(contract);
-        return customerRepository.save(cust);
+    public void addContractToCustomer(Integer customerId, Integer contractId) {
+//        final Customer cust = getCustomer(customer.getId());
+//        contract.getUsers().add(cust);
+//        cust.addContract(contract);
+//        contractRepository.save(contract);
+//        return customerRepository.save(cust);
+        final Customer customer = customerRepository.findOne(customerId);
+        final Contract contract = contractRepository.findOne(contractId);
+                contract.addUser(customer);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Customer updateCustomer(final Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Customer createCustomer(Customer customer) {
         return customerRepository.save(customer);
     }
 }

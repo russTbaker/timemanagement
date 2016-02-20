@@ -65,6 +65,9 @@ public class EmployeeControllerTest {
     private WebApplicationContext webApplicationContext;
 
     @Autowired
+    private StartupUtility startupUtility;
+
+    @Autowired
     void setConverters(HttpMessageConverter<?>[] converters) {
 
         this.mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream().filter(
@@ -183,10 +186,11 @@ public class EmployeeControllerTest {
 
 
     private Employee getEmployeeWithTimeSheet() {
-        Employee employee = StartupUtility.getEmployee();
-        employee.getTimesheets().add(StartupUtility.getTimeSheet(employee, StartupUtility.getContract()));
-        employeeRepository.save(employee);
-        return employee;
+//        Employee employee = startupUtility.getEmployee();
+//        employee.getTimesheets().add(startupUtility.getTimeSheet(employee, startupUtility.getContractForCustomer(startupUtility.getCustomer())));
+//        employeeRepository.save(employee);
+//        return employee;
+        return startupUtility.init();
     }
 
     protected String json(Object o) throws IOException {

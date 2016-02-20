@@ -83,10 +83,6 @@ public class EmployeeService {
         timeSheet.getTimeSheetEntries().addAll(timeSheetEntryList);
         timeSheet.setBilled(false);
         timeSheetRepository.save(timeSheet);
-//        employee.getTimesheets().add(timeSheet);
-//        final List<TimeSheet> timesheets = employee.getTimesheets();
-//        timesheets.sort((ts1,ts2)-> ts1.getStartDate().compareTo(ts2.getStartDate()));
-//        return timesheets.stream().findFirst().get();
     }
 
     private DateTime getLastDayOfWeek() {
