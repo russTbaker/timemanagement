@@ -1,7 +1,6 @@
 package com.rbc.timemanagmentservice.util;
 
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.model.Transport;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
@@ -101,10 +100,10 @@ public class StartupUtility {
 //        return customerRepository.save(customer);
     }
 
-    private  Transport getEmail(User user){
-        Transport email = new Transport();
+    private Email getEmail(User user){
+        Email email = new Email();
         email.setEmail(String.format("%s@company.com",user.getDba()));
-        email.setEmailType(Transport.EmailTypes.both);
+        email.setEmailType(Email.EmailTypes.both);
         email.setUser(user);
         return email;
     }

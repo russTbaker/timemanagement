@@ -2,9 +2,7 @@ package com.rbc.timemanagmentservice.persistence;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.model.Transport;
 import com.rbc.timemanagmentservice.util.StartupUtility;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static junit.framework.TestCase.*;
 
@@ -55,7 +52,7 @@ public class EmployeeRepositoryTest {
         final TimeSheet timesheet = new TimeSheet(saved);
         timesheet.getTimeSheetEntries().add(new TimeSheetEntry(timesheet,contract));
         saved.getTimesheets().add(timesheet);
-        saved.setEmails(Arrays.asList(new Transport()));
+        saved.setEmails(Arrays.asList(new Email()));
 
         Employee result = employeeRepository.findOne(saved.getId());
 
@@ -75,7 +72,7 @@ public class EmployeeRepositoryTest {
         employee.setLastName("Baker");
         employee.setUsername("admin");
         employee.setPassword("password");
-        employee.setEmails(Arrays.asList(new Transport(), new Transport()));
+        employee.setEmails(Arrays.asList(new Email(), new Email()));
         employee.setRoles(User.Roles.employee);
 
         // Act

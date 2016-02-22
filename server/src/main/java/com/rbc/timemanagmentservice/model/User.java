@@ -2,7 +2,6 @@ package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.ToString;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
 
@@ -51,7 +50,7 @@ public abstract class User {
     private List<Address> address = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Transport> emails = new ArrayList<>();
+    private List<Email> emails = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Phone> phones = new ArrayList<>();

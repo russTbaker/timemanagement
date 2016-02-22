@@ -1,12 +1,10 @@
 package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Customer;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
@@ -22,17 +20,16 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 /**
@@ -104,7 +101,7 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.endDate", is(fmt.print(customer.getContracts().get(0).getEndDate()))))
                 .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.rate", is(customer.getContracts().get(0).getRate())))
                 .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.terms", is(customer.getContracts().get(0).getTerms().name())))
-                .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailAddress.", is(customer.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].email.", is(customer.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailType.", is(customer.getEmails().get(0).getEmailType().name())))
                 .andExpect(jsonPath(customerResourceRoot + "address[0].address.street1", is(customer.getAddress().get(0).getStreet1())))
                 .andExpect(jsonPath(customerResourceRoot + "address[0].address.city", is(customer.getAddress().get(0).getCity())))

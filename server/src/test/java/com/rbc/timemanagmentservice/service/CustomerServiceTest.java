@@ -124,10 +124,10 @@ public class CustomerServiceTest {
         return customerService.createCustomer(customer);
     }
 
-    private static Transport getEmail(User user) {
-        Transport email = new Transport();
+    private static Email getEmail(User user) {
+        Email email = new Email();
         email.setEmail("jonathan@z2m4.com");
-        email.setEmailType(Transport.EmailTypes.both);
+        email.setEmailType(Email.EmailTypes.both);
         email.setUser(user);
         return email;
     }

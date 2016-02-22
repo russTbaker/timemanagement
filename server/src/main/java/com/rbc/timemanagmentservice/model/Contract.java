@@ -3,7 +3,6 @@ package com.rbc.timemanagmentservice.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
-import lombok.ToString;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;

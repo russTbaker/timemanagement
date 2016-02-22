@@ -2,9 +2,6 @@ package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rbc.timemanagmentservice.model.User;
-import lombok.Data;
-import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -12,7 +9,7 @@ import javax.persistence.*;
  * Created by russbaker on 2/19/16.
  */
 @Entity
-public class Transport {
+public class Email {
     public enum EmailTypes{
         billing,
         business,
@@ -23,10 +20,10 @@ public class Transport {
     private Integer id;
 
     @org.hibernate.validator.constraints.Email
-    @JsonProperty(value = "emailAddress")
+//    @JsonProperty(value = "emailAddress")
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JsonIgnore
     private User user;
 

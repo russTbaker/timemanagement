@@ -2,7 +2,6 @@ package com.rbc.timemanagmentservice.integrationtests;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.model.Transport;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.CustomerRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
@@ -116,9 +115,9 @@ public class TimeSheetIT {
         return customerRepository.save(customer);
     }
 
-    private List<Transport> getEmails() {
-        List<Transport> retVal = new ArrayList<>();
-        Transport contactEmail = new Transport();
+    private List<Email> getEmails() {
+        List<Email> retVal = new ArrayList<>();
+        Email contactEmail = new Email();
         contactEmail.setEmail("jonathan@z2m4.net");
         retVal.add(contactEmail);
         return retVal;
@@ -131,7 +130,7 @@ public class TimeSheetIT {
         employee.setRoles(User.Roles.employee);
         employee.setUsername("username");
         employee.setPassword("password");
-        Transport email = new Transport();
+        Email email = new Email();
         email.setEmail("russabaker@yahoo.com");
         employee.setEmails(Arrays.asList(email));
         return employeeRepository.save(employee);

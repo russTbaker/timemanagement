@@ -4,7 +4,6 @@ import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.TimeSheet;
 import com.rbc.timemanagmentservice.model.TimeSheetEntry;
-import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -23,7 +22,6 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -94,7 +92,8 @@ public class EmployeeControllerTest {
                 .andExpect(content().contentType(contentType))
 //                .andExpect(jsonPath("$._embedded.employeeResources", hasSize(1)))
                 .andExpect(jsonPath(employeeResourceRoot + "employee.roles", is(employee.getRoles().name())))
-                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailAddress", is(employee.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].email", is(employee.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailType", is(employee.getEmails().get(0).getEmailType().name())))
                 .andExpect(jsonPath(employeeResourceRoot + ".timeSheets[0].timeSheetEntries[0].timeSheetEntry.hours", is(employee.getTimesheets()
                         .get(0).getTimeSheetEntries().get(0).getHours())));;
 
@@ -110,7 +109,8 @@ public class EmployeeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(realContentType))
                 .andExpect(jsonPath(employeeResourceRoot + ".employee.roles", is(employee.getRoles().name())))
-                .andExpect(jsonPath(employeeResourceRoot + ".employee.emails[0].emailAddress", is(employee.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(employeeResourceRoot + ".employee.emails[0].email", is(employee.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailType", is(employee.getEmails().get(0).getEmailType().name())))
                 .andExpect(jsonPath(employeeResourceRoot + ".timeSheets[0].timeSheetEntries[0].timeSheetEntry.hours", is(employee.getTimesheets()
                         .get(0).getTimeSheetEntries().get(0).getHours())));
 

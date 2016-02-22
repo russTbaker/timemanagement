@@ -1,6 +1,9 @@
 package com.rbc.timemanagmentservice.controller;
 
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Address;
+import com.rbc.timemanagmentservice.model.Contract;
+import com.rbc.timemanagmentservice.model.Customer;
+import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -157,21 +160,21 @@ public class CustomerController {
     }
     
 //    class TransportResource extends ResourceSupport {
-//        private final Transport email;
+//        private final Email email;
 //
-//        public TransportResource(Transport email, Link selfLink) {
+//        public TransportResource(Email email, Link selfLink) {
 //            this.email = email;
 //            this.add(selfLink);
 //        }
 //
-//        public Transport getTransport() {
+//        public Email getTransport() {
 //            return email;
 //        }
 //    }
 
-//    private List<TransportResource> emailToResource(Transport... emails) {
+//    private List<TransportResource> emailToResource(Email... emails) {
 //        List<TransportResource> resources = new ArrayList<>(emails.length);
-//        for (Transport email : emails) {
+//        for (Email email : emails) {
 //            Link selfLink = linkTo(methodOn(CustomerController.class).getEmail(email.getUser().getId(), email.getId())).withSelfRel();
 //            resources.add(new TransportResource(email,selfLink ));
 //        }

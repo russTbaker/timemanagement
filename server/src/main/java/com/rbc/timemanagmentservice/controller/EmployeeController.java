@@ -1,10 +1,11 @@
 package com.rbc.timemanagmentservice.controller;
 
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.TimeSheet;
+import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpHeaders;
@@ -46,10 +47,10 @@ public class EmployeeController {
     }
 
     @RequestMapping(value = "/{employeeId}", produces = "application/hal+json")
-    public Resources<EmployeeResource> getEmployee(@PathVariable("employeeId") Integer employeeId) {
+    public ResponseEntity<Resources<EmployeeResource>> getEmployee(@PathVariable("employeeId") Integer employeeId) {
         Optional<Employee> employee = Optional.of(employeeService.findEmployee(employeeId));
         List<EmployeeResource> resources = employeeToResource(employee.get());
-        return new Resources<>(resources);
+        return new ResponseEntity<Resources<EmployeeResource>>(new Resources<>(resources),HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries/{timesheetEntryId}",
