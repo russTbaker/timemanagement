@@ -85,7 +85,7 @@ public class EmployeeServiceTest {
         Contract contractForEmployee = startupUtility.getContractForEmployee(employee);
         Contract contract = contractRepository.save(contractForEmployee);
         employeeService.createTimeSheet(employee.getId(), contractForEmployee.getId());
-        TimeSheet timesheet = employeeService.findEmployee(employee.getId()).getTimesheets().get(0);
+        TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
 
         // Act
         TimeSheet result = employeeService.getLatestTimeSheet(employee.getId());
@@ -126,7 +126,7 @@ public class EmployeeServiceTest {
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
 
         // Assert
-        Employee result = employeeService.findEmployee(employee.getId());
+        Employee result = employeeService.getEmployee(employee.getId());
         assertNotNull("No employee returned", result);
         assertEquals("Wrong employee", employee, result);
 
@@ -134,7 +134,7 @@ public class EmployeeServiceTest {
 
     @Test(expected = NotFoundException.class)
     public void whenFindingNonExistingUser_expectNotFoundException() throws Exception {
-        employeeService.findEmployee(10000);
+        employeeService.getEmployee(10000);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class EmployeeServiceTest {
         Employee result = employeeService.updateEmployee(employee);
 
         // Assert
-        Employee updated = employeeService.findEmployee(result.getId());
+        Employee updated = employeeService.getEmployee(result.getId());
         assertNotNull("Username is empty", updated.getUsername());
         assertNotNull("Password is empty", updated.getPassword());
     }
@@ -164,7 +164,7 @@ public class EmployeeServiceTest {
         employeeService.updateEmployee(employee);
 
         // Assert
-        Employee result = employeeService.findEmployee(employee.getId());
+        Employee result = employeeService.getEmployee(employee.getId());
         final List<Address> addresses = result.getAddress();
         assertFalse("No addresses added",CollectionUtils.isEmpty(addresses));
         for(Address addr:addresses){
@@ -183,7 +183,7 @@ public class EmployeeServiceTest {
         employeeService.addEmployeeToContract(employee.getId(), contract);
 
         // Assert
-        Employee result = employeeService.findEmployee(employee.getId());
+        Employee result = employeeService.getEmployee(employee.getId());
         final List<Contract> contracts = result.getContracts();
         assertFalse("No contract associated with employee", CollectionUtils.isEmpty(contracts));
     }
@@ -198,7 +198,7 @@ public class EmployeeServiceTest {
         employeeService.addEmployeeToContract(employee.getId(), contract);
 
         // Assert
-        Employee result = employeeService.findEmployee(employee.getId());
+        Employee result = employeeService.getEmployee(employee.getId());
         final List<Contract> contracts = result.getContracts();
         assertFalse("No contract associated with employee", CollectionUtils.isEmpty(contracts));
 
@@ -216,7 +216,7 @@ public class EmployeeServiceTest {
         employeeService.createTimeSheet(employee.getId(), contract.getId());
 
         // Assert
-        TimeSheet timesheet = employeeService.findEmployee(employee.getId()).getTimesheets().get(0);
+        TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
         assertNotNull("No timesheet created", timesheet);
         assertNotNull("No timesheet persisted", timesheet.getId());
         List<TimeSheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
@@ -231,7 +231,7 @@ public class EmployeeServiceTest {
         Contract contract = contractRepository.save(new Contract());
         employeeService.addEmployeeToContract(employee.getId(), contract);
         employeeService.createTimeSheet(employee.getId(), contract.getId());
-        TimeSheet timesheet = employeeService.findEmployee(employee.getId()).getTimesheets().get(0);
+        TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
         TimeSheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
         timeSheetEntry.setHours(HOURS);
 
@@ -239,7 +239,7 @@ public class EmployeeServiceTest {
         employeeService.addTimeSheetEntry(employee.getId(), timesheet.getId(), timeSheetEntry, timeSheetEntry.getId());
 
         // Assert
-        Employee result = employeeService.findEmployee(employee.getId());
+        Employee result = employeeService.getEmployee(employee.getId());
         assertEquals("Hours not updated", HOURS, result.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours(), 0);
 
     }

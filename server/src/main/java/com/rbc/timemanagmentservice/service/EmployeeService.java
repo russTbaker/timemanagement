@@ -1,6 +1,9 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Contract;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.TimeSheet;
+import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import com.rbc.timemanagmentservice.persistence.TimeSheetRepository;
@@ -58,7 +61,7 @@ public class EmployeeService {
         employee.addContract(contract);
     }
 
-    public Employee findEmployee(Integer id) {
+    public Employee getEmployee(Integer id) {
         final Employee employee = employeeRepository.findOne(id);
         if (employee == null) {
             throw new NotFoundException("Employee with id: " + id + " not found.");

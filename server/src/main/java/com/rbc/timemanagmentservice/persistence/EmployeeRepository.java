@@ -2,7 +2,6 @@ package com.rbc.timemanagmentservice.persistence;
 
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.TimeSheet;
-import com.rbc.timemanagmentservice.model.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;

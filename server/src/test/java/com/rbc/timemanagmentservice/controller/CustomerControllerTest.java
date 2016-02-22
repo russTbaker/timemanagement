@@ -57,7 +57,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @WebAppConfiguration
 @Profile({"default", "test"})
 @Transactional
-public class CustomerControllerTest {
+public class CustomerControllerTest extends ControllerTests{
     public static final String ROOT_URI = "/hydrated/customer/";
     private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
             MediaTypes.HAL_JSON.getSubtype());
@@ -94,25 +94,14 @@ public class CustomerControllerTest {
     @Autowired
     private MockServletContext servletContext;
 
-    @Autowired
-    @Qualifier("userDetailsService")
-    protected UserDetailsService userDetailsService;
+//    @Autowired
+//    @Qualifier("userDetailsService")
+//    protected UserDetailsService userDetailsService;
 
 
     private Customer customer;
 
-    protected UsernamePasswordAuthenticationToken getPrincipal(String username) {
 
-        UserDetails user = this.userDetailsService.loadUserByUsername(username);
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        user,
-                        user.getPassword(),
-                        user.getAuthorities());
-
-        return authentication;
-    }
 
 
 
@@ -141,9 +130,6 @@ public class CustomerControllerTest {
         final String newValue = "a new value";
         email.setEmail(newValue);
         customer.addEmail(email);
-
-
-
 
         this.mockMvc.perform(
                 put(ROOT_URI +customer.getId() + "/email/" + email.getId())
@@ -232,18 +218,5 @@ public class CustomerControllerTest {
         this.mappingJackson2HttpMessageConverter.write(
                 o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
         return mockHttpOutputMessage.getBodyAsString();
-    }
-
-    //------------ Private Methods
-    private MockHttpSession createMockHttpSessionForPutPost() {
-        UsernamePasswordAuthenticationToken principal =
-                this.getPrincipal("admin");
-
-        SecurityContextHolder.getContext().setAuthentication(principal);
-        MockHttpSession session = new MockHttpSession();
-        session.setAttribute(
-                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                SecurityContextHolder.getContext());
-        return session;
     }
 }

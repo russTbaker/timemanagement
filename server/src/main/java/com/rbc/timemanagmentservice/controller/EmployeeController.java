@@ -1,8 +1,6 @@
 package com.rbc.timemanagmentservice.controller;
 
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.TimeSheet;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -48,9 +46,67 @@ public class EmployeeController {
 
     @RequestMapping(value = "/{employeeId}", produces = "application/hal+json")
     public ResponseEntity<Resources<EmployeeResource>> getEmployee(@PathVariable("employeeId") Integer employeeId) {
-        Optional<Employee> employee = Optional.of(employeeService.findEmployee(employeeId));
+        Optional<Employee> employee = Optional.of(employeeService.getEmployee(employeeId));
         List<EmployeeResource> resources = employeeToResource(employee.get());
-        return new ResponseEntity<Resources<EmployeeResource>>(new Resources<>(resources),HttpStatus.OK);
+        return new ResponseEntity<>(new Resources<>(resources), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{employeeId}/email/{emailId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateEmail(@PathVariable(value = "employeeId") Integer employeeId,
+                                         @PathVariable(value = "emailId") Integer emailId,
+                                         @RequestBody Email email) {
+        return Optional.of(employeeService.getEmployee(employeeId))
+                .map(employee -> {
+                    email.setId(emailId);
+                    employee.addEmail(email);
+                    employee = employeeService.updateEmployee(employee);
+
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setLocation(ServletUriComponentsBuilder
+                            .fromCurrentRequest().path("/{id}")
+                            .buildAndExpand(email.getId()).toUri());
+
+                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+                }).get();
+    }
+
+
+    @RequestMapping(value = "/{employeeId}/address/{addressId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateAddress(@PathVariable(value = "employeeId") Integer employeeId,
+                                         @PathVariable(value = "addressId") Integer emailId,
+                                         @RequestBody Address address) {
+        return Optional.of(employeeService.getEmployee(employeeId))
+                .map(employee -> {
+                    address.setId(emailId);
+                    employee.addAddress(address);
+                    employee = employeeService.updateEmployee(employee);
+
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setLocation(ServletUriComponentsBuilder
+                            .fromCurrentRequest().path("/{id}")
+                            .buildAndExpand(address.getId()).toUri());
+
+                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+                }).get();
+    }
+
+    @RequestMapping(value = "/{employeeId}/phone/{phoneId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updatePhones(@PathVariable(value = "employeeId") Integer employeeId,
+                                           @PathVariable(value = "phoneId") Integer emailId,
+                                           @RequestBody Phone phone) {
+        return Optional.of(employeeService.getEmployee(employeeId))
+                .map(employee -> {
+                    phone.setId(emailId);
+                    employee.addPhone(phone);
+                    employee = employeeService.updateEmployee(employee);
+
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setLocation(ServletUriComponentsBuilder
+                            .fromCurrentRequest().path("/{id}")
+                            .buildAndExpand(phone.getId()).toUri());
+
+                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+                }).get();
     }
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries/{timesheetEntryId}",
@@ -85,20 +141,6 @@ public class EmployeeController {
         return new Resources<>(resources, link);
     }
 
-
-
-
-//    class EmailResource extends ResourceSupport {
-//        private final Email email;
-//
-//        public Email getEmail() {
-//            return email;
-//        }
-//
-//        public EmailResource(Email email) {
-//            this.email = email;
-//        }
-//    }
 
     class TimeSheetResource extends ResourceSupport {
         private final TimeSheet timeSheet;
@@ -138,7 +180,6 @@ public class EmployeeController {
     private List<EmployeeResource> employeeToResource(Employee... employees) {
         List<EmployeeResource> resources = new ArrayList<>(employees.length);
         for (Employee employee : employees) {
-//            Link selfLink = linkTo(methodOn(EmployeeController.class).getEmployee(employee.getId())).withSelfRel();
             resources.add(new EmployeeResource(employee));
         }
         return resources;
@@ -181,15 +222,5 @@ public class EmployeeController {
             return timeSheetToResource(timesheets.toArray(new TimeSheet[timesheets.size()]));
         }
     }
-
-//    @SuppressWarnings("unchecked")
-//    List<EmailResource> emailToResource(Email... emails) {
-//        List<EmailResource> resources = new ArrayList<>(emails.length);
-//        for (Email email : emails) {
-//            resources.add(new EmailResource(email));
-//        }
-//        return resources;
-//    }
-
 
 }

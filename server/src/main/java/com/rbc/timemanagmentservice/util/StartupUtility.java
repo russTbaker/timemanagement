@@ -1,15 +1,12 @@
 package com.rbc.timemanagmentservice.util;
 
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by russbaker on 2/12/16.
@@ -54,7 +51,7 @@ public class StartupUtility {
         employee = employeeService.updateEmployee(employee);
         employeeService.createTimeSheet(employee.getId(),customerContract.getId());
         employeeService.addEmployeeToContract(employee.getId(),customerContract);
-        return employeeService.findEmployee(employee.getId());
+        return employeeService.getEmployee(employee.getId());
     }
 
     public Customer getCustomerObject(){

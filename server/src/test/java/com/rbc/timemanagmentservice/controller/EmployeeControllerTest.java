@@ -1,9 +1,8 @@
 package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.TimeSheet;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.service.EmployeeService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -29,8 +28,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -43,7 +44,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @WebAppConfiguration
 @Profile({"default", "test"})
 @Transactional
-public class EmployeeControllerTest {
+public class EmployeeControllerTest extends ControllerTests{
     public static final String ROOT_URI = "/hydrated/employee/";
     private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
             MediaTypes.HAL_JSON.getSubtype());
@@ -64,6 +65,9 @@ public class EmployeeControllerTest {
 
     @Autowired
     private StartupUtility startupUtility;
+
+    @Autowired
+    private EmployeeService employeeService;
 
     @Autowired
     void setConverters(HttpMessageConverter<?>[] converters) {
@@ -125,6 +129,77 @@ public class EmployeeControllerTest {
 
     }
 
+
+    @Test
+    public void whenUpdatingCustomersEmails_expectEmailsUpdated() throws Exception {
+        // Assemble
+        employee = employeeService.getEmployee(employee.getId());
+        final Email email = employee.getEmails().get(0);
+        final String newValue = "a new value";
+        email.setEmail(newValue);
+        employee.addEmail(email);
+
+        this.mockMvc.perform(
+                put(ROOT_URI +employee.getId() + "/email/" + email.getId())
+                        .session(createMockHttpSessionForPutPost())
+                        .contentType(contentType)
+                        .accept(contentType)
+                        .content(json(email)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        employee = employeeService.getEmployee(employee.getId());
+        assertEquals("Wrong email",email.getEmail(),employee.getEmails().get(0).getEmail());
+
+    }
+
+    @Test
+    public void whenUpdatingCustomersAddress_expectAddressUpdated() throws Exception {
+        // Assemble
+        employee = employeeService.getEmployee(employee.getId());
+        final Address address = employee.getAddress().get(0);
+        final String newValue = "a new value";
+        address.setStreet1(newValue);
+        employee.addAddress(address);
+
+        this.mockMvc.perform(
+                put(ROOT_URI +employee.getId() + "/address/" + address.getId())
+                        .session(createMockHttpSessionForPutPost())
+                        .contentType(contentType)
+                        .accept(contentType)
+                        .content(json(address)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        employee = employeeService.getEmployee(employee.getId());
+        assertEquals("Wrong address",address.getStreet1(),employee.getAddress().get(0).getStreet1());
+
+    }
+
+
+    @Test
+    public void whenUpdatingCustomersPhone_expectPhonesUpdated() throws Exception {
+        // Assemble
+        employee = employeeService.getEmployee(employee.getId());
+        final Phone phone = employee.getPhones().get(0);
+        final String newValue = "a new value";
+        phone.setPhone(newValue);
+        employee.addPhone(phone);
+
+        this.mockMvc.perform(
+                put(ROOT_URI +employee.getId() + "/phone/" + phone.getId())
+                        .session(createMockHttpSessionForPutPost())
+                        .contentType(contentType)
+                        .accept(contentType)
+                        .content(json(phone)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        employee = employeeService.getEmployee(employee.getId());
+        assertEquals("Wrong phone",phone.getPhone(),employee.getPhones().get(0).getPhone());
+
+    }
+
     @Test
     public void whenGettingEmployeesRecentTimeSheet_expectMostRecentReturned() throws Exception {
 
@@ -154,6 +229,7 @@ public class EmployeeControllerTest {
         mockMvc.perform(put(url)
                 .contentType(contentType)
                 .content(timesheetEntryJson))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("location", "http://localhost/hydrated/employee/"+employee.getId()
                         +"/timesheet/"+timeSheet.getId()+"/timesheetentries/" + firstTimeSheetEntry.getId()));

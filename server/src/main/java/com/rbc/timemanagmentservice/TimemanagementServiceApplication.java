@@ -1,6 +1,5 @@
 package com.rbc.timemanagmentservice;
 
-import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.slf4j.Logger;
@@ -14,9 +13,6 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
