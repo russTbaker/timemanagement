@@ -7,13 +7,10 @@ import com.rbc.timemanagmentservice.model.Email;
 import com.rbc.timemanagmentservice.model.Phone;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.hateoas.MediaTypes;
@@ -21,14 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.http.MockHttpOutputMessage;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -59,11 +50,11 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @Transactional
 public class CustomerControllerTest extends ControllerTests{
     public static final String ROOT_URI = "/hydrated/customer/";
+    public static final String CONTRACT_RESOURCE_ROOT = "$._embedded.contractResources[0]";
     private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
             MediaTypes.HAL_JSON.getSubtype());
 
     private MockMvc mockMvc;
-    final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
     final String customerResourceRoot = "$._embedded.customerResources[0]";
 
     private HttpMessageConverter mappingJackson2HttpMessageConverter;
@@ -94,11 +85,6 @@ public class CustomerControllerTest extends ControllerTests{
     @Autowired
     private MockServletContext servletContext;
 
-//    @Autowired
-//    @Qualifier("userDetailsService")
-//    protected UserDetailsService userDetailsService;
-
-
     private Customer customer;
 
 
@@ -119,7 +105,14 @@ public class CustomerControllerTest extends ControllerTests{
     public void whenGettingAllCustomers_expectAllCustomersReturned() throws Exception {
 
         // Act/Assert
+        assertCustomersCorrect();
+    }
+
+    @Test
+    public void whenGettingCustomer_expectCustomerReturned() throws Exception {
+        // Act/Assert
         assertCustomerCorrect();
+
     }
 
     @Test
@@ -146,8 +139,6 @@ public class CustomerControllerTest extends ControllerTests{
     }
 
 
-
-
     @Test
     public void whenUpdatingCustomersAddress_expectAddressUpdated() throws Exception {
         // Assemble
@@ -166,7 +157,7 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(status().isCreated());
 
         // Act/Assert
-        assertCustomerCorrect();
+        assertCustomersCorrect();
 
     }
 
@@ -179,7 +170,7 @@ public class CustomerControllerTest extends ControllerTests{
         phone.setPhone(street1);
         customer.addPhone(phone);
 
-        mockMvc.perform(put(ROOT_URI + "/" +customer.getId() + "/phones/" + phone.getId())
+        mockMvc.perform(put(ROOT_URI  +customer.getId() + "/phones/" + phone.getId())
                 .session(createMockHttpSessionForPutPost())
                 .contentType(contentType)
                 .accept(contentType)
@@ -188,11 +179,50 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(status().isCreated());
 
         // Act/Assert
-        assertCustomerCorrect();
+        assertCustomersCorrect();
 
     }
 
+    @Test
+    public void whenFindingContract_expectContractReturned() throws Exception {
+        // Assert
+        customer = customerService.getCustomer(customer.getId());
+
+        // Act/Assert
+        mockMvc.perform(get(ROOT_URI + +customer.getId() + "/contract/" + customer.getContracts().get(0).getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.value",is(customer.getContracts().get(0).getValue())))
+                .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.startDate", is(FMT.print(customer.getContracts().get(0).getStartDate()))))
+                .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.endDate", is(FMT.print(customer.getContracts().get(0).getEndDate()))))
+                .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.rate", is(customer.getContracts().get(0).getRate())))
+                .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.terms", is(customer.getContracts().get(0).getTerms().name())))
+                .andDo(print());
+
+    }
+//----------- Private Methods
+
     private void assertCustomerCorrect() throws Exception {
+        mockMvc.perform(get(CustomerControllerTest.ROOT_URI + customer.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(customerResourceRoot + "customer.roles", is(customer.getRoles().name())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.name", is(customer.getName())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.firstName", is(customer.getFirstName())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.lastName", is(customer.getLastName())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contactName", is(customer.getContactName())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].value", is(customer.getContracts().get(0).getValue())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].startDate", is(FMT.print(customer.getContracts().get(0).getStartDate()))))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].endDate", is(FMT.print(customer.getContracts().get(0).getEndDate()))))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].rate", is(customer.getContracts().get(0).getRate())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].terms", is(customer.getContracts().get(0).getTerms().name())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].email.", is(customer.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailType.", is(customer.getEmails().get(0).getEmailType().name())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.address[0].street1", is(customer.getAddress().get(0).getStreet1())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.address[0].city", is(customer.getAddress().get(0).getCity())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.address[0].state", is(customer.getAddress().get(0).getState())))
+                .andExpect(jsonPath(customerResourceRoot + "customer.address[0].zip", is(customer.getAddress().get(0).getZip())));
+    }
+
+    private void assertCustomersCorrect() throws Exception {
         mockMvc.perform(get(CustomerControllerTest.ROOT_URI))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(customerResourceRoot + "customer.roles", is(customer.getRoles().name())))
@@ -201,8 +231,8 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(jsonPath(customerResourceRoot + "customer.lastName", is(customer.getLastName())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contactName", is(customer.getContactName())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].value", is(customer.getContracts().get(0).getValue())))
-                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].startDate", is(fmt.print(customer.getContracts().get(0).getStartDate()))))
-                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].endDate", is(fmt.print(customer.getContracts().get(0).getEndDate()))))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].startDate", is(FMT.print(customer.getContracts().get(0).getStartDate()))))
+                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].endDate", is(FMT.print(customer.getContracts().get(0).getEndDate()))))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].rate", is(customer.getContracts().get(0).getRate())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].terms", is(customer.getContracts().get(0).getTerms().name())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].email.", is(customer.getEmails().get(0).getEmail())))

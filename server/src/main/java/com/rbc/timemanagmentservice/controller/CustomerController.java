@@ -180,48 +180,4 @@ public class CustomerController {
         return resources;
     }
 
-    class EmailResource extends ResourceSupport {
-        private final Email email;
-
-        public EmailResource(Email email, Link selfLink) {
-            this.email = email;
-            this.add(selfLink);
-        }
-
-        public Email getTransport() {
-            return email;
-        }
-    }
-
-//    private List<EmailResource> emailToResource(Email... emails) {
-//        List<EmailResource> resources = new ArrayList<>(emails.length);
-//        for (Email email : emails) {
-//            Link selfLink = linkTo(methodOn(CustomerController.class).getEmail(email.getUser().getId(), email.getId())).withSelfRel();
-//            resources.add(new EmailResource(email, selfLink));
-//        }
-//        return resources;
-//    }
-
-    class AddressResource extends ResourceSupport {
-        private final Address address;
-
-        public AddressResource(Address address, Link selfLink) {
-            this.address = address;
-            this.add(selfLink);
-        }
-
-        public Address getAddress() {
-            return address;
-        }
-    }
-
-//    private List<AddressResource> addressToResource(Address... addresses) {
-//        List<AddressResource> resources = new ArrayList<>(addresses.length);
-//        for (Address address : addresses) {
-//            Link selfLink = linkTo(methodOn(CustomerController.class).getAddress(address.getUser().getId(), address.getId())).withSelfRel();
-//            resources.add(new AddressResource(address,selfLink ));
-//        }
-//        return resources;
-//    }
-
 }

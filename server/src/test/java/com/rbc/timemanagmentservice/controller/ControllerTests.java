@@ -1,5 +1,7 @@
 package com.rbc.timemanagmentservice.controller;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockHttpSession;
@@ -13,6 +15,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  * Created by russbaker on 2/22/16.
  */
 public class ControllerTests {
+
+    protected static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     @Autowired
     @Qualifier("userDetailsService")
