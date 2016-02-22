@@ -1,7 +1,6 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.AddressRepository;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import com.rbc.timemanagmentservice.persistence.TimeSheetRepository;
@@ -29,15 +28,13 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final ContractRepository contractRepository;
     private final TimeSheetRepository timeSheetRepository;
-    private final AddressRepository addressRepository;
 
     @Autowired
     public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository,
-                           TimeSheetRepository timeSheetRepository, AddressRepository addressRepository) {
+                           TimeSheetRepository timeSheetRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
         this.timeSheetRepository = timeSheetRepository;
-        this.addressRepository = addressRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -50,9 +47,7 @@ public class EmployeeService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Employee updateEmployee(final Employee employee) {
-        final Employee emp = employeeRepository.findOne(employee.getId());
-        BeanUtils.copyProperties(employee, emp, "id");
-        return emp;
+        return employeeRepository.save(employee);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -132,14 +127,7 @@ public class EmployeeService {
         throw new NotFoundException("No timesheets found for employee: " + employeeId);
     }
 
-    //--------------- Address
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Employee addAddressToEmployee(Integer employeeId, Address address) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        employee.addAddress(addressRepository.save(address));
-        return employee;
-    }
 
     //--------------- Private Methods
 

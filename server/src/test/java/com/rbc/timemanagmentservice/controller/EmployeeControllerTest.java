@@ -22,6 +22,7 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @SpringApplicationConfiguration(classes = TimemanagementServiceApplication.class)
 @WebAppConfiguration
 @Profile({"default", "test"})
+@Transactional
 public class EmployeeControllerTest {
     public static final String ROOT_URI = "/hydrated/employee/";
     private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
@@ -90,7 +92,6 @@ public class EmployeeControllerTest {
         mockMvc.perform(get(ROOT_URI))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
-//                .andExpect(jsonPath("$._embedded.employeeResources", hasSize(1)))
                 .andExpect(jsonPath(employeeResourceRoot + "employee.roles", is(employee.getRoles().name())))
                 .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].email", is(employee.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailType", is(employee.getEmails().get(0).getEmailType().name())))

@@ -78,4 +78,20 @@ public class Address {
     public void setZip(String zip) {
         this.zip = zip;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Address)) return false;
+
+        Address address = (Address) o;
+
+        return id != null ? id.equals(address.id) : address.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

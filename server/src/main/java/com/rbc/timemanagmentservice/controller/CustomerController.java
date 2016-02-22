@@ -1,17 +1,16 @@
 package com.rbc.timemanagmentservice.controller;
 
-import com.rbc.timemanagmentservice.model.Address;
-import com.rbc.timemanagmentservice.model.Contract;
-import com.rbc.timemanagmentservice.model.Customer;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -37,12 +36,12 @@ public class CustomerController {
     }
 
     @RequestMapping(produces = "application/hal+json")
-    public Resources<CustomerResource> getCustomers(){
+    public Resources<CustomerResource> getCustomers() {
         List<Link> links = new LinkedList<>();
         links.add(linkTo(methodOn(CustomerController.class).getCustomers()).withSelfRel());
         final List<Customer> customers = customerService.findAll();
         List<CustomerResource> customerResources = customerToResource(customers.toArray(new Customer[customers.size()]));
-        return new Resources<>(customerResources,links);
+        return new Resources<>(customerResources, links);
     }
 
     @RequestMapping(value = "/{customerId}", produces = "application/hal+json")
@@ -62,28 +61,42 @@ public class CustomerController {
         return new Resources<>(resources, link);
     }
 
-//    @RequestMapping(value = "/{customerId}/email/{emailId}", produces = "application/hal+json")
-//    public Resources<EmailResource> getEmail(@PathVariable(value = "customerId") Integer customerId,
-//                                             @PathVariable(value = "emailId") Integer emailId) {
-//        final Optional<Customer> customerOptional = Optional.of(customerService.getCustomer(customerId));
-//        final Link link = linkTo(methodOn(CustomerController.class).getEmail(customerId,emailId)).withSelfRel();
-//        return new Resources<>(emailToResource(customerOptional.get().getMailContainers()
-//                .stream()
-//                .filter(email -> email.getId().equals(emailId))
-//                .findFirst()
-//                .get()),link);
-//    }
+    @RequestMapping(value = "/{customerId}/email/{emailId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateEmail(@PathVariable(value = "customerId") Integer customerId,
+                                         @PathVariable(value = "emailId") Integer emailId,
+                                         @RequestBody Email email) {
+        return Optional.of(customerService.getCustomer(customerId))
+                .map(customer -> {
+                    email.setId(emailId);
+                    customer.addEmail(email);
+                    customer = customerService.updateCustomer(customer);
 
-    @RequestMapping(value = "/{customerId}/address/{addressId}", produces = "application/hal+json")
-    public Resources<AddressResource> getAddress(@PathVariable(value = "customerId") Integer customerId,
-                                             @PathVariable(value = "addressId") Integer addressId) {
-        final Optional<Customer> customerOptional = Optional.of(customerService.getCustomer(customerId));
-        final Link link = linkTo(methodOn(CustomerController.class).getAddress(customerId,addressId)).withSelfRel();
-        return new Resources<>(addressToResource(customerOptional.get().getAddress()
-                .stream()
-                .filter(address -> address.getId().equals(addressId))
-                .findFirst()
-                .get()),link);
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setLocation(ServletUriComponentsBuilder
+                            .fromCurrentRequest().path("/{id}")
+                            .buildAndExpand(email.getId()).toUri());
+
+                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+                }).get();
+    }
+
+    @RequestMapping(value = "/{customerId}/address/{addressId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> getAddress(@PathVariable(value = "customerId") Integer customerId,
+                                        @PathVariable(value = "addressId") Integer addressId,
+                                        @RequestBody Address address) {
+        return Optional.of(customerService.getCustomer(customerId))
+                .map(customer -> {
+                    address.setId(addressId);
+                    customer.addAddress(address);
+                    customer = customerService.updateCustomer(customer);
+
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setLocation(ServletUriComponentsBuilder
+                            .fromCurrentRequest().path("/{id}")
+                            .buildAndExpand(address.getId()).toUri());
+
+                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+                }).get();
     }
 
     //-- Private Methods
@@ -92,46 +105,33 @@ public class CustomerController {
     private List<CustomerResource> customerToResource(Customer... customers) {
         List<CustomerResource> resources = new ArrayList<>(customers.length);
         for (Customer customer : customers) {
-            Link selfLink = linkTo(methodOn(CustomerController.class).getCustomer(customer.getId())).withSelfRel();
-            resources.add(new CustomerResource(customer, selfLink));
+            List<Link> links = new ArrayList<>();
+            links.add(linkTo(methodOn(CustomerController.class).getCustomer(customer.getId())).withSelfRel());
+            for (Contract contract : customer.getContracts()) {
+
+                links.add(linkTo(methodOn(CustomerController.class).getContract(customer.getId(), contract.getId())).withRel("contracts"));
+            }
+            resources.add(new CustomerResource(customer, links));
         }
         return resources;
     }
 
 
-
-
-
     class CustomerResource extends ResourceSupport {
         private final Customer customer;
 
-        public CustomerResource(Customer customer, Link selfLink) {
+        public CustomerResource(Customer customer, List<Link> links) {
             this.customer = customer;
-            this.add(selfLink);
+            this.add(links);
         }
 
         public Customer getCustomer() {
             return this.customer;
         }
 
-
-        public List<ContractResource> getContracts() {
-            final List<Contract> contracts = this.customer.getContracts();
-            return contractToResource(contracts.toArray(new Contract[contracts.size()]));
-        }
-
-//        public List<EmailResource> getMailContainers() {
-//            final List<MailContainer> emails = this.customer.getMailContainers();
-//            return emailToResource(emails.toArray(new MailContainer[emails.size()]));
-//        }
-//
-        public List<AddressResource> getAddress() {
-            final List<Address> address = this.customer.getAddress();
-            return addressToResource(address.toArray(new Address[address.size()]));
-        }
     }
 
-    class ContractResource extends ResourceSupport{
+    class ContractResource extends ResourceSupport {
         private final Contract contract;
 
         public ContractResource(Contract contract, Link selfLink) {
@@ -153,35 +153,35 @@ public class CustomerController {
                     .filter(user -> user.getRoles() == User.Roles.customer)
                     .findFirst()
                     .get()
-                    .getId(),contract.getId())).withSelfRel();
-            resources.add(new ContractResource(contract,selfLink ));
+                    .getId(), contract.getId())).withSelfRel();
+            resources.add(new ContractResource(contract, selfLink));
         }
         return resources;
     }
-    
-//    class TransportResource extends ResourceSupport {
-//        private final Email email;
-//
-//        public TransportResource(Email email, Link selfLink) {
-//            this.email = email;
-//            this.add(selfLink);
-//        }
-//
-//        public Email getTransport() {
-//            return email;
-//        }
-//    }
 
-//    private List<TransportResource> emailToResource(Email... emails) {
-//        List<TransportResource> resources = new ArrayList<>(emails.length);
+    class EmailResource extends ResourceSupport {
+        private final Email email;
+
+        public EmailResource(Email email, Link selfLink) {
+            this.email = email;
+            this.add(selfLink);
+        }
+
+        public Email getTransport() {
+            return email;
+        }
+    }
+
+//    private List<EmailResource> emailToResource(Email... emails) {
+//        List<EmailResource> resources = new ArrayList<>(emails.length);
 //        for (Email email : emails) {
 //            Link selfLink = linkTo(methodOn(CustomerController.class).getEmail(email.getUser().getId(), email.getId())).withSelfRel();
-//            resources.add(new TransportResource(email,selfLink ));
+//            resources.add(new EmailResource(email, selfLink));
 //        }
 //        return resources;
 //    }
 
-    class AddressResource extends ResourceSupport{
+    class AddressResource extends ResourceSupport {
         private final Address address;
 
         public AddressResource(Address address, Link selfLink) {
@@ -194,13 +194,13 @@ public class CustomerController {
         }
     }
 
-    private List<AddressResource> addressToResource(Address... addresses) {
-        List<AddressResource> resources = new ArrayList<>(addresses.length);
-        for (Address address : addresses) {
-            Link selfLink = linkTo(methodOn(CustomerController.class).getAddress(address.getUser().getId(), address.getId())).withSelfRel();
-            resources.add(new AddressResource(address,selfLink ));
-        }
-        return resources;
-    }
+//    private List<AddressResource> addressToResource(Address... addresses) {
+//        List<AddressResource> resources = new ArrayList<>(addresses.length);
+//        for (Address address : addresses) {
+//            Link selfLink = linkTo(methodOn(CustomerController.class).getAddress(address.getUser().getId(), address.getId())).withSelfRel();
+//            resources.add(new AddressResource(address,selfLink ));
+//        }
+//        return resources;
+//    }
 
 }

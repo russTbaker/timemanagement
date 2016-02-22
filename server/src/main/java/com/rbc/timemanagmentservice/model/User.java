@@ -59,19 +59,46 @@ public abstract class User {
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<Contract> contracts = new ArrayList<>();
 
-    @JsonIgnore
-    public void addContract(Contract contract){
-        this.contracts.add(contract);
-        if(!contract.getUsers().contains(this)){
-            contract.addUser(this);
-        }
-    }
+
 
     @JsonIgnore
     public void addAddress(Address address){
         if (!this.address.contains(address)) {
             this.address.add(address);
             address.setUser(this);
+        } else {
+            this.address.remove(address);
+            this.address.add(address);
+        }
+    }
+
+    @JsonIgnore
+    public void addEmail(Email email){
+        if (!this.emails.contains(email)) {
+            this.emails.add(email);
+            email.setUser(this);
+        } else {
+            this.emails.remove(email);
+            this.emails.add(email);
+        }
+    }
+
+    @JsonIgnore
+    public void addPhone(Phone phone){
+        if (!this.phones.contains(phone)) {
+            this.phones.add(phone);
+            phone.setUser(this);
+        } else {
+            this.phones.remove(phone);
+            this.phones.add(phone);
+        }
+    }
+
+    @JsonIgnore
+    public void addContract(Contract contract){
+        this.contracts.add(contract);
+        if(!contract.getUsers().contains(this)){
+            contract.addUser(this);
         }
     }
 

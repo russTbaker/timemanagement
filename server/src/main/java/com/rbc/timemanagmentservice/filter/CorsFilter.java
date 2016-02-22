@@ -20,11 +20,11 @@ public class CorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
 
         if (request.getMethod().equals("OPTIONS")) {
-            response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
             response.setHeader("Access-Control-Max-Age", "3600");
-            response.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+            response.setHeader("Access-Control-Allow-Headers", "Accepts, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+            response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
         }
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:8888");
+        response.setHeader("Access-Control-Allow-Origin", "*");
         try {
             chain.doFilter(req, response);
         } catch (IOException | ServletException e) {

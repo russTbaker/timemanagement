@@ -157,10 +157,11 @@ public class EmployeeServiceTest {
     public void whenAddingAddressToEmployeeExpectAddressAdded() throws Exception {
         // Assemble
         Employee employee = createEmployee();
-        Address address = startupUtility.getAddress(employee);
+        Address address = startupUtility.getAddress();
+        employee.addAddress(address);
 
         // Act
-        employeeService.addAddressToEmployee(employee.getId(),address);
+        employeeService.updateEmployee(employee);
 
         // Assert
         Employee result = employeeService.findEmployee(employee.getId());

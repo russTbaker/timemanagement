@@ -61,4 +61,20 @@ public class Email {
     public void setEmailType(EmailTypes emailType) {
         this.emailType = emailType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Email)) return false;
+
+        Email email = (Email) o;
+
+        return id != null ? id.equals(email.id) : email.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
