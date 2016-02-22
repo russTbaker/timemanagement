@@ -99,6 +99,27 @@ public class CustomerController {
                 }).get();
     }
 
+
+
+    @RequestMapping(value = "/{customerId}/phones/{phoneId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> getPhones(@PathVariable(value = "customerId") Integer customerId,
+                                        @PathVariable(value = "phoneId") Integer phoneId,
+                                        @RequestBody Phone phone) {
+        return Optional.of(customerService.getCustomer(customerId))
+                .map(customer -> {
+                    phone.setId(phoneId);
+                    customer.addPhone(phone);
+                    customer = customerService.updateCustomer(customer);
+
+                    HttpHeaders httpHeaders = new HttpHeaders();
+                    httpHeaders.setLocation(ServletUriComponentsBuilder
+                            .fromCurrentRequest().path("/{id}")
+                            .buildAndExpand(phone.getId()).toUri());
+
+                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+                }).get();
+    }
+
     //-- Private Methods
 
 

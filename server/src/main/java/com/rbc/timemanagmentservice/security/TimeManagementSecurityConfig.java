@@ -4,13 +4,15 @@ import com.rbc.timemanagmentservice.filter.CsrfHeaderFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.csrf.CsrfFilter;
 
 /**
  * Created by russbaker on 2/22/16.
  */
-@Configuration
+//@Configuration
+@EnableWebSecurity
 public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Override

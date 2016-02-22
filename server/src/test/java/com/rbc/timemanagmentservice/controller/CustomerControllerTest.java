@@ -4,6 +4,7 @@ import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Address;
 import com.rbc.timemanagmentservice.model.Customer;
 import com.rbc.timemanagmentservice.model.Email;
+import com.rbc.timemanagmentservice.model.Phone;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.format.DateTimeFormat;
@@ -169,13 +170,34 @@ public class CustomerControllerTest {
         final String street1 = "a new value";
         address.setStreet1(street1);
         customer.addAddress(address);
-//        customerService.updateCustomer(customer);
 
         mockMvc.perform(put(ROOT_URI + "/" +customer.getId() + "/address/" + address.getId())
                 .session(createMockHttpSessionForPutPost())
                 .contentType(contentType)
                 .accept(contentType)
                 .content(json(address)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        // Act/Assert
+        assertCustomerCorrect();
+
+    }
+
+    @Test
+    public void whenUpdatingCustomersPhone_expectPhoneUpdated() throws Exception {
+        // Assemble
+        customer = customerService.getCustomer(customer.getId());
+        final Phone phone = customer.getPhones().get(0);
+        final String street1 = "a new value";
+        phone.setPhone(street1);
+        customer.addPhone(phone);
+
+        mockMvc.perform(put(ROOT_URI + "/" +customer.getId() + "/phones/" + phone.getId())
+                .session(createMockHttpSessionForPutPost())
+                .contentType(contentType)
+                .accept(contentType)
+                .content(json(phone)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
