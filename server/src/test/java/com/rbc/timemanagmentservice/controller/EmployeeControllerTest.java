@@ -54,10 +54,6 @@ public class EmployeeControllerTest extends ControllerTests{
     final String employeeResourceRoot = "$._embedded.employeeResources[0]";
     final String timesheetResourceRoot = "$._embedded.timeSheetResources[0]";
     final String timesheetEntryResourceRoot = "$._embedded.timeSheetEntryResources[0]";
-    final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-
-
-    private HttpMessageConverter mappingJackson2HttpMessageConverter;
 
 
     @Autowired
@@ -69,15 +65,6 @@ public class EmployeeControllerTest extends ControllerTests{
     @Autowired
     private EmployeeService employeeService;
 
-    @Autowired
-    void setConverters(HttpMessageConverter<?>[] converters) {
-
-        this.mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream().filter(
-                hmc -> hmc instanceof MappingJackson2HttpMessageConverter).findAny().get();
-
-        Assert.assertNotNull("the JSON message converter must not be null",
-                this.mappingJackson2HttpMessageConverter);
-    }
 
     private Employee employee;
 
@@ -207,7 +194,7 @@ public class EmployeeControllerTest extends ControllerTests{
         mockMvc.perform(get(ROOT_URI + employee.getId() + "/timesheet" ))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath(timesheetResourceRoot + ".timeSheetEntries[0].timeSheetEntry.date",
-                        is(fmt.print(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getDate()))))
+                        is(FMT.print(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getDate()))))
                 .andExpect(jsonPath(timesheetResourceRoot + ".timeSheetEntries[0].timeSheetEntry.hours",
                         is(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours())))
                 .andExpect(jsonPath(timesheetResourceRoot + ".timeSheetEntries[0].timeSheetEntry.contract",
@@ -247,19 +234,6 @@ public class EmployeeControllerTest extends ControllerTests{
                 .andExpect(jsonPath(timesheetEntryResourceRoot + ".timeSheetEntry.hours",
                         is(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours())))
                 .andExpect(jsonPath(timesheetEntryResourceRoot + ".timeSheetEntry.date",
-                        is(fmt.print(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getDate()))));
-    }
-
-
-
-    //------- Private Methods
-
-
-
-    protected String json(Object o) throws IOException {
-        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
-        this.mappingJackson2HttpMessageConverter.write(
-                o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
-        return mockHttpOutputMessage.getBodyAsString();
+                        is(FMT.print(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getDate()))));
     }
 }

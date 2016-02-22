@@ -24,4 +24,8 @@ public class ContractService {
     public Contract saveContract(final Contract contract){
         return contractRepository.save(contract);
     }
+
+    public Contract getContract(Integer id){
+        return contractRepository.findOne(id);
+    }
 }

@@ -66,15 +66,6 @@ public class CustomerControllerTest extends ControllerTests{
     private CustomerService customerService;
 
 
-    @Autowired
-    void setConverters(HttpMessageConverter<?>[] converters) {
-
-        this.mappingJackson2HttpMessageConverter = Arrays.asList(converters).stream().filter(
-                hmc -> hmc instanceof MappingJackson2HttpMessageConverter).findAny().get();
-
-        assertNotNull("the JSON message converter must not be null",
-                this.mappingJackson2HttpMessageConverter);
-    }
 
     @Autowired
     private StartupUtility startupUtility;
@@ -82,13 +73,8 @@ public class CustomerControllerTest extends ControllerTests{
     @Resource
     private FilterChainProxy springSecurityFilterChain;
 
-    @Autowired
-    private MockServletContext servletContext;
 
     private Customer customer;
-
-
-
 
 
     @Before
@@ -241,12 +227,5 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(jsonPath(customerResourceRoot + "customer.address[0].city", is(customer.getAddress().get(0).getCity())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.address[0].state", is(customer.getAddress().get(0).getState())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.address[0].zip", is(customer.getAddress().get(0).getZip())));
-    }
-
-    protected String json(Object o) throws IOException {
-        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
-        this.mappingJackson2HttpMessageConverter.write(
-                o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
-        return mockHttpOutputMessage.getBodyAsString();
     }
 }
