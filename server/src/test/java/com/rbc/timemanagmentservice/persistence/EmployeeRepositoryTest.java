@@ -1,20 +1,21 @@
 package com.rbc.timemanagmentservice.persistence;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.Email;
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.TimeSheet;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Transport;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static junit.framework.TestCase.*;
 
@@ -24,7 +25,7 @@ import static junit.framework.TestCase.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
-@Transactional
+@Transactional(propagation = Propagation.REQUIRED)
 public class EmployeeRepositoryTest {
 
     @Autowired
@@ -32,6 +33,7 @@ public class EmployeeRepositoryTest {
 
     @Autowired
     private StartupUtility startupUtility;
+
 
     @Test
     public void whenCreatingEmployee_expectEmployeeFound() throws Exception {
@@ -46,9 +48,16 @@ public class EmployeeRepositoryTest {
     @Test
     public void whenGettingEmployee_expectFullyHydratedEmployee() throws Exception {
 
-        Employee employee = startupUtility.init();
+        final Contract contract = new Contract();
+        final Employee employee = new Employee();
+        employee.addContract(contract);
+        Employee saved = employeeRepository.save(employee);
+        final TimeSheet timesheet = new TimeSheet(saved);
+        timesheet.getTimeSheetEntries().add(new TimeSheetEntry(timesheet,contract));
+        saved.getTimesheets().add(timesheet);
+        saved.setEmails(Arrays.asList(new Transport()));
 
-        Employee result = employeeRepository.findOne(employee.getId());
+        Employee result = employeeRepository.findOne(saved.getId());
 
         // Assert
         assertFalse("Timesheet list is empty",CollectionUtils.isEmpty(result.getTimesheets()));
@@ -66,7 +75,7 @@ public class EmployeeRepositoryTest {
         employee.setLastName("Baker");
         employee.setUsername("admin");
         employee.setPassword("password");
-        employee.setEmails(Arrays.asList(new Email(), new Email()));
+        employee.setEmails(Arrays.asList(new Transport(), new Transport()));
         employee.setRoles(User.Roles.employee);
 
         // Act

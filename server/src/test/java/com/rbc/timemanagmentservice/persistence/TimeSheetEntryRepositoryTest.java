@@ -73,7 +73,7 @@ public class TimeSheetEntryRepositoryTest {
 
     public Employee getEmployee() {
         final Employee employee = new Employee();
-        employee.getContracts().add(getContract());
+        employee.addContract(getContract());
         return employee;
     }
 

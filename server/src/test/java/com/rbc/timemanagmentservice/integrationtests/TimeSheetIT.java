@@ -2,6 +2,7 @@ package com.rbc.timemanagmentservice.integrationtests;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Transport;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.CustomerRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
@@ -66,7 +67,7 @@ public class TimeSheetIT {
         // Assert
         Contract result = contractRepository.findOne(contract.getId());
         Employee employeeResult = employeeRepository.findOne(employee.getId());
-        assertTrue("Employee not added to contract",result.getEmployees().contains(employee));
+        assertTrue("Employee not added to contract",result.getUsers().contains(employee));
         assertTrue("Contract not associated to employee",employeeResult.getContracts().contains(contract));
 
     }
@@ -97,7 +98,7 @@ public class TimeSheetIT {
     private Contract assembleContract() {
         Contract contract = new Contract();
         contract.setTerms(Contract.Terms.net30);
-        contract.setCustomer(getCustomer());
+        contract.getUsers().add(getCustomer());
         contract.setRate(87.5);
         contract.setValue(90000d);
         contract.setStartDate(new DateTime().minusDays(2));
@@ -115,9 +116,9 @@ public class TimeSheetIT {
         return customerRepository.save(customer);
     }
 
-    private List<Email> getEmails() {
-        List<Email> retVal = new ArrayList<>();
-        Email contactEmail = new Email();
+    private List<Transport> getEmails() {
+        List<Transport> retVal = new ArrayList<>();
+        Transport contactEmail = new Transport();
         contactEmail.setEmail("jonathan@z2m4.net");
         retVal.add(contactEmail);
         return retVal;
@@ -130,15 +131,15 @@ public class TimeSheetIT {
         employee.setRoles(User.Roles.employee);
         employee.setUsername("username");
         employee.setPassword("password");
-        Email email = new Email();
+        Transport email = new Transport();
         email.setEmail("russabaker@yahoo.com");
         employee.setEmails(Arrays.asList(email));
         return employeeRepository.save(employee);
     }
 
     private void addEmployeeToContract(Employee employee, Contract contract){
-        employee.getContracts().add(contract);
-        contract.getEmployees().add(employee);
+        employee.addContract(contract);
+        contract.getUsers().add(employee);
         contractRepository.save(contract);
     }
 

@@ -3,7 +3,7 @@ package com.rbc.timemanagmentservice.controller;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Customer;
-import com.rbc.timemanagmentservice.persistence.ContractRepository;
+import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
@@ -22,11 +22,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @SpringApplicationConfiguration(classes = TimemanagementServiceApplication.class)
 @WebAppConfiguration
 @Profile({"default", "test"})
+@Transactional
 public class CustomerControllerTest {
     public static final String ROOT_URI = "/hydrated/customer/";
     private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
@@ -60,7 +61,7 @@ public class CustomerControllerTest {
     private CustomerService customerService;
 
     @Autowired
-    private ContractRepository contractRepository;
+    private ContractService contractService;
 
     @Autowired
     void setConverters(HttpMessageConverter<?>[] converters) {
@@ -72,15 +73,23 @@ public class CustomerControllerTest {
                 this.mappingJackson2HttpMessageConverter);
     }
 
+    @Autowired
+    private StartupUtility startupUtility;
+
+    private Customer customer;
+
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
+//        customer = assembleCustomer();
+        startupUtility.init();
+        customer = new Customer();
+        customer.setId(1);
+        customer = customerService.getCustomer(1);
     }
 
     @Test
     public void whenGettingAllCustomers_expectAllCustomersReturned() throws Exception {
-        // Assemble
-        Customer customer = assembleCustomer();
 
         // Act/Assert
         mockMvc.perform(get("/hydrated/customer/"))
@@ -90,34 +99,19 @@ public class CustomerControllerTest {
                 .andExpect(jsonPath(customerResourceRoot + "customer.firstName", is(customer.getFirstName())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.lastName", is(customer.getLastName())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contactName", is(customer.getContactName())))
-                .andExpect(jsonPath(customerResourceRoot + "contracts[0].value", is(customer.getContracts().get(0).getValue())))
-                .andExpect(jsonPath(customerResourceRoot + "contracts[0].startDate", is(fmt.print(customer.getContracts().get(0).getStartDate()))))
-                .andExpect(jsonPath(customerResourceRoot + "contracts[0].endDate", is(fmt.print(customer.getContracts().get(0).getEndDate()))))
-                .andExpect(jsonPath(customerResourceRoot + "contracts[0].rate", is(customer.getContracts().get(0).getRate())))
-                .andExpect(jsonPath(customerResourceRoot + "contracts[0].terms", is(customer.getContracts().get(0).getTerms().name())))
+                .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.value", is(customer.getContracts().get(0).getValue())))
+                .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.startDate", is(fmt.print(customer.getContracts().get(0).getStartDate()))))
+                .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.endDate", is(fmt.print(customer.getContracts().get(0).getEndDate()))))
+                .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.rate", is(customer.getContracts().get(0).getRate())))
+                .andExpect(jsonPath(customerResourceRoot + "contracts[0].contract.terms", is(customer.getContracts().get(0).getTerms().name())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailAddress.", is(customer.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailType.", is(customer.getEmails().get(0).getEmailType().name())))
-                .andExpect(jsonPath(customerResourceRoot + "customer.addresses[0].street1", is(customer.getAddresses().get(0).getStreet1())))
-                .andExpect(jsonPath(customerResourceRoot + "customer.addresses[0].city", is(customer.getAddresses().get(0).getCity())))
-                .andExpect(jsonPath(customerResourceRoot + "customer.addresses[0].state", is(customer.getAddresses().get(0).getState())))
-                .andExpect(jsonPath(customerResourceRoot + "customer.addresses[0].zip", is(customer.getAddresses().get(0).getZip())));
+                .andExpect(jsonPath(customerResourceRoot + "address[0].address.street1", is(customer.getAddress().get(0).getStreet1())))
+                .andExpect(jsonPath(customerResourceRoot + "address[0].address.city", is(customer.getAddress().get(0).getCity())))
+                .andExpect(jsonPath(customerResourceRoot + "address[0].address.state", is(customer.getAddress().get(0).getState())))
+                .andExpect(jsonPath(customerResourceRoot + "address[0].address.zip", is(customer.getAddress().get(0).getZip())));
         // value=87999.0, startDate=2016-02-19, endDate=2016-08-19, rate=87.5, terms=net15
 
     }
 
-    private Customer assembleCustomer() {
-//        Customer customer = StartupUtility.getCustomer();
-//        List<Contract> contract = Collections.singletonList(StartupUtility.getContractForCustomer(customer));
-//        customer.setContracts(Arrays.asList(new Contract()));
-        Customer customer = customerService.createCustomer(new Customer());
-        Contract contract = new Contract();
-        contract.setStartDate(new DateTime());
-        contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setValue(9000000d);
-        contract.setRate(87.5);
-        contract.setTerms(Contract.Terms.net45);
-        contractRepository.save(contract);
-        customerService.addContractToCustomer(customer.getId(),contract.getId());
-        return customer;
-    }
 }

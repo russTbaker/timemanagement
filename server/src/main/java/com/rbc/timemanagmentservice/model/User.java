@@ -1,17 +1,18 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.ToString;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by rbaker on 2/6/16.
  */
-@Data
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="USER_TYPE")
@@ -25,6 +26,7 @@ import java.util.List;
                 @ConversionValue(objectValue = "guest", dataValue = "guest")
         }
 )
+@Data
 public abstract class User {
     public enum Roles {
         administrator,
@@ -35,6 +37,7 @@ public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "USER_ID")
     protected Integer id;
 
 
@@ -42,7 +45,36 @@ public abstract class User {
     private Roles roles;
     private String firstName;
     private String lastName;
+    private String dba;
+
     @OneToMany(cascade = CascadeType.ALL)
-    @JsonProperty(value = "emails")
-    private List<Email> emails;
+    private List<Address> address = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Transport> emails = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Phone> phones = new ArrayList<>();
+
+
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    private List<Contract> contracts = new ArrayList<>();
+
+    @JsonIgnore
+    public void addContract(Contract contract){
+        this.contracts.add(contract);
+        if(!contract.getUsers().contains(this)){
+            contract.addUser(this);
+        }
+    }
+
+    @JsonIgnore
+    public void addAddress(Address address){
+        if (!this.address.contains(address)) {
+            this.address.add(address);
+            address.setUser(this);
+        }
+    }
+
+
 }

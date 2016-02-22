@@ -1,6 +1,5 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
@@ -15,7 +14,6 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@ToString(exclude = "customer")
 public class Contract {
     public enum Terms{
         net15,
@@ -24,11 +22,8 @@ public class Contract {
     }
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "CONTRACT_ID")
     private Integer id;
-
-    @ManyToOne//(targetEntity = Customer.class)
-//    @JoinColumn//(name="customer_id")
-    private Customer customer;
 
     private Double value;
 
@@ -46,17 +41,29 @@ public class Contract {
     @OneToMany
     private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "USER_CONTRACT",
+    joinColumns  =@JoinColumn(name = "USER_ID"),
+            inverseJoinColumns=@JoinColumn(name="CONTRACT_ID"))
     @JsonIgnore
-    private List<Employee> employees = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
+
+    public void addUser(User user){
+        if(!getUsers().contains(user)){
+            getUsers().add(user);
+        }
+//        if(!user.getContracts().contains(this)){
+//            user.getContracts().add(this);
+//        }
+    }
 
 
     public List<TimeSheetEntry> getTimeSheetEntries() {
         return timeSheetEntries;
     }
 
-    public List<Employee> getEmployees() {
-        return employees;
+    public List<User> getUsers() {
+        return users;
     }
 
     public Integer getId() {
@@ -65,14 +72,6 @@ public class Contract {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
     }
 
     public Double getValue() {
@@ -123,7 +122,6 @@ public class Contract {
         Contract contract = (Contract) o;
 
         if (id != null ? !id.equals(contract.id) : contract.id != null) return false;
-        if (customer != null ? !customer.equals(contract.customer) : contract.customer != null) return false;
         if (value != null ? !value.equals(contract.value) : contract.value != null) return false;
         if (startDate != null ? !startDate.equals(contract.startDate) : contract.startDate != null) return false;
         if (endDate != null ? !endDate.equals(contract.endDate) : contract.endDate != null) return false;
@@ -131,21 +129,20 @@ public class Contract {
         if (terms != contract.terms) return false;
         if (timeSheetEntries != null ? !timeSheetEntries.equals(contract.timeSheetEntries) : contract.timeSheetEntries != null)
             return false;
-        return employees != null ? employees.equals(contract.employees) : contract.employees == null;
+        return users != null ? users.equals(contract.users) : contract.users == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (customer != null ? customer.hashCode() : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
         result = 31 * result + (rate != null ? rate.hashCode() : 0);
         result = 31 * result + (terms != null ? terms.hashCode() : 0);
         result = 31 * result + (timeSheetEntries != null ? timeSheetEntries.hashCode() : 0);
-        result = 31 * result + (employees != null ? employees.hashCode() : 0);
+        result = 31 * result + (users != null ? users.hashCode() : 0);
         return result;
     }
 }

@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertNotNull;
@@ -18,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
+@Profile(value = {"default","test"})
 public class ContractRepositoryTest {
 
     @Autowired
@@ -39,7 +41,7 @@ public class ContractRepositoryTest {
         getContract();
 
         // Assert
-        assertNotNull("No contract returned",contractRepository.findByCustomerName(CONTACT_NAME));
+        assertNotNull("No contract returned",contractRepository.findByUsersDba(CONTACT_NAME));
 
     }
 
@@ -58,7 +60,7 @@ public class ContractRepositoryTest {
         contract.setEndDate(new DateTime().plusMonths(6));
         contract.setRate(87.5);
         contract.setTerms(Contract.Terms.net15);
-        contract.setCustomer(getCustomer());
+        contract.getUsers().add(getCustomer());
         contract.setValue(87999D);
         return contractRepository.save(contract);
     }

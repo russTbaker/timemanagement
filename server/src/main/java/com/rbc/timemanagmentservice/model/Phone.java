@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ public class Phone {
     private Integer id;
     private String phone;
 
-    @ManyToOne(targetEntity = Customer.class)
-    private Customer customer;
+    @ManyToOne
+    @JsonIgnore
+    private User user;
 }

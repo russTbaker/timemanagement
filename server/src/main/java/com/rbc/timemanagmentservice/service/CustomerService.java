@@ -42,14 +42,12 @@ public class CustomerService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void addContractToCustomer(Integer customerId, Integer contractId) {
-//        final Customer cust = getCustomer(customer.getId());
-//        contract.getUsers().add(cust);
-//        cust.addContract(contract);
-//        contractRepository.save(contract);
-//        return customerRepository.save(cust);
         final Customer customer = customerRepository.findOne(customerId);
-        final Contract contract = contractRepository.findOne(contractId);
-                contract.addUser(customer);
+        Contract contract = contractRepository.findOne(contractId);
+        if(contract == null){
+            contract = contractRepository.save(contract);
+        }
+        customer.addContract(contract);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

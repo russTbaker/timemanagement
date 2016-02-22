@@ -49,6 +49,65 @@ public class EmployeeServiceTest {
     @Autowired
     private StartupUtility startupUtility;
 
+    @Test(expected = NotFoundException.class)
+    public void whenFindingAllEmployeesAndNoneExist_expectNotFoundException() throws Exception {
+        // Assemble
+        employeeRepository.deleteAll();
+        timeSheetRepository.deleteAll();
+        timeSheetEntryRepository.deleteAll();
+
+        // Act
+        employeeService.findAll(1, 20);
+
+    }
+
+    @Test
+    public void whenFindingAllEmployees_expectAllEmployeesFound() throws Exception {
+        // Assemble
+        Employee employee = createEmployee();
+        assertNotNull("No employee created", employee);
+
+        // Act
+        List<Employee> results = employeeService.findAll(null, null);
+
+        // Assert
+        assertFalse("No employees returned", CollectionUtils.isEmpty(results));
+        assertTrue("Employee not found", results.contains(employee));
+
+    }
+
+    @Test
+    public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
+        // Assemble
+        Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
+
+        // TODO: change to employee
+        Contract contractForEmployee = startupUtility.getContractForEmployee(employee);
+        Contract contract = contractRepository.save(contractForEmployee);
+        employeeService.createTimeSheet(employee.getId(), contractForEmployee.getId());
+        TimeSheet timesheet = employeeService.findEmployee(employee.getId()).getTimesheets().get(0);
+
+        // Act
+        TimeSheet result = employeeService.getLatestTimeSheet(employee.getId());
+
+        // Assert
+        assertNotNull("No timesheets returned", result);
+        assertTrue("Wrong timesheet", timesheet.equals(result));
+        for(TimeSheetEntry timeSheetEntry:result.getTimeSheetEntries()){
+            assertNotNull("No Id",timeSheetEntry.getId());
+            assertNotNull("No Contract",timeSheetEntry.getContract());
+            assertNull("Hours populated",timeSheetEntry.getHours());
+            assertNotNull("No date",timeSheetEntry.getDate());
+            assertNotNull("No timesheet",timeSheetEntry.getTimeSheet());
+        }
+
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {
+        // Act
+        employeeService.getLatestTimeSheet(0);
+    }
 
     @Test
     public void whenCreatingNewEmployee_expectNoContractsOrTimeSheetsAssociated() throws Exception {
@@ -94,6 +153,24 @@ public class EmployeeServiceTest {
         assertNotNull("Password is empty", updated.getPassword());
     }
 
+    @Test
+    public void whenAddingAddressToEmployeeExpectAddressAdded() throws Exception {
+        // Assemble
+        Employee employee = createEmployee();
+        Address address = startupUtility.getAddress(employee);
+
+        // Act
+        employeeService.addAddressToEmployee(employee.getId(),address);
+
+        // Assert
+        Employee result = employeeService.findEmployee(employee.getId());
+        final List<Address> addresses = result.getAddress();
+        assertFalse("No addresses added",CollectionUtils.isEmpty(addresses));
+        for(Address addr:addresses){
+            assertNotNull("No Id",addr.getId());
+        }
+
+    }
 
     @Test
     public void whenAddingContractToEmployee_expectContractAdded() throws Exception {
@@ -102,7 +179,7 @@ public class EmployeeServiceTest {
         Contract contract = contractRepository.save(new Contract());
 
         // Act
-        employeeService.addEmployeeToContract(employee.getId(), contract.getId());
+        employeeService.addEmployeeToContract(employee.getId(), contract);
 
         // Assert
         Employee result = employeeService.findEmployee(employee.getId());
@@ -111,12 +188,28 @@ public class EmployeeServiceTest {
     }
 
     @Test
+    public void whenAddingDetatchedContractToEmployee_expectContractAded() throws Exception {
+        // Assemble
+        Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
+        Contract contract = new Contract();
+
+        // Act
+        employeeService.addEmployeeToContract(employee.getId(), contract);
+
+        // Assert
+        Employee result = employeeService.findEmployee(employee.getId());
+        final List<Contract> contracts = result.getContracts();
+        assertFalse("No contract associated with employee", CollectionUtils.isEmpty(contracts));
+
+    }
+
+    @Test
     public void whenAddingTimeSheetToEmployee_expectTimesheetAdded() throws Exception {
         // Assemble
         Employee employee = createEmployee();
         Contract contract = contractRepository.save(new Contract());
 
-        employeeService.addEmployeeToContract(employee.getId(), contract.getId());
+        employeeService.addEmployeeToContract(employee.getId(), contract);
 
         // Act
         employeeService.createTimeSheet(employee.getId(), contract.getId());
@@ -135,7 +228,7 @@ public class EmployeeServiceTest {
         // Assemble
         Employee employee = createEmployee();
         Contract contract = contractRepository.save(new Contract());
-        employeeService.addEmployeeToContract(employee.getId(), contract.getId());
+        employeeService.addEmployeeToContract(employee.getId(), contract);
         employeeService.createTimeSheet(employee.getId(), contract.getId());
         TimeSheet timesheet = employeeService.findEmployee(employee.getId()).getTimesheets().get(0);
         TimeSheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
@@ -150,58 +243,7 @@ public class EmployeeServiceTest {
 
     }
 
-    @Test(expected = NotFoundException.class)
-    public void whenFindingAllEmployeesAndNoneExist_expectNotFoundException() throws Exception {
-        // Assemble
-        employeeRepository.deleteAll();
-        timeSheetRepository.deleteAll();
-        timeSheetEntryRepository.deleteAll();
 
-        // Act
-        employeeService.findAll(1, 20);
-
-    }
-
-    @Test
-    public void whenFindingAllEmployees_expectAllEmployeesFound() throws Exception {
-        // Assemble
-        Employee employee = createEmployee();
-        assertNotNull("No employee created", employee);
-
-        // Act
-        List<Employee> results = employeeService.findAll(null, null);
-
-        // Assert
-        assertFalse("No employees returned", CollectionUtils.isEmpty(results));
-        assertTrue("Employee not found", results.contains(employee));
-
-    }
-
-    @Test
-    public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
-        // Assemble
-        Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
-
-        // TODO: change to employee
-        Contract contractForEmployee = startupUtility.getContractForEmployee(employee);
-        Contract contract = contractRepository.save(contractForEmployee);
-        employeeService.createTimeSheet(employee.getId(), contractForEmployee.getId());
-        TimeSheet timesheet = employeeService.findEmployee(employee.getId()).getTimesheets().get(0);
-
-        // Act
-        TimeSheet result = employeeService.getLatestTimeSheet(employee.getId());
-
-        // Assert
-        assertNotNull("No timesheets returned", result);
-        assertTrue("Wrong timesheet", timesheet.equals(result));
-
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {
-        // Act
-        employeeService.getLatestTimeSheet(0);
-    }
 
     //--------------- Private Methods
 
@@ -211,10 +253,14 @@ public class EmployeeServiceTest {
     }
 
     private Employee createEmployee() {
-        Employee employee = startupUtility.getEmployee();
+//        Employee employee = startupUtility.getEmployee();
+        Employee employee = new Employee();
+        employee.setFirstName("Russ");
+        employee.setLastName("Baker");
         employee.setUsername("username");
         employee.setPassword("password");
-        employee = employeeService.createEmployee(employee);
-        return employee;
+        employee.setRoles(User.Roles.employee);
+        employee.setDba("Russ Baker");
+        return employeeService.createEmployee(employee);
     }
 }

@@ -30,6 +30,7 @@ public class TimeSheetEntry {
 
     @JsonIgnore
     @ManyToOne
+    @JoinColumn(name = "timesheetId")
     private TimeSheet timeSheet;
 
     @ManyToOne

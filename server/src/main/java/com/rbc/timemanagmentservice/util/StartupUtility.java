@@ -1,11 +1,15 @@
 package com.rbc.timemanagmentservice.util;
 
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.*;
+import com.rbc.timemanagmentservice.model.Transport;
+import com.rbc.timemanagmentservice.persistence.ContractRepository;
+import com.rbc.timemanagmentservice.service.CustomerService;
+import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
@@ -15,103 +19,131 @@ import java.util.Arrays;
 @Component
 public class StartupUtility {
 
-    private static EmployeeRepository employeeRepository;
 
-    private static ContractRepository contractRepository;
+    private final EmployeeService employeeService;
+    private final CustomerService customerService;
+    private final ContractRepository contractRepository;
 
-    private static CustomerRepository customerRepository;
-
-    private static TimeSheetRepository timeSheetRepository;
-
-    private static TimeSheetEntryRepository timeSheetEntryRepository;
 
     @Autowired
-    public StartupUtility(EmployeeRepository employeeRepository, ContractRepository contractRepository,
-                          CustomerRepository customerRepository, TimeSheetRepository timeSheetRepository,
-                          TimeSheetEntryRepository timeSheetEntryRepository) {
-        this.employeeRepository = employeeRepository;
+    public StartupUtility(EmployeeService employeeService, CustomerService customerService, ContractRepository contractRepository) {
+        this.employeeService = employeeService;
+        this.customerService = customerService;
         this.contractRepository = contractRepository;
-        this.customerRepository = customerRepository;
-        this.timeSheetRepository = timeSheetRepository;
-        this.timeSheetEntryRepository = timeSheetEntryRepository;
     }
 
     public static final String CONTACT_NAME = "Jonathan Bein";
 
-    public Employee init(){
-        final Employee employee = getEmployee();
-        final Contract contract = getContract();
-        employee.getTimesheets().add(getTimeSheet(employee, contract));
-        employee.getContracts().add(contract);
-        employeeRepository.save(employee);
-        return employee;
+    @Transactional(propagation = Propagation.REQUIRED)
+    public  Employee init(){
+        // Set up business relationship
+        Customer customer = customerService.createCustomer(getCustomer());
+        Contract contract = getContractForCustomer(customer);
+
+        // Set up employee with job
+        Employee employee = employeeService.createEmployee(getEmployee());
+        employeeService.createTimeSheet(employee.getId(),contract.getId());
+        return employeeService.findEmployee(employee.getId());
     }
 
-    public static Contract getContract() {
+    public  Contract getContractForCustomer(User customer) {
         Contract contract = new Contract();
         contract.setStartDate(new DateTime());
         contract.setEndDate(new DateTime().plusMonths(6));
         contract.setRate(87.5);
         contract.setTerms(Contract.Terms.net15);
         contract.setValue(87999D);
-
-        final Customer customer = getCustomer();
-        contract.setCustomer(customer);
-
-        customer.getContracts().add(contract);//contractRepository.save(contract));
-        customerRepository.save(customer);
-        return customer.getContracts().get(0);
+        contract = contractRepository.save(contract);
+        customerService.addContractToCustomer(customer.getId(),contract.getId());
+        return contract;
     }
 
-    public static Employee getEmployee() {
+    public  Contract getContractForEmployee(User employee) {
+        Contract contract = new Contract();
+        contract.setStartDate(new DateTime());
+        contract.setEndDate(new DateTime().plusMonths(6));
+        contract.setRate(87.5);
+        contract.setTerms(Contract.Terms.net15);
+        contract.setValue(87999D);
+        contract = contractRepository.save(contract);
+        employeeService.addEmployeeToContract(employee.getId(),contract);
+        return contract;
+    }
+
+
+    public  Employee getEmployee() {
         Employee employee = new Employee();
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
         employee.setUsername("admin");
         employee.setPassword("password");
-        employee.setEmails(Arrays.asList(getEmail(), getEmail()));
+        employee.setDba("RussBaker");
         employee.setRoles(User.Roles.employee);
-        return employeeRepository.save(employee);
+        employee.setEmails(Arrays.asList(getEmail(employee)));
+        employee.setPhones(Arrays.asList(getPhone(employee)));
+        employee.setAddress(Arrays.asList(getAddress(employee)));
+        return employee;
     }
 
 
-    public static Customer getCustomer() {
+    public  Customer getCustomer() {
         Customer customer = new Customer();
         customer.setName("TEST");
         customer.setFirstName("Jonathan");
         customer.setLastName("Bein");
-        customer.setName("Z2M4");
+        customer.setDba("Z2M4");
         customer.setContactName(CONTACT_NAME);
         customer.setRoles(User.Roles.customer);
-        customer.setEmails(Arrays.asList(getEmail(),getEmail()));
-        return customerRepository.save(customer);
+        customer.setEmails(Arrays.asList(getEmail(customer)));
+        customer.setAddress(Arrays.asList(getAddress(customer)));
+        customer.setPhones(Arrays.asList(getPhone(customer)));
+        return customer;
+//        return customerRepository.save(customer);
     }
 
-    private static Email getEmail(){
-        Email email = new Email();
-        email.setEmail("jonathan@z2m4.com");
+    private  Transport getEmail(User user){
+        Transport email = new Transport();
+        email.setEmail(String.format("%s@company.com",user.getDba()));
+        email.setEmailType(Transport.EmailTypes.both);
+        email.setUser(user);
         return email;
     }
 
-
-
-    public static TimeSheet getTimeSheet( Employee employee,
-                                   Contract contract){
-        TimeSheet timeSheet = new TimeSheet(employee);
-        timeSheet.setBilled(false);
-        timeSheet.setStartDate(new DateTime());
-        timeSheet.setEndDate(timeSheet.getStartDate().plusDays(7));
-        timeSheetRepository.save(timeSheet);
-        contractRepository.save(contract);
-        for(int i=0;i<7;i++){
-            TimeSheetEntry timeSheetEntry = new TimeSheetEntry(timeSheet, contract);
-            timeSheetEntry.setHours(8);
-            timeSheetEntry.setDate(new DateTime().plusDays(i));
-            timeSheetEntryRepository.save(timeSheetEntry);
-            timeSheet.getTimeSheetEntries().add(timeSheetEntry);
-            contract.getTimeSheetEntries().add(timeSheetEntry);
-        }
-
-        return timeSheet;
+    public   Address getAddress(User user){
+        Address address = new Address();
+        address.setUser(user);
+        address.setStreet1("73 Linden Cyn.");
+        address.setCity("Boulder");
+        address.setZip("80304");
+        address.setState("CO");
+        return address;
     }
+
+    private  Phone getPhone(User user){
+        Phone phone = new Phone();
+        phone.setUser(user);
+        phone.setPhone("3035551212");
+        return phone;
+    }
+
+
+
+//    public  TimeSheet getTimeSheet( Employee employee,
+//                                   Contract contract){
+//        TimeSheet timeSheet = new TimeSheet(employee);
+//        timeSheet.setBilled(false);
+//        timeSheet.setStartDate(new DateTime());
+//        timeSheet.setEndDate(timeSheet.getStartDate().plusDays(7));
+//        timeSheetRepository.save(timeSheet);
+//        for(int i=0;i<7;i++){
+//            TimeSheetEntry timeSheetEntry = new TimeSheetEntry(timeSheet, contract);
+//            timeSheetEntry.setHours(8);
+//            timeSheetEntry.setDate(new DateTime().plusDays(i));
+//            timeSheetEntryRepository.save(timeSheetEntry);
+//            timeSheet.getTimeSheetEntries().add(timeSheetEntry);
+//            contract.getTimeSheetEntries().add(timeSheetEntry);
+//        }
+//
+//        return timeSheet;
+//    }
 }

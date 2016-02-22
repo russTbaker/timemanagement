@@ -1,9 +1,7 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.Contract;
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.TimeSheet;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.persistence.AddressRepository;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import com.rbc.timemanagmentservice.persistence.TimeSheetRepository;
@@ -19,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,15 +30,21 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final ContractRepository contractRepository;
     private final TimeSheetRepository timeSheetRepository;
+    private final AddressRepository addressRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository, TimeSheetRepository timeSheetRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository,
+                           TimeSheetRepository timeSheetRepository, AddressRepository addressRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
         this.timeSheetRepository = timeSheetRepository;
+        this.addressRepository = addressRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    /**
+     * Requires phone, email and address populated
+     */
     public Employee createEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
@@ -47,18 +52,18 @@ public class EmployeeService {
     @Transactional(propagation = Propagation.REQUIRED)
     public Employee updateEmployee(final Employee employee) {
         final Employee emp = employeeRepository.findOne(employee.getId());
-        BeanUtils.copyProperties(employee,emp,"id");
+        BeanUtils.copyProperties(employee, emp, "id");
         return emp;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addEmployeeToContract(final Integer employeeId, final Integer contractId) {
+    public void addEmployeeToContract(final Integer employeeId, Contract contract) {
         final Employee employee = employeeRepository.findOne(employeeId);
-        final Contract contract = contractRepository.findOne(contractId);
-        contract.addUser(employee);
+        contract = contract.getId() != null ? contractRepository.findOne(contract.getId()) :
+                contractRepository.save(contract);
+        employee.addContract(contract);
     }
 
-    //    @Transactional(readOnly = true)
     public Employee findEmployee(Integer id) {
         final Employee employee = employeeRepository.findOne(id);
         if (employee == null) {
@@ -66,6 +71,21 @@ public class EmployeeService {
         }
         return employee;
     }
+
+
+    @SuppressWarnings("unchecked")
+    public List<Employee> findAll(Integer start, Integer end) {
+        final List<Employee> employeeList = start != null && end != null ?
+                employeeRepository.findAll(new PageRequest(start, end)).getContent()
+                : (List<Employee>) employeeRepository.findAll();
+        if (CollectionUtils.isEmpty(employeeList)) {
+            throw new NotFoundException("List of employees is empty");
+        }
+        return employeeList;
+    }
+
+    //--------- Timesheeets
+
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void createTimeSheet(final Integer employeeId, final Integer contractId) {
@@ -85,24 +105,6 @@ public class EmployeeService {
         timeSheetRepository.save(timeSheet);
     }
 
-    private DateTime getLastDayOfWeek() {
-        return new DateTime().withDayOfWeek(DateTimeConstants.SUNDAY);
-    }
-
-    private DateTime getFirstDayOfWeek() {
-        return new DateTime().withDayOfWeek(DateTimeConstants.MONDAY);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Employee> findAll(Integer start, Integer end) {
-        final List<Employee> employeeList = start != null && end != null ?
-                employeeRepository.findAll(new PageRequest(start, end)).getContent()
-                : (List<Employee>) employeeRepository.findAll();
-        if (CollectionUtils.isEmpty(employeeList)) {
-            throw new NotFoundException("List of employees is empty");
-        }
-        return employeeList;
-    }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void addTimeSheetEntry(Integer employeeId, Integer timeSheetId, TimeSheetEntry timeSheetEntry,
@@ -117,17 +119,38 @@ public class EmployeeService {
                 .stream()
                 .filter(timeSheetEntry1 -> timeSheetEntry1.getId().equals(timeSheetEntryId))
                 .findFirst().get();
-        BeanUtils.copyProperties(timeSheetEntry,existingTimeSheet,"id");
+        BeanUtils.copyProperties(timeSheetEntry, existingTimeSheet, "id");
         timeSheetRepository.save(timeSheet);
     }
 
     public TimeSheet getLatestTimeSheet(Integer employeeId) {
         final Employee employee = employeeRepository.findOne(employeeId);
-        if(employee != null) {
+        if (employee != null) {
             final List<TimeSheet> timesheets = employee.getTimesheets();
             timesheets.sort((o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()));
             return timesheets.get(0);
         }
         throw new NotFoundException("No timesheets found for employee: " + employeeId);
     }
+
+    //--------------- Address
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Employee addAddressToEmployee(Integer employeeId, Address address) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        employee.addAddress(addressRepository.save(address));
+        return employee;
+    }
+
+    //--------------- Private Methods
+
+    private DateTime getLastDayOfWeek() {
+        return new DateTime().withDayOfWeek(DateTimeConstants.SUNDAY);
+    }
+
+    private DateTime getFirstDayOfWeek() {
+        return new DateTime().withDayOfWeek(DateTimeConstants.MONDAY);
+    }
+
+
 }

@@ -23,6 +23,7 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -52,14 +53,11 @@ public class EmployeeControllerTest {
     final String employeeResourceRoot = "$._embedded.employeeResources[0]";
     final String timesheetResourceRoot = "$._embedded.timeSheetResources[0]";
     final String timesheetEntryResourceRoot = "$._embedded.timeSheetEntryResources[0]";
-    final String employeePath = employeeResourceRoot + ".employee";
     final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 
 
     private HttpMessageConverter mappingJackson2HttpMessageConverter;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -77,23 +75,26 @@ public class EmployeeControllerTest {
                 this.mappingJackson2HttpMessageConverter);
     }
 
+    private Employee employee;
+
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
+        employee = startupUtility.init();
     }
 
     @Test
     public void whenGettingAllEmployees_expectAllEmployeesReturned() throws Exception {
         // Assemble
-        Employee employee = getEmployeeWithTimeSheet();
+
 
         // Act/Assert
         mockMvc.perform(get(ROOT_URI))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
 //                .andExpect(jsonPath("$._embedded.employeeResources", hasSize(1)))
-                .andExpect(jsonPath(employeePath + ".roles", is(employee.getRoles().name())))
-                .andExpect(jsonPath(employeeResourceRoot + ".emails[0].email.email", is(employee.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(employeeResourceRoot + "employee.roles", is(employee.getRoles().name())))
+                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailAddress", is(employee.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(employeeResourceRoot + ".timeSheets[0].timeSheetEntries[0].timeSheetEntry.hours", is(employee.getTimesheets()
                         .get(0).getTimeSheetEntries().get(0).getHours())));;
 
@@ -102,15 +103,14 @@ public class EmployeeControllerTest {
     @Test
     public void whenCallingGetEmployee_expectEmployeeReturned() throws Exception {
         // Assemble
-        Employee employee = getEmployeeWithTimeSheet();
         Integer employeeId = employee.getId();
 
         // Act
         mockMvc.perform(get(ROOT_URI + "/" + employeeId))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(realContentType))
-                .andExpect(jsonPath(employeePath + ".roles", is(employee.getRoles().name())))
-                .andExpect(jsonPath(employeeResourceRoot + ".emails[0].email.email", is(employee.getEmails().get(0).getEmail())))
+                .andExpect(jsonPath(employeeResourceRoot + ".employee.roles", is(employee.getRoles().name())))
+                .andExpect(jsonPath(employeeResourceRoot + ".employee.emails[0].emailAddress", is(employee.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(employeeResourceRoot + ".timeSheets[0].timeSheetEntries[0].timeSheetEntry.hours", is(employee.getTimesheets()
                         .get(0).getTimeSheetEntries().get(0).getHours())));
 
@@ -126,9 +126,6 @@ public class EmployeeControllerTest {
 
     @Test
     public void whenGettingEmployeesRecentTimeSheet_expectMostRecentReturned() throws Exception {
-        // Assemble
-        Employee employee = getEmployeeWithTimeSheet();
-
 
         // Act/Assert
         mockMvc.perform(get(ROOT_URI + employee.getId() + "/timesheet" ))
@@ -145,7 +142,6 @@ public class EmployeeControllerTest {
     @Test
     public void whenPuttingTimeSheetEntry_expectEntryAdded() throws Exception {
         // Assemble
-        Employee employee = getEmployeeWithTimeSheet();
         final TimeSheet timeSheet = employee.getTimesheets().get(0);
         TimeSheetEntry firstTimeSheetEntry = timeSheet.getTimeSheetEntries().get(0);
         firstTimeSheetEntry.setHours(12);
@@ -165,9 +161,6 @@ public class EmployeeControllerTest {
 
     @Test
     public void whenGettingAllTimeEntries_expectEntrisReturned() throws Exception {
-        // Assemble
-        Employee employee = getEmployeeWithTimeSheet();
-
         // Act/Assert
         mockMvc.perform(get(ROOT_URI + employee.getId() + "/timesheet/" + employee.getTimesheets().get(0).getId()
         + "/timesheetentries"))
@@ -185,13 +178,6 @@ public class EmployeeControllerTest {
     //------- Private Methods
 
 
-    private Employee getEmployeeWithTimeSheet() {
-//        Employee employee = startupUtility.getEmployee();
-//        employee.getTimesheets().add(startupUtility.getTimeSheet(employee, startupUtility.getContractForCustomer(startupUtility.getCustomer())));
-//        employeeRepository.save(employee);
-//        return employee;
-        return startupUtility.init();
-    }
 
     protected String json(Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();

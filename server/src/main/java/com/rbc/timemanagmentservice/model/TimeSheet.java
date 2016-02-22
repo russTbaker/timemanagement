@@ -1,8 +1,8 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.util.Named;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
 
@@ -20,17 +20,20 @@ public class TimeSheet {
 
     public TimeSheet(Employee employee) {
         this.employee = employee;
+        if(!employee.getTimesheets().contains(this)){
+            employee.getTimesheets().add(this);
+        }
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timeSheet")
     private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
     private Boolean billed;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = Employee.class)
     @JsonIgnore
     private Employee employee;
 
