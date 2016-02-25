@@ -75,7 +75,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
     })
     .controller('employeesController', function ($scope, $http, SpringDataRestAdapter) {
         $scope.isTimeSheetCollapsed = false;
-        //$scope.isResponseCollapsed = true;
+        $scope.isTimeSheetEntryCollapsed = false;
         //$scope.isProcessedResponseCollapsed = true;
 
         var httpPromise = $http.get('http://localhost:8080/api/employees').success(function (response) {
@@ -99,17 +99,18 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $scope.isTimeSheetCollapsed = !$scope.isTimeSheetCollapsed;
         };
 
-        $scope.onClickNavigateToAddresses = function(url){
-            // go out and get items
+        $scope.onClickNavigateToTimeSheetEntries = function(url){
+            var httpPromise = $http.get(url).success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            });
+
+            SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+                $scope.timesheetEntries = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+            $scope.isTimeSheetEntryCollapsed = !$scope.isTimeSheetEntryCollapsed;
         };
 
-        $scope.onClickNavigateToPhones = function(url){
-            // go out and get items
-        };
-
-        $scope.onClickNavigateToEmails = function(url){
-            // go out and get items
-        };
 
         $scope.onClickAdd = function (timeSheetEntry, url) {
             var httpPromiseTimesheet = $http.put(url, timeSheetEntry, 'Content-Type:application/json+hal').success(

@@ -19,6 +19,9 @@
                 <label>
                     {{employee.dba}}
                 </label>
+                <button class="btn btn-primary" ng-click="onClickNavigateToTimeSheets(employee._links.timesheets.href)">Show
+                    Timesheets
+                </button>
             </div>
             <div class="col-xs-3">
                 <button class="pull-right btn btn-danger" type="button" title="Delete"
@@ -26,21 +29,40 @@
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
             </div>
-            <button class="btn btn-primary" ng-click="onClickNavigateToTimeSheets(employee._links.timesheets.href)">Show Timesheets</button>
+
+
             <div uib-collapse="!isTimeSheetCollapsed">
-                This is your timesheet:
-                <table class="table" >
+                <table class="table">
+                    <th>&nbsp;</th>
                     <th><strong>Billed</strong></th>
                     <th><strong>Start Date</strong></th>
                     <th><strong>End Date</strong></th>
-                    <tr  ng-repeat="timesheet in timesheets">
+                    <tr ng-repeat="timesheet in timesheets">
+                        <td>
+                            <button class="btn btn-primary"
+                                    ng-click="onClickNavigateToTimeSheetEntries(timesheet._links.timeSheetEntries.href)">
+                                Show Timesheet Entries
+                            </button>
+                        </td>
                         <td>{{timesheet.billed}}</td>
                         <td>{{timesheet.startDate}}</td>
                         <td>{{timesheet.endDate}}</td>
                     </tr>
                 </table>
-            </div>
 
+                <div uib-collapse="!isTimeSheetEntryCollapsed">
+                    <table class="table">
+                        <th><strong>Date</strong></th>
+                        <th><strong>Job Id</strong></th>
+                        <th><strong>Hours</strong></th>
+                        <tr ng-repeat="timesheetEntry in timesheetEntries">
+                            <td>{{timesheetEntry.date}}</td>
+                            <td>{{timesheetEntry.jobId}}</td>
+                            <td>{{timesheetEntry.hours}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
         <hr/>
         <div class="input-group">
