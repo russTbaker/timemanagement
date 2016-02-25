@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by rbaker on 2/6/16.
  */
-@RepositoryRestResource(exported = false)
+@RepositoryRestResource
 public interface ContractRepository extends PagingAndSortingRepository<Contract,Integer>{
-    List<Contract> findByUsersDba(@Param("dba") String name);
+//    List<Contract> findByUsersDba(@Param("dba") String name);
 }

@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-
 import static junit.framework.TestCase.*;
 
 
@@ -45,14 +43,14 @@ public class EmployeeRepositoryTest {
     @Test
     public void whenGettingEmployee_expectFullyHydratedEmployee() throws Exception {
 
-        final Contract contract = new Contract();
+        final Job job = new Job();
         final Employee employee = new Employee();
-        employee.addContract(contract);
+        employee.addJob(job);
         Employee saved = employeeRepository.save(employee);
-        final TimeSheet timesheet = new TimeSheet(saved);
-        timesheet.getTimeSheetEntries().add(new TimeSheetEntry(timesheet,contract));
-        saved.getTimesheets().add(timesheet);
-        saved.setEmails(Arrays.asList(new Email()));
+        final TimeSheet timesheet = new TimeSheet();
+        timesheet.getTimeSheetEntries().add(new TimeSheetEntry());
+        saved.addTimeSheet(timesheet);
+        saved.addEmail(new Email());
 
         Employee result = employeeRepository.findOne(saved.getId());
 
@@ -72,7 +70,7 @@ public class EmployeeRepositoryTest {
         employee.setLastName("Baker");
         employee.setUsername("admin");
         employee.setPassword("password");
-        employee.setEmails(Arrays.asList(new Email(), new Email()));
+        employee.addEmail(new Email());
         employee.setRoles(User.Roles.employee);
 
         // Act

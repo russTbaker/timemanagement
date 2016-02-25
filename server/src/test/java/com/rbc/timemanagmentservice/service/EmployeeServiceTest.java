@@ -2,17 +2,12 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.ContractRepository;
-import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
-import com.rbc.timemanagmentservice.persistence.TimeSheetEntryRepository;
-import com.rbc.timemanagmentservice.persistence.TimeSheetRepository;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -27,39 +22,26 @@ import static junit.framework.TestCase.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
-@Transactional(propagation = Propagation.REQUIRED)
+@Transactional
 public class EmployeeServiceTest {
 
     public static final int HOURS = 8;
     @Autowired
     private EmployeeService employeeService;
 
+//    @Autowired
+//    private EmployeeRepository employeeRepository;
+//
+//
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private ContractService contractService;
 
     @Autowired
-    private TimeSheetRepository timeSheetRepository;
+    private JobService jobService;
 
-    @Autowired
-    private ContractRepository contractRepository;
-
-    @Autowired
-    private TimeSheetEntryRepository timeSheetEntryRepository;
 
     @Autowired
     private StartupUtility startupUtility;
-
-    @Test(expected = NotFoundException.class)
-    public void whenFindingAllEmployeesAndNoneExist_expectNotFoundException() throws Exception {
-        // Assemble
-        employeeRepository.deleteAll();
-        timeSheetRepository.deleteAll();
-        timeSheetEntryRepository.deleteAll();
-
-        // Act
-        employeeService.findAll(1, 20);
-
-    }
 
     @Test
     public void whenFindingAllEmployees_expectAllEmployeesFound() throws Exception {
@@ -80,12 +62,7 @@ public class EmployeeServiceTest {
     public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
         // Assemble
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
-
-        // TODO: change to employee
-        Contract contractForEmployee = startupUtility.getContractForEmployee(employee);
-        Contract contract = contractRepository.save(contractForEmployee);
-        employeeService.createTimeSheet(employee.getId(), contractForEmployee.getId());
-        TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
+        TimeSheet timesheet = getTimeSheet(employee);
 
         // Act
         TimeSheet result = employeeService.getLatestTimeSheet(employee.getId());
@@ -95,13 +72,14 @@ public class EmployeeServiceTest {
         assertTrue("Wrong timesheet", timesheet.equals(result));
         for(TimeSheetEntry timeSheetEntry:result.getTimeSheetEntries()){
             assertNotNull("No Id",timeSheetEntry.getId());
-            assertNotNull("No Contract",timeSheetEntry.getContract());
             assertNull("Hours populated",timeSheetEntry.getHours());
             assertNotNull("No date",timeSheetEntry.getDate());
-            assertNotNull("No timesheet",timeSheetEntry.getTimeSheet());
+            assertEquals("No timesheet",result.getId(),timeSheetEntry.getTimesheetId());
         }
 
     }
+
+
 
     @Test(expected = NotFoundException.class)
     public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {
@@ -172,35 +150,36 @@ public class EmployeeServiceTest {
         }
 
     }
-
     @Test
     public void whenAddingContractToEmployee_expectContractAdded() throws Exception {
         // Assemble
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
-        Contract contract = contractRepository.save(new Contract());
+        Contract contract = contractService.saveContract(new Contract());
+        Job job = contractService.createJob(new Job(),contract.getId());
 
         // Act
-        employeeService.addEmployeeToContract(employee.getId(), contract);
+        employeeService.addEmployeeToJob(employee.getId(), job);
 
         // Assert
         Employee result = employeeService.getEmployee(employee.getId());
-        final List<Contract> contracts = result.getContracts();
-        assertFalse("No contract associated with employee", CollectionUtils.isEmpty(contracts));
+        final List<Job> jobs = result.getJobs();
+        assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
     }
 
     @Test
-    public void whenAddingDetatchedContractToEmployee_expectContractAded() throws Exception {
+    public void whenAddingDetatchedJobtToEmployee_expectContractAded() throws Exception {
         // Assemble
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
-        Contract contract = new Contract();
+        Contract contract = contractService.saveContract(new Contract());
+        Job job = contractService.createJob(new Job(),contract.getId());
 
         // Act
-        employeeService.addEmployeeToContract(employee.getId(), contract);
+        employeeService.addEmployeeToJob(employee.getId(), job);
 
         // Assert
         Employee result = employeeService.getEmployee(employee.getId());
-        final List<Contract> contracts = result.getContracts();
-        assertFalse("No contract associated with employee", CollectionUtils.isEmpty(contracts));
+        final List<Job> jobs = result.getJobs();
+        assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
 
     }
 
@@ -208,12 +187,7 @@ public class EmployeeServiceTest {
     public void whenAddingTimeSheetToEmployee_expectTimesheetAdded() throws Exception {
         // Assemble
         Employee employee = createEmployee();
-        Contract contract = contractRepository.save(new Contract());
-
-        employeeService.addEmployeeToContract(employee.getId(), contract);
-
-        // Act
-        employeeService.createTimeSheet(employee.getId(), contract.getId());
+        getTimeSheet(employee);
 
         // Assert
         TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
@@ -228,10 +202,7 @@ public class EmployeeServiceTest {
     public void whenUpdatingTimeEntries_expectTimeEntriesUpdated() throws Exception {
         // Assemble
         Employee employee = createEmployee();
-        Contract contract = contractRepository.save(new Contract());
-        employeeService.addEmployeeToContract(employee.getId(), contract);
-        employeeService.createTimeSheet(employee.getId(), contract.getId());
-        TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
+        TimeSheet timesheet = getTimeSheet(employee);//employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
         TimeSheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
         timeSheetEntry.setHours(HOURS);
 
@@ -244,17 +215,26 @@ public class EmployeeServiceTest {
 
     }
 
+    @Test(expected = NotFoundException.class)
+    public void whenDeletingEmployee_expectEmployeeDeleted() throws Exception {
+        // Assemble
+        Employee employee = createEmployee();
 
+        // Act
+        employeeService.deleteEmployee(employee.getId());
 
-    //--------------- Private Methods
+        // Assert
+        employeeService.getEmployee(employee.getId());
+
+    }
+//--------------- Private Methods
 
     private void assertInitialEmployeeCorrect(Employee employee) {
-        assertTrue("Contract associated with employee", CollectionUtils.isEmpty(employee.getContracts()));
+        assertTrue("Jobs associated with employee", CollectionUtils.isEmpty(employee.getJobs()));
         assertTrue("TimeSheets should be empty", CollectionUtils.isEmpty(employee.getTimesheets()));
     }
 
     private Employee createEmployee() {
-//        Employee employee = startupUtility.getEmployee();
         Employee employee = new Employee();
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
@@ -263,5 +243,13 @@ public class EmployeeServiceTest {
         employee.setRoles(User.Roles.employee);
         employee.setDba("Russ Baker");
         return employeeService.createEmployee(employee);
+    }
+
+    private TimeSheet getTimeSheet(Employee employee) {
+        Contract contract = contractService.saveContract(new Contract());
+
+        Job job = contractService.createJob(new Job(),contract.getId());
+        employeeService.createTimeSheet(employee.getId(), job.getId());
+        return employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
     }
 }

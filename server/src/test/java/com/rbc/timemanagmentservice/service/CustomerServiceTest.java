@@ -117,9 +117,9 @@ public class CustomerServiceTest {
         customer.setName("Z2M4");
         customer.setContactName("Jon");
         customer.setRoles(User.Roles.customer);
-        customer.setAddress(Arrays.asList(getAddress(customer)));
-        customer.setEmails(Arrays.asList(getEmail(customer)));
-        customer.setPhones(Arrays.asList(getPhone(customer)));
+        customer.addAddress(getAddress(customer));
+        customer.addEmail(getEmail(customer));
+        customer.addPhone(getPhone(customer));
 
         return customerService.createCustomer(customer);
     }

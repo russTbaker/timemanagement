@@ -25,9 +25,10 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  * Created by russbaker on 2/12/16.
  */
 @RestController
-@RequestMapping("/hydrated/employee/")
+@RequestMapping("/hydrated/employees")
 public class EmployeeController {
 
+    public static final String TIMESHEETS = "timesheets";
     private EmployeeService employeeService;
 
     @Autowired
@@ -36,12 +37,14 @@ public class EmployeeController {
     }
 
     @RequestMapping(produces = "application/hal+json")
-    public Resources<EmployeeResource> getEmployees() {
+//    public Resources<EmployeeResource> getEmployees() {
+            public List<Employee> getEmployees() {
         List<Link> links = new LinkedList<>();
         links.add(linkTo(methodOn(EmployeeController.class).getEmployees()).withSelfRel());
         final List<Employee> allEmployees = employeeService.findAll(null, null);
-        List<EmployeeResource> resources = employeeToResource(allEmployees.toArray(new Employee[allEmployees.size()]));
-        return new Resources<>(resources, links);
+//        List<EmployeeResource> resources = employeeToResource(allEmployees.toArray(new Employee[allEmployees.size()]));
+//        return new Resources<>(resources, links);
+        return allEmployees;
     }
 
     @RequestMapping(value = "/{employeeId}", produces = "application/hal+json")
@@ -49,6 +52,11 @@ public class EmployeeController {
         Optional<Employee> employee = Optional.of(employeeService.getEmployee(employeeId));
         List<EmployeeResource> resources = employeeToResource(employee.get());
         return new ResponseEntity<>(new Resources<>(resources), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{employeeId}", method = RequestMethod.DELETE)
+    public void deleteEmployee(@PathVariable("employeeId") Integer employeeId){
+        employeeService.deleteEmployee(employeeId);
     }
 
     @RequestMapping(value = "/{employeeId}/email/{emailId}", method = RequestMethod.PUT)
@@ -73,8 +81,8 @@ public class EmployeeController {
 
     @RequestMapping(value = "/{employeeId}/address/{addressId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateAddress(@PathVariable(value = "employeeId") Integer employeeId,
-                                         @PathVariable(value = "addressId") Integer emailId,
-                                         @RequestBody Address address) {
+                                           @PathVariable(value = "addressId") Integer emailId,
+                                           @RequestBody Address address) {
         return Optional.of(employeeService.getEmployee(employeeId))
                 .map(employee -> {
                     address.setId(emailId);
@@ -92,8 +100,8 @@ public class EmployeeController {
 
     @RequestMapping(value = "/{employeeId}/phone/{phoneId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updatePhones(@PathVariable(value = "employeeId") Integer employeeId,
-                                           @PathVariable(value = "phoneId") Integer emailId,
-                                           @RequestBody Phone phone) {
+                                          @PathVariable(value = "phoneId") Integer emailId,
+                                          @RequestBody Phone phone) {
         return Optional.of(employeeService.getEmployee(employeeId))
                 .map(employee -> {
                     phone.setId(emailId);
@@ -109,18 +117,53 @@ public class EmployeeController {
                 }).get();
     }
 
+    //------------- Timesheet
+
+    @RequestMapping(path = "/{employeeId}/timesheet/{timesheetId}",
+            consumes = "application/hal+json")
+    public Resources<TimeSheetResource> getTimesheet(@PathVariable("employeeId") Integer employeeId,
+                                                     @PathVariable("timesheetId") Integer timesheetId) {
+        TimeSheet timesheet = employeeService.getEmployee(employeeId).getTimesheets()
+                .stream()
+                .filter(timeSheet -> timeSheet.getId().equals(timesheetId))
+                .findFirst()
+                .get();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(ServletUriComponentsBuilder
+                .fromCurrentRequest().build().toUri());
+        Link selfLink = linkTo(methodOn(EmployeeController.class).getTimesheet(employeeId,timesheetId)).withSelfRel();
+        List<TimeSheetResource> resources = timeSheetToResource(timesheet);
+        return new Resources<>(resources, selfLink);
+    }
+
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries/{timesheetEntryId}",
-    consumes = "application/hal+json")
+            consumes = "application/hal+json")
     public ResponseEntity<?> add(@PathVariable("employeeId") Integer employeeId,
                                  @PathVariable("timesheetId") Integer timesheetId,
                                  @PathVariable("timesheetEntryId") Integer timesheetEntryId,
                                  @RequestBody TimeSheetEntry input) {
-        employeeService.addTimeSheetEntry(employeeId, timesheetId,input, timesheetEntryId);
+        employeeService.addTimeSheetEntry(employeeId, timesheetId, input, timesheetEntryId);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
                 .fromCurrentRequest().build().toUri());
 
         return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries/{timesheetEntryId}", produces = "application/hal+json")
+    public Resources<TimeSheetEntryResource> getTimeSheetEntry(@PathVariable("employeeId") Integer employeeId,
+                                                               @PathVariable("timesheetId") Integer timesheetId,
+                                                               @PathVariable("timesheetEntryId") Integer timesheetEntryId) {
+        TimeSheetEntry timeSheetEntry = employeeService.getEmployee(employeeId).getTimesheets()
+                .stream()
+                .filter(timeSheet -> timeSheet.getId().equals(timesheetId)).findFirst()
+                .get().getTimeSheetEntries()
+                .stream()
+                .filter(timesheet -> timesheet.getId().equals(timesheetEntryId)).findFirst()
+                .get();
+
+        final List<TimeSheetEntryResource> resources = timeSheetEntryToResource(timeSheetEntry);
+        return new Resources<>(resources);
     }
 
     @RequestMapping(path = "/{employeeId}/timesheet", produces = "application/hal+json")
@@ -135,81 +178,28 @@ public class EmployeeController {
     @RequestMapping(path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries", produces = "application/hal+json")
     public Resources<TimeSheetEntryResource> getTimeSheetEntrys(@PathVariable("employeeId") Integer employeeId,
                                                                 @PathVariable("timesheetId") Integer timesheetId) {
-        Optional<List<TimeSheetEntry>> timeSheetEntry = Optional.of(employeeService.getLatestTimeSheet(employeeId).getTimeSheetEntries());
+        Optional<List<TimeSheetEntry>> timeSheetEntry = Optional.of(employeeService.getEmployee(employeeId).getTimesheets()
+                .stream()
+                .filter(timeSheet -> timeSheet.getId().equals(timesheetId))
+                .findFirst()
+                .get()
+                .getTimeSheetEntries());
         final List<TimeSheetEntryResource> resources = timeSheetEntryToResource(timeSheetEntry.get().toArray(new TimeSheetEntry[timeSheetEntry.get().size()]));
         final Link link = linkTo(methodOn(EmployeeController.class).getTimeSheetEntrys(employeeId, timesheetId)).withSelfRel();
         return new Resources<>(resources, link);
     }
 
 
-    class TimeSheetResource extends ResourceSupport {
-        private final TimeSheet timeSheet;
-
-        public TimeSheetResource(TimeSheet timeSheet) {
-            this.timeSheet = timeSheet;
-            this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(timeSheet.getEmployee().getId())).withSelfRel());
-            this.add(linkTo(EmployeeController.class).withRel("timeSheetEntries"));
-        }
-
-        public TimeSheet getTimesheet() {
-            return this.timeSheet;
-        }
-
-        public List<TimeSheetEntryResource> getTimeSheetEntries() {
-            final List<TimeSheetEntry> timeSheetEntries = this.timeSheet.getTimeSheetEntries();
-            return timeSheetEntryToResource(timeSheetEntries.toArray(new TimeSheetEntry[timeSheetEntries.size()]));
-        }
-    }
-
-    class TimeSheetEntryResource extends ResourceSupport {
-        private final TimeSheetEntry timeSheetEntry;
-
-        public TimeSheetEntryResource(TimeSheetEntry timeSheetEntry) {
-            this.timeSheetEntry = timeSheetEntry;
-            this.add(linkTo(methodOn(EmployeeController.class).getTimeSheetEntrys(timeSheetEntry.getTimeSheet().getEmployee().getId(),
-                    timeSheetEntry.getTimeSheet().getId())).withSelfRel());
-            this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(timeSheetEntry.getTimeSheet().getEmployee().getId())).withRel("timesheets"));
-        }
-
-        public TimeSheetEntry getTimeSheetEntry() {
-            return timeSheetEntry;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<EmployeeResource> employeeToResource(Employee... employees) {
-        List<EmployeeResource> resources = new ArrayList<>(employees.length);
-        for (Employee employee : employees) {
-            resources.add(new EmployeeResource(employee));
-        }
-        return resources;
-    }
-
-    @SuppressWarnings("unchecked")
-    List<TimeSheetResource> timeSheetToResource(TimeSheet... timeSheets) {
-        List<TimeSheetResource> resources = new ArrayList<>(timeSheets.length);
-        for (TimeSheet timesheet : timeSheets) {
-            resources.add(new TimeSheetResource(timesheet));
-        }
-        return resources;
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<TimeSheetEntryResource> timeSheetEntryToResource(TimeSheetEntry... timeSheetEntries) {
-        List<TimeSheetEntryResource> resources = new ArrayList<>(timeSheetEntries.length);
-        for (TimeSheetEntry timesheetEntry : timeSheetEntries) {
-            resources.add(new TimeSheetEntryResource(timesheetEntry));
-        }
-        return resources;
-    }
+    //---------- Employee
 
     class EmployeeResource extends ResourceSupport {
         private final Employee employee;
 
-        public EmployeeResource(Employee employee) {
+        public EmployeeResource(Employee employee, List<Link> links) {
             this.employee = employee;
             this.add(linkTo(methodOn(EmployeeController.class).getEmployee(employee.getId())).withSelfRel());
-            this.add(linkTo(EmployeeController.class).withRel("timesheets"));
+            this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(employee.getId())).withRel(TIMESHEETS));
+            this.add(links);
         }
 
         public Employee getEmployee() {
@@ -222,5 +212,79 @@ public class EmployeeController {
             return timeSheetToResource(timesheets.toArray(new TimeSheet[timesheets.size()]));
         }
     }
+
+    @SuppressWarnings("unchecked")
+    private List<EmployeeResource> employeeToResource(Employee... employees) {
+        List<EmployeeResource> resources = new ArrayList<>(employees.length);
+        for (Employee employee : employees) {
+            List<Link> links = new ArrayList<>();
+            for (Job job : employee.getJobs()) {
+
+                links.add(linkTo(methodOn(CustomerController.class).getContract(employee.getId(), job.getId())).withRel("contracts"));
+            }
+            resources.add(new EmployeeResource(employee, links));
+        }
+        return resources;
+    }
+
+    //--------- TimeSheet
+
+    class TimeSheetResource extends ResourceSupport {
+        private final TimeSheet timeSheet;
+
+        public TimeSheetResource(TimeSheet timeSheet) {
+            this.timeSheet = timeSheet;
+            this.add(linkTo(methodOn(EmployeeController.class).getTimesheet(timeSheet.getEmployee().getId(),timeSheet.getId())).withSelfRel());
+            this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(timeSheet.getEmployee().getId())).withRel(TIMESHEETS));
+        }
+
+        public TimeSheet getTimesheet() {
+            return this.timeSheet;
+        }
+
+        public List<TimeSheetEntryResource> getTimeSheetEntries() {
+            final List<TimeSheetEntry> timeSheetEntries = this.timeSheet.getTimeSheetEntries();
+            return timeSheetEntryToResource(timeSheetEntries.toArray(new TimeSheetEntry[timeSheetEntries.size()]));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    List<TimeSheetResource> timeSheetToResource(TimeSheet... timeSheets) {
+        List<TimeSheetResource> resources = new ArrayList<>(timeSheets.length);
+        for (TimeSheet timesheet : timeSheets) {
+            resources.add(new TimeSheetResource(timesheet));
+        }
+        return resources;
+    }
+
+    //--------- TimeSheetEntry
+
+    class TimeSheetEntryResource extends ResourceSupport {
+        private final TimeSheetEntry timeSheetEntry;
+
+        public TimeSheetEntryResource(TimeSheetEntry timeSheetEntry) {
+            this.timeSheetEntry = timeSheetEntry;
+            // /{employeeId}/timesheet/{timesheetId}/timesheetentries/{timesheetEntryId}
+//            this.add(linkTo(methodOn(EmployeeController.class)
+//                    .getTimeSheetEntry(timeSheetEntry.getTimeSheet().getEmployee().getId(),
+//                            timeSheetEntry.getTimeSheet().getId(),timeSheetEntry.getId())).withSelfRel());
+//            this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(timeSheetEntry.getTimeSheet().getEmployee().getId())).withRel(TIMESHEETS));
+        }
+
+        public TimeSheetEntry getTimeSheetEntry() {
+            return timeSheetEntry;
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private List<TimeSheetEntryResource> timeSheetEntryToResource(TimeSheetEntry... timeSheetEntries) {
+        List<TimeSheetEntryResource> resources = new ArrayList<>(timeSheetEntries.length);
+        for (TimeSheetEntry timesheetEntry : timeSheetEntries) {
+            resources.add(new TimeSheetEntryResource(timesheetEntry));
+        }
+        return resources;
+    }
+
 
 }

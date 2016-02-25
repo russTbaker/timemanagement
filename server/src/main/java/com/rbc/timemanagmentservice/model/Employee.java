@@ -1,11 +1,8 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +15,13 @@ public class Employee extends User{
     private String username;
     private String password;
 
-    @OneToMany
-    @JoinColumn(name = "EMPLOYEE_ID", referencedColumnName = "USER_ID")
-    @JsonProperty(value = "timesheets")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<TimeSheet> timesheets = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Job> jobs = new ArrayList<>();
 
     public Employee() {
         super();
@@ -30,6 +30,10 @@ public class Employee extends User{
 
     public List<TimeSheet> getTimesheets() {
         return timesheets;
+    }
+
+    public List<Job> getJobs() {
+        return jobs;
     }
 
     public String getUsername() {
@@ -49,26 +53,28 @@ public class Employee extends User{
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Employee)) return false;
-        if (!super.equals(o)) return false;
-
-        Employee employee = (Employee) o;
-
-        if (username != null ? !username.equals(employee.username) : employee.username != null) return false;
-        if (password != null ? !password.equals(employee.password) : employee.password != null) return false;
-        return timesheets != null ? timesheets.equals(employee.timesheets) : employee.timesheets == null;
-
+    @JsonIgnore
+    public void addTimeSheet(TimeSheet timeSheet) {
+        if (!this.timesheets.contains(timeSheet)) {
+            this.timesheets.add(timeSheet);
+            timeSheet.setEmployee(this);
+        } else {
+            this.timesheets.remove(timeSheet);
+            this.timesheets.add(timeSheet);
+        }
     }
 
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (timesheets != null ? timesheets.hashCode() : 0);
-        return result;
+    @JsonIgnore
+    public void addJob(Job job) {
+        if (!this.jobs.contains(job)) {
+            this.jobs.add(job);
+        } else {
+            this.jobs.remove(job);
+            this.jobs.add(job);
+        }
     }
+
+
+
+
 }

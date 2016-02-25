@@ -9,13 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Optional;
-
 /**
  * Created by russbaker on 2/22/16.
  */
 @RestController
-@RequestMapping("/hydrated/contract/")
+@RequestMapping("/hydrated/contract")
 public class ContractController {
     private final ContractService contractService;
 

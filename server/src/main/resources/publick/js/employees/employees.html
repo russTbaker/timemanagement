@@ -1,0 +1,21 @@
+<div class="container" ng-controller="employeesController">
+    <h1>Employees</h1>
+    <div class="list-group-item" ng-repeat="employee in employees">
+        <strong>{{employee.employee.firstName}}</strong> <strong>{{employee.employee.lastName}}</strong><br/>
+        <small><a href="{{customer._links.self.href}}"><code>{{employee._links.self.href}}</code></a></small>
+
+        <div class="list-group-item" ng-repeat="timesheet in employee.timeSheets">
+            <table class="table-responsive">
+                <th><strong>Latest Timesheet</strong></br>
+                    <strong>Billed: {{timesheet.billed}}</strong></th>
+                <tr>
+                    <td class="list-group-item" ng-repeat="timesheentry in timesheet.timeSheetEntries">
+                        <strong>Date:</strong><input type="text" class="form-control" ng-model="timesheentry.timeSheetEntry.date" value="{{timesheentry.timeSheetEntry.date | date:'yyyy-MM-dd'}}">
+                        <strong>Hours:</strong><input type="text" class="form-control" ng-model="timeSheetEntry.timesheentry.hours" value="{{timesheentry.timeSheetEntry.hours}}">
+                        <button class="btn" ng-click="onClickAdd(timesheentry,timesheentry._links.self.href)">Add</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

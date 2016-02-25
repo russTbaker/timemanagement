@@ -1,0 +1,38 @@
+{
+	"name": "angular-spring-data-rest-sample",
+	"version": "0.1.0",
+	"description": "Spring Boot based sample project for the https://github.com/guylabs/angular-spring-data-rest Angular module.",
+	"license": "MIT",
+	"private": true,
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components"
+	],
+	"keywords": [
+		"angular",
+		"angularjs",
+		"spring",
+		"spring data",
+		"spring data rest",
+		"rest",
+		"api"
+	],
+	"authors": [
+		"Guy Brand <admin@guylabs.org>"
+	],
+	"homepage": "http://guylabs.ch/project/angular-spring-data-rest",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/guylabs/angular-spring-data-rest-sample.git"
+	},
+	"dependencies": {
+		"angular": "~1.4.8",
+		"angular-bootstrap": "~0.14.3",
+		"angular-resource": "~1.4.8",
+		"angular-route": "~1.4.8",
+		"angular-highlightjs": "~0.5.1",
+		"angular-spring-data-rest": "0.4.4",
+		"highlightjs": "9.1.0"
+	}
+}

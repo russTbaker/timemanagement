@@ -1,12 +1,9 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.Contract;
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.TimeSheet;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
-import com.rbc.timemanagmentservice.persistence.TimeSheetRepository;
+import com.rbc.timemanagmentservice.persistence.JobRepository;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.springframework.beans.BeanUtils;
@@ -30,14 +27,13 @@ public class EmployeeService {
     public static final int DAYS_PER_WEEK = 7;
     private final EmployeeRepository employeeRepository;
     private final ContractRepository contractRepository;
-    private final TimeSheetRepository timeSheetRepository;
+    private final JobRepository jobRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository,
-                           TimeSheetRepository timeSheetRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository, JobRepository jobRepository) {
         this.employeeRepository = employeeRepository;
         this.contractRepository = contractRepository;
-        this.timeSheetRepository = timeSheetRepository;
+        this.jobRepository = jobRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -54,13 +50,14 @@ public class EmployeeService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addEmployeeToContract(final Integer employeeId, Contract contract) {
+    public void addEmployeeToJob(final Integer employeeId, Job job) {
         final Employee employee = employeeRepository.findOne(employeeId);
-        contract = contract.getId() != null ? contractRepository.findOne(contract.getId()) :
-                contractRepository.save(contract);
-        employee.addContract(contract);
+        job = job.getId() != null ? jobRepository.findOne(job.getId()) :
+                jobRepository.save(job);
+        employee.addJob(job);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public Employee getEmployee(Integer id) {
         final Employee employee = employeeRepository.findOne(id);
         if (employee == null) {
@@ -71,6 +68,7 @@ public class EmployeeService {
 
 
     @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
     public List<Employee> findAll(Integer start, Integer end) {
         final List<Employee> employeeList = start != null && end != null ?
                 employeeRepository.findAll(new PageRequest(start, end)).getContent()
@@ -81,17 +79,22 @@ public class EmployeeService {
         return employeeList;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteEmployee(Integer employeeId) {
+        employeeRepository.delete(employeeId);
+    }
+
     //--------- Timesheeets
 
-
+    //TODO: Rework for job
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createTimeSheet(final Integer employeeId, final Integer contractId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        final Contract contract = contractRepository.findOne(contractId);
-        final TimeSheet timeSheet = new TimeSheet(employee);
+    public void createTimeSheet(final Integer employeeId, final Integer jobId) {
+        Employee employee = employeeRepository.findOne(employeeId);
+        final Job job = jobRepository.findOne(jobId);
+        final TimeSheet timeSheet = new TimeSheet();
         final List<TimeSheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
         for (int i = 0; i < DAYS_PER_WEEK; i++) {
-            final TimeSheetEntry timeSheetEntry = new TimeSheetEntry(timeSheet, contract);
+            final TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
             timeSheetEntry.setDate(new DateTime().plusDays(i));
             timeSheetEntryList.add(timeSheetEntry);
         }
@@ -99,7 +102,14 @@ public class EmployeeService {
         timeSheet.setEndDate(getLastDayOfWeek());
         timeSheet.getTimeSheetEntries().addAll(timeSheetEntryList);
         timeSheet.setBilled(false);
-        timeSheetRepository.save(timeSheet);
+
+        employee.addTimeSheet(timeSheet);
+        employeeRepository.save(employee);
+        TimeSheet latestTimeSheet = getLatestTimeSheet(employeeId);
+        latestTimeSheet.getTimeSheetEntries().stream().forEach(tse -> {
+            tse.setTimesheetId(latestTimeSheet.getId());
+            job.addTimeSheetEntry(tse);
+        });
     }
 
 
@@ -117,7 +127,6 @@ public class EmployeeService {
                 .filter(timeSheetEntry1 -> timeSheetEntry1.getId().equals(timeSheetEntryId))
                 .findFirst().get();
         BeanUtils.copyProperties(timeSheetEntry, existingTimeSheet, "id");
-        timeSheetRepository.save(timeSheet);
     }
 
     public TimeSheet getLatestTimeSheet(Integer employeeId) {
@@ -129,7 +138,6 @@ public class EmployeeService {
         }
         throw new NotFoundException("No timesheets found for employee: " + employeeId);
     }
-
 
 
     //--------------- Private Methods

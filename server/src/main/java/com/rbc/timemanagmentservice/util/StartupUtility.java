@@ -42,6 +42,8 @@ public class StartupUtility {
 
 
         Contract customerContract = getContractForCustomer(customer);
+        final Job job = contractService.createJob(new Job(),customerContract.getId());
+
 
         // Set up employee with job
         Employee employee = employeeService.createEmployee(getEmployee());
@@ -50,7 +52,7 @@ public class StartupUtility {
         employee.addPhone(getPhone());
         employee = employeeService.updateEmployee(employee);
         employeeService.createTimeSheet(employee.getId(),customerContract.getId());
-        employeeService.addEmployeeToContract(employee.getId(),customerContract);
+        employeeService.addEmployeeToJob(employee.getId(), job);
         return employeeService.getEmployee(employee.getId());
     }
 
@@ -70,17 +72,6 @@ public class StartupUtility {
         return contract;
     }
 
-    public  Contract getContractForEmployee(User employee) {
-        Contract contract = new Contract();
-        contract.setStartDate(new DateTime());
-        contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setRate(87.5);
-        contract.setTerms(Contract.Terms.net15);
-        contract.setValue(87999D);
-        contract = contractService.saveContract(contract);
-        employeeService.addEmployeeToContract(employee.getId(),contract);
-        return contract;
-    }
 
 
     public  Employee getEmployee() {
@@ -142,8 +133,8 @@ public class StartupUtility {
 //            timeSheetEntry.setHours(8);
 //            timeSheetEntry.setDate(new DateTime().plusDays(i));
 //            timeSheetEntryRepository.save(timeSheetEntry);
-//            timeSheet.getTimeSheetEntries().add(timeSheetEntry);
-//            contract.getTimeSheetEntries().add(timeSheetEntry);
+//            timeSheet.getJobs().add(timeSheetEntry);
+//            contract.getJobs().add(timeSheetEntry);
 //        }
 //
 //        return timeSheet;

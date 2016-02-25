@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -17,23 +18,20 @@ public class TimeSheet {
     public TimeSheet() {
     }
 
-    public TimeSheet(Employee employee) {
-        this.employee = employee;
-        if(!employee.getTimesheets().contains(this)){
-            employee.getTimesheets().add(this);
-        }
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "timeSheet")
+    @OneToMany(cascade = CascadeType.ALL)//, mappedBy = "timeSheet")
+    @JoinColumn(name = "TIMESHEET_ID", referencedColumnName = "id")
+    @JsonIgnore
     private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
+
     private Boolean billed;
 
     @ManyToOne(targetEntity = Employee.class)
     @JsonIgnore
+    @RestResource(exported = false)
     private Employee employee;
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
@@ -49,6 +47,10 @@ public class TimeSheet {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
     public List<TimeSheetEntry> getTimeSheetEntries() {
@@ -90,20 +92,12 @@ public class TimeSheet {
 
         TimeSheet timeSheet = (TimeSheet) o;
 
-        if (id != null ? !id.equals(timeSheet.id) : timeSheet.id != null) return false;
-        if (timeSheetEntries != null ? !timeSheetEntries.equals(timeSheet.timeSheetEntries) : timeSheet.timeSheetEntries != null)
-            return false;
-        if (billed != null ? !billed.equals(timeSheet.billed) : timeSheet.billed != null) return false;
-        return employee != null ? employee.equals(timeSheet.employee) : timeSheet.employee == null;
+        return id != null ? id.equals(timeSheet.id) : timeSheet.id == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (timeSheetEntries != null ? timeSheetEntries.hashCode() : 0);
-        result = 31 * result + (billed != null ? billed.hashCode() : 0);
-        result = 31 * result + (employee != null ? employee.hashCode() : 0);
-        return result;
+        return id != null ? id.hashCode() : 0;
     }
 }

@@ -24,7 +24,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  * Created by russbaker on 2/18/16.
  */
 @RestController
-@RequestMapping("/hydrated/customer/")
+@RequestMapping("/hydrated/customer")
 public class CustomerController {
 
 
@@ -168,12 +168,7 @@ public class CustomerController {
     private List<ContractResource> contractToResource(Contract... contracts) {
         List<ContractResource> resources = new ArrayList<>(contracts.length);
         for (Contract contract : contracts) {
-
-            Link selfLink = linkTo(methodOn(CustomerController.class).getContract(contract.getUsers()
-                    .stream()
-                    .filter(user -> user.getRoles() == User.Roles.customer)
-                    .findFirst()
-                    .get()
+            Link selfLink = linkTo(methodOn(CustomerController.class).getContract(contract.getCustomer()
                     .getId(), contract.getId())).withSelfRel();
             resources.add(new ContractResource(contract, selfLink));
         }

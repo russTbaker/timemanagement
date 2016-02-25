@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
@@ -24,6 +25,7 @@ public class Email {
 
     @ManyToOne
     @JsonIgnore
+    @RestResource(exported = false)
     private User user;
 
     @Enumerated(value = EnumType.STRING)

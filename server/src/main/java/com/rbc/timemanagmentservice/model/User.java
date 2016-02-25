@@ -1,7 +1,6 @@
 package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
 
@@ -25,7 +24,6 @@ import java.util.List;
                 @ConversionValue(objectValue = "guest", dataValue = "guest")
         }
 )
-@Data
 public abstract class User {
     public enum Roles {
         administrator,
@@ -46,19 +44,71 @@ public abstract class User {
     private String lastName;
     private String dba;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Roles getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Roles roles) {
+        this.roles = roles;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getDba() {
+        return dba;
+    }
+
+    public void setDba(String dba) {
+        this.dba = dba;
+    }
+
     @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Address> address = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Email> emails = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Phone> phones = new ArrayList<>();
 
 
-    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
-    private List<Contract> contracts = new ArrayList<>();
 
+    public List<Address> getAddress() {
+        return address;
+    }
+
+    public List<Email> getEmails() {
+        return emails;
+    }
+
+    public List<Phone> getPhones() {
+        return phones;
+    }
 
 
     @JsonIgnore
@@ -94,13 +144,7 @@ public abstract class User {
         }
     }
 
-    @JsonIgnore
-    public void addContract(Contract contract){
-        this.contracts.add(contract);
-        if(!contract.getUsers().contains(this)){
-            contract.addUser(this);
-        }
-    }
+
 
 
 }

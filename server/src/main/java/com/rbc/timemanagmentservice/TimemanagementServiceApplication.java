@@ -1,6 +1,5 @@
 package com.rbc.timemanagmentservice;
 
-import com.rbc.timemanagmentservice.persistence.UserRepository;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +12,12 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.mvc.WebContentInterceptor;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class TimemanagementServiceApplication {
     private Environment environment;
 
     @Autowired
-    private UserRepository userRepository;
+    private PlatformTransactionManager transactionManager;
 
     public static void main(String[] args) {
         SpringApplication.run(TimemanagementServiceApplication.class, args);
@@ -43,11 +43,24 @@ public class TimemanagementServiceApplication {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurerAdapter() {
+
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/customers").allowedOrigins("http://localhost:8888");
             }
+
+            @Override
+            public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+                configurer.enable();
+            }
+
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(webContentInterceptor());
+            }
         };
+
+
     }
 
 
@@ -94,6 +107,26 @@ public class TimemanagementServiceApplication {
             public void destroy() {
             }
         });
+    }
+
+
+    @Bean
+    public WebContentInterceptor webContentInterceptor() {
+        WebContentInterceptor interceptor = new WebContentInterceptor();
+        interceptor.setCacheSeconds(0);
+//        interceptor.setUseExpiresHeader(true);
+//        interceptor.setUseCacheControlHeader(true);
+//        interceptor.setUseCacheControlNoStore(true);
+
+        return interceptor;
+    }
+
+    @Bean
+    public InternalResourceViewResolver getInternalResourceViewResolver() {
+        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+        resolver.setPrefix("/WEB-INF/views/");
+        resolver.setSuffix(".jsp");
+        return resolver;
     }
 
 

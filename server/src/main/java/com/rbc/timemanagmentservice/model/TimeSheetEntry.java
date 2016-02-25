@@ -1,11 +1,10 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
-import lombok.ToString;
 import org.joda.time.DateTime;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
@@ -13,14 +12,12 @@ import javax.persistence.*;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@ToString(exclude = "contract")
 public class TimeSheetEntry {
     public TimeSheetEntry() {
     }
-    public TimeSheetEntry(TimeSheet timeSheet, Contract contract) {
-        this.timeSheet = timeSheet;
-        this.contract = contract;
-    }
+//    public TimeSheetEntry(TimeSheet timeSheet) {
+//        this.timeSheet = timeSheet;
+//    }
 
 
 
@@ -28,23 +25,27 @@ public class TimeSheetEntry {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "timesheetId")
-    private TimeSheet timeSheet;
 
-    @ManyToOne
-    @JsonIgnore
-    private Contract contract;
+//    @ManyToOne
+//    @JoinColumn(name = "timesheetId")
+//    @RestResource(exported = false)
+//    private TimeSheet timeSheet;
 
-    @JsonProperty(value = "contract")
-    public Integer getContractId(){
-        return contract.getId();
-    }
+//    @ManyToOne
+//    @JoinColumn(name = "contractId")
+//    @RestResource(exported = false)
+//    private Job job;
 
-//    @JsonProperty(value = "contract")
-//    public void setContractId(Integer contractId){
-//        this.contract.setId(contractId);
+    @Column(name = "TIMESHEET_ID")
+    private Integer timesheetId;
+
+    @Column(name = "JOB_ID")
+    private Integer jobId;
+
+
+    //    @JsonProperty(value = "job")
+//    public Integer getContractId(){
+//        return job.getId();
 //    }
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
@@ -61,6 +62,28 @@ public class TimeSheetEntry {
     public void setId(Integer id) {
         this.id = id;
     }
+    public Integer getTimesheetId() {
+        return timesheetId;
+    }
+
+    public void setTimesheetId(Integer timesheetId) {
+        this.timesheetId = timesheetId;
+    }
+
+    public Integer getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(Integer jobId) {
+        this.jobId = jobId;
+    }
+    //    public void setTimeSheet(TimeSheet timeSheet) {
+//        this.timeSheet = timeSheet;
+//    }
+//
+//    public void setJob(Job job) {
+//        this.job = job;
+//    }
 
     public DateTime getDate() {
         return date;
@@ -78,11 +101,11 @@ public class TimeSheetEntry {
         this.hours = hours;
     }
 
-    public Contract getContract() {
-        return contract;
-    }
-
-    public TimeSheet getTimeSheet() {
-        return timeSheet;
-    }
+//    public Job getJob() {
+//        return job;
+//    }
+//
+//    public TimeSheet getTimeSheet() {
+//        return timeSheet;
+//    }
 }

@@ -7,6 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 /**
  * Created by rbaker on 2/6/16.
  */
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface InvoiceRepository extends PagingAndSortingRepository<Invoice,Integer>{
 }
