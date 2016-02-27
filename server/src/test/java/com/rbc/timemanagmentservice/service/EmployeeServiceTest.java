@@ -3,6 +3,8 @@ package com.rbc.timemanagmentservice.service;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.NotFoundException;
 import java.util.List;
 
@@ -23,7 +26,7 @@ import static junit.framework.TestCase.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
 @Transactional
-public class EmployeeServiceTest {
+public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     public static final int HOURS = 8;
     @Autowired
@@ -39,10 +42,14 @@ public class EmployeeServiceTest {
     @Autowired
     private StartupUtility startupUtility;
 
+    @Before
+    public void setUp(){
+        super.setUserService(employeeService);
+    }
     @Test
     public void whenFindingAllEmployees_expectAllEmployeesFound() throws Exception {
         // Assemble
-        Employee employee = createEmployee();
+        Employee employee = createUser();
         assertNotNull("No employee created", employee);
 
         // Act
@@ -68,7 +75,7 @@ public class EmployeeServiceTest {
     @Test(expected = NotFoundException.class)
     public void whenDeletingEmployee_expectEmployeeDeleted() throws Exception {
         // Assemble
-        Employee employee = createEmployee();
+        Employee employee = createUser();
 
         // Act
         employeeService.deleteEmployee(employee.getId());
@@ -98,7 +105,7 @@ public class EmployeeServiceTest {
     @Test
     public void whenAddingUsernameAndPasswordToExistingEmployee_expectAdded() throws Exception {
         // Assemble
-        Employee employee = createEmployee();
+        Employee employee = createUser();
         employee.setUsername("otherUsername");
         employee.setPassword("otherPassword");
 
@@ -111,85 +118,7 @@ public class EmployeeServiceTest {
         assertNotNull("Password is empty", updated.getPassword());
     }
 
-    //---------- Address
 
-    @Test
-    public void whenAddingAddressToEmployeeExpectAddressAdded() throws Exception {
-        Employee employee = addAddressToEmployee();
-
-
-        // Assert
-        Employee result = employeeService.getEmployee(employee.getId());
-        final List<Address> addresses = result.getAddress();
-        assertFalse("No addresses added",CollectionUtils.isEmpty(addresses));
-        for(Address addr:addresses){
-            assertNotNull("No Id",addr.getId());
-        }
-
-    }
-
-    @Test
-    public void whenDeletingAddressFromEmployee_expectAddressDeleted() throws Exception {
-        // Assemble
-        Employee employee = addAddressToEmployee();
-
-        // Act
-        employeeService.removeAddressFromEmployee(employee.getId(),employee.getAddress().get(0).getId());
-
-        // Assert
-        assertTrue("Address not removed",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getAddress()));
-
-    }
-
-    //---------- Phones
-
-    @Test
-    public void whenAddingPhoneToEmployee_expectPhoneAdded() throws Exception {
-        // Assemble
-        Employee employee = addPhoneToEmployee();
-
-        // Assert
-        assertFalse("No phones added",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getPhones()));
-
-    }
-
-    @Test
-    public void whenDeletingPhonesFromEmployee_expectAddressDeleted() throws Exception {
-        // Assemble
-        Employee employee = addPhoneToEmployee();
-
-        // Act
-        employeeService.removePhoneFromEmployee(employee.getId(),employee.getPhones().get(0).getId());
-
-        // Assert
-        assertTrue("Phone not removed",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getPhones()));
-
-    }
-
-    //-------------- Emails
-
-    @Test
-    public void whenAddingEmailToEmployee_expectPhoneAdded() throws Exception {
-        // Assemble
-        Employee employee = addEmailToEmployee();
-
-        // Assert
-        assertFalse("No emails added",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getEmails()));
-
-    }
-
-    @Test
-    public void whenDeletingEmailFromEmployee_expectAddressDeleted() throws Exception {
-        // Assemble
-        Employee employee = addEmailToEmployee();
-
-        // Act
-        employeeService.removeEmailFromEmployee(employee.getId(),employee.getEmails().get(0).getId());
-
-        // Assert
-        assertTrue("Email not removed",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getPhones()));
-
-    }
 
     //------------- Jobs
 
@@ -260,7 +189,7 @@ public class EmployeeServiceTest {
     @Test
     public void whenAddingTimeSheetToEmployee_expectTimesheetAdded() throws Exception {
         // Assemble
-        Employee employee = createEmployee();
+        Employee employee = createUser();
         getTimeSheet(employee);
 
         // Assert
@@ -275,7 +204,7 @@ public class EmployeeServiceTest {
     @Test
     public void whenUpdatingTimeEntries_expectTimeEntriesUpdated() throws Exception {
         // Assemble
-        Employee employee = createEmployee();
+        Employee employee = createUser();
         Timesheet timesheet = getTimeSheet(employee);//employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
         TimeSheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
         timeSheetEntry.setHours(HOURS);
@@ -297,7 +226,7 @@ public class EmployeeServiceTest {
         assertTrue("TimeSheets should be empty", CollectionUtils.isEmpty(employee.getTimesheets()));
     }
 
-    private Employee createEmployee() {
+    public Employee createUser() {
         Employee employee = new Employee();
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
@@ -316,31 +245,4 @@ public class EmployeeServiceTest {
         return employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
     }
 
-    private Employee addAddressToEmployee() {
-        // Assemble
-        Employee employee = createEmployee();
-        Address address = startupUtility.getAddress();
-
-        // Act
-        employeeService.addAddressToEmployee(employee.getId(),address);
-        return employee;
-    }
-
-    private Employee addPhoneToEmployee() {
-        Employee employee = createEmployee();
-        Phone phone = startupUtility.getPhone();
-
-        // Act
-        employeeService.addPhoneToEmployee(employee.getId(),phone);
-        return employee;
-    }
-
-    private Employee addEmailToEmployee() {
-        Employee employee = createEmployee();
-        Email email = startupUtility.getEmail("username");
-
-        // Act
-        employeeService.addEmailToEmployee(employee.getId(),email);
-        return employee;
-    }
 }

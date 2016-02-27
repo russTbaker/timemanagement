@@ -80,14 +80,14 @@ public class EmployeeController {
 //                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
 //                }).get();
         email.setId(emailId);
-        employeeService.addEmailToEmployee(employeeId, email);
+        employeeService.addEmailToUser(employeeId, email);
         return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/{employeeId}/emails/{emailId}", method = RequestMethod.DELETE)
     public void deleteEmployeeEmail(@PathVariable(value = "employeeId") Integer employeeId,
                                     @PathVariable(value = "emailId") Integer emailId) {
-        employeeService.removeEmailFromEmployee(employeeId, emailId);
+        employeeService.removeEmailFromUser(employeeId, emailId);
     }
 
     //--------- Address
@@ -95,7 +95,7 @@ public class EmployeeController {
     @RequestMapping(value = "/{employeeId}/address", method = RequestMethod.POST)
     public ResponseEntity<?> addEmployeeAddress(@PathVariable(value = "employeeId") Integer employeeId,
                                                 @RequestBody Address address) {
-        employeeService.addAddressToEmployee(employeeId, address);
+        employeeService.addAddressToUser(employeeId, address);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -126,7 +126,7 @@ public class EmployeeController {
     @RequestMapping(value = "/{employeeId}/address/{addressId}", method = RequestMethod.DELETE)
     public void deleteAddress(@PathVariable(value = "employeeId") Integer employeeId,
                               @PathVariable(value = "addressId") Integer addressId) {
-        employeeService.removeAddressFromEmployee(employeeId, addressId);
+        employeeService.removeAddressFromUser(employeeId, addressId);
     }
 
     //---------- Phone
@@ -136,7 +136,7 @@ public class EmployeeController {
                                           @PathVariable(value = "phoneId") Integer phoneId,
                                           @RequestBody Phone phone) {
         phone.setId(phoneId);
-        employeeService.addPhoneToEmployee(employeeId,phone);
+        employeeService.addPhoneToUser(employeeId,phone);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -148,7 +148,7 @@ public class EmployeeController {
     @RequestMapping(value =  "/{employeeId}/phones/{phoneId}", method = RequestMethod.DELETE)
     public void deleteEmployeePhone(@PathVariable(value = "employeeId") Integer employeeId,
                                     @PathVariable(value = "phoneId") Integer phoneId) {
-        employeeService.removePhoneFromEmployee(employeeId, phoneId);
+        employeeService.removePhoneFromUser(employeeId, phoneId);
     }
 
     //------------- Timesheet

@@ -68,7 +68,7 @@ public class TimemanagementServiceApplication {
     @Transactional(propagation = Propagation.REQUIRED)
     public CommandLineRunner demo(StartupUtility startupUtility) {
         return (args) -> {
-            if(environment.getActiveProfiles().length != 0 && Arrays.asList(environment.getActiveProfiles()).contains("runtime")){
+            if(environment.getActiveProfiles().length != 0 && Arrays.asList(environment.getActiveProfiles()).contains("demo")){
                 startupUtility.init();
             }
         };

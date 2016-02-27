@@ -1,9 +1,8 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.ContractRepository;
-import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import com.rbc.timemanagmentservice.persistence.JobRepository;
+import com.rbc.timemanagmentservice.persistence.UserRepository;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.springframework.beans.BeanUtils;
@@ -22,17 +21,16 @@ import java.util.List;
  * Created by russbaker on 2/16/16.
  */
 @Repository
-public class EmployeeService {
+public class EmployeeService extends UserService {
 
     public static final int DAYS_PER_WEEK = 7;
-    private final EmployeeRepository employeeRepository;
-    private final ContractRepository contractRepository;
+    private final UserRepository userRepository;
     private final JobRepository jobRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, ContractRepository contractRepository, JobRepository jobRepository) {
-        this.employeeRepository = employeeRepository;
-        this.contractRepository = contractRepository;
+    public EmployeeService(UserRepository userRepository, JobRepository jobRepository) {
+        super(userRepository);
+        this.userRepository = userRepository;
         this.jobRepository = jobRepository;
     }
 
@@ -41,82 +39,23 @@ public class EmployeeService {
      * Requires phone, email and address populated
      */
     public Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+        return (Employee) userRepository.save(employee);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Employee updateEmployee(final Employee employee) {
-        return employeeRepository.save(employee);
+        return (Employee) userRepository.save(employee);
     }
 
 
 
-    //--------- Address
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void addAddressToEmployee(final Integer employeeId, final Address address){
-        final Employee employee = employeeRepository.findOne(employeeId);
-        employee.addAddress(address);
-        employeeRepository.save(employee);
-    }
-
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removeAddressFromEmployee(Integer employeeId, Integer addressId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        final List<Address> addresses = employee.getAddress();
-        addresses.remove(addresses.stream()
-                .filter(address -> address.getId().equals(addressId))
-                .findFirst()
-                .get());
-        employeeRepository.save(employee);
-    }
-
-    //----------- Phone
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void addPhoneToEmployee(Integer employeeId, Phone phone) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        employee.addPhone(phone);
-        employeeRepository.save(employee);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removePhoneFromEmployee(Integer employeeId, Integer phoneId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        final List<Phone> phones = employee.getPhones();
-        phones.remove(phones.stream()
-                .filter(phone -> phone.getId().equals(phoneId))
-                .findFirst()
-                .get());
-        employeeRepository.save(employee);
-    }
-
-    //--------- Email
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void addEmailToEmployee(Integer employeeId, Email email) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        employee.addEmail(email);
-        employeeRepository.save(employee);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removeEmailFromEmployee(Integer employeeId, Integer emailId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        final List<Email> emails = employee.getEmails();
-        emails.remove(emails.stream()
-                .filter(email -> email.getId().equals(emailId))
-                .findFirst()
-                .get());
-        employeeRepository.save(employee);
-    }
 
     //------------- Job
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void addEmployeeToJob(final Integer employeeId, Job job) {
-        final Employee employee = employeeRepository.findOne(employeeId);
+        final Employee employee = (Employee) userRepository.findOne(employeeId);
         job = job.getId() != null ? jobRepository.findOne(job.getId()) :
                 jobRepository.save(job);
         employee.addJob(job);
@@ -124,7 +63,7 @@ public class EmployeeService {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public Employee getEmployee(Integer id) {
-        final Employee employee = employeeRepository.findOne(id);
+        final Employee employee = (Employee) userRepository.findOne(id);
         if (employee == null) {
             throw new NotFoundException("Employee with id: " + id + " not found.");
         }
@@ -136,8 +75,8 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public List<Employee> findAll(Integer start, Integer end) {
         final List<Employee> employeeList = start != null && end != null ?
-                employeeRepository.findAll(new PageRequest(start, end)).getContent()
-                : employeeRepository.findAll();
+                userRepository.findAll(new PageRequest(start, end)).getContent()
+                : (List<Employee>) userRepository.findAll();
         if (CollectionUtils.isEmpty(employeeList)) {
             throw new NotFoundException("List of employees is empty");
         }
@@ -146,7 +85,7 @@ public class EmployeeService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteEmployee(Integer employeeId) {
-        employeeRepository.delete(employeeId);
+        userRepository.delete(employeeId);
     }
 
     //--------- Timesheeets
@@ -154,7 +93,7 @@ public class EmployeeService {
     //TODO: Rework for job
     @Transactional(propagation = Propagation.REQUIRED)
     public void createTimeSheet(final Integer employeeId, final Integer jobId) {
-        Employee employee = employeeRepository.findOne(employeeId);
+        Employee employee = (Employee) userRepository.findOne(employeeId);
         final Job job = jobRepository.findOne(jobId);
         final Timesheet timeSheet = new Timesheet();
         final List<TimeSheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
@@ -169,7 +108,7 @@ public class EmployeeService {
         timeSheet.setBilled(false);
 
         employee.addTimeSheet(timeSheet);
-        employeeRepository.save(employee);
+        userRepository.save(employee);
         Timesheet latestTimeSheet = getLatestTimeSheet(employeeId);
         latestTimeSheet.getTimeSheetEntries().stream().forEach(tse -> {
             tse.setTimesheetId(latestTimeSheet.getId());
@@ -181,7 +120,7 @@ public class EmployeeService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void addTimeSheetEntry(Integer employeeId, Integer timeSheetId, TimeSheetEntry timeSheetEntry,
                                   Integer timeSheetEntryId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
+        final Employee employee = (Employee) userRepository.findOne(employeeId);
         final Timesheet timeSheet = employee.getTimesheets()
                 .stream()
                 .filter(timeSheet1 -> timeSheet1.getId().equals(timeSheetId))
@@ -195,7 +134,7 @@ public class EmployeeService {
     }
 
     public Timesheet getLatestTimeSheet(Integer employeeId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
+        final Employee employee = (Employee) userRepository.findOne(employeeId);
         if (employee != null) {
             final List<Timesheet> timesheets = employee.getTimesheets();
             timesheets.sort((o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()));

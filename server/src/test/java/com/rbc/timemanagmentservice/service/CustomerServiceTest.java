@@ -15,10 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.*;
 
 /**
  * Created by russbaker on 2/18/16.
@@ -26,7 +25,7 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
 @Transactional
-public class CustomerServiceTest {
+public class CustomerServiceTest extends UserServiceTest<Customer>{
     @Autowired
     private CustomerService customerService;
 
@@ -40,7 +39,8 @@ public class CustomerServiceTest {
 
     @Before
     public void setUp() {
-        customer = createCustomer();
+        super.setUserService(customerService);
+        customer = createUser();
     }
 
     @Test
@@ -79,6 +79,20 @@ public class CustomerServiceTest {
     }
 
     @Test
+    public void whenUpdatingCustomer_expectCustomerUpdated() throws Exception {
+        // Assemble
+        Customer customer = startupUtility.getCustomer();
+        customer.setName("new Name");
+
+        // Act
+        Customer result = customerService.updateCustomer(customer);
+        assertEquals("Customer not updated", customer.getName(), result.getName());
+    }
+
+
+    //-- Contracts
+
+    @Test
     public void whenAddingNewContractToCustomer_expectContractAdded() throws Exception {
         // Assemble
         Contract contract = new Contract();
@@ -96,20 +110,11 @@ public class CustomerServiceTest {
         assertFalse("No contracts added to customer", CollectionUtils.isEmpty(result.getContracts()));
     }
 
-    @Test
-    public void whenUpdatingCustomer_expectCustomerUpdated() throws Exception {
-        // Assemble
-        Customer customer = startupUtility.getCustomer();
-        customer.setName("new Name");
 
-        // Act
-        Customer result = customerService.updateCustomer(customer);
-        assertEquals("Customer not updated", customer.getName(), result.getName());
-    }
 
     // Private Methods
 
-    private Customer createCustomer() {
+    public Customer createUser() {
         Customer customer = new Customer();
         customer.setName("TEST");
         customer.setFirstName("Jonathan");
@@ -117,35 +122,7 @@ public class CustomerServiceTest {
         customer.setName("Z2M4");
         customer.setContactName("Jon");
         customer.setRoles(User.Roles.customer);
-        customer.addAddress(getAddress(customer));
-        customer.addEmail(getEmail(customer));
-        customer.addPhone(getPhone(customer));
-
         return customerService.createCustomer(customer);
     }
 
-    private static Email getEmail(User user) {
-        Email email = new Email();
-        email.setEmail("jonathan@z2m4.com");
-        email.setEmailType(Email.EmailTypes.both);
-        email.setUser(user);
-        return email;
-    }
-
-    private static Address getAddress(User user) {
-        Address address = new Address();
-        address.setUser(user);
-        address.setStreet1("73 Linden Cyn.");
-        address.setCity("Boulder");
-        address.setZip("80304");
-        address.setState("CO");
-        return address;
-    }
-
-    private static Phone getPhone(User user) {
-        Phone phone = new Phone();
-        phone.setUser(user);
-        phone.setPhone("3035551212");
-        return phone;
-    }
 }
