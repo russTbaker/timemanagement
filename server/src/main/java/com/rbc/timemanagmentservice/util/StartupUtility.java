@@ -121,9 +121,9 @@ public class StartupUtility {
 
 
 
-//    public  TimeSheet getTimeSheet( Employee employee,
+//    public  Timesheet getTimeSheet( Employee employee,
 //                                   Contract contract){
-//        TimeSheet timeSheet = new TimeSheet(employee);
+//        Timesheet timeSheet = new Timesheet(employee);
 //        timeSheet.setBilled(false);
 //        timeSheet.setStartDate(new DateTime());
 //        timeSheet.setEndDate(timeSheet.getStartDate().plusDays(7));

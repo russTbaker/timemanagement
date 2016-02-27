@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
@@ -22,5 +23,6 @@ public class Phone {
 
     @ManyToOne
     @JsonIgnore
+    @RestResource(exported = false)
     private User user;
 }

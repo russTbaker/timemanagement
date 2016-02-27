@@ -84,7 +84,7 @@ public abstract class User {
         this.dba = dba;
     }
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = {CascadeType.ALL})
     @JsonIgnore
     private List<Address> address = new ArrayList<>();
 
@@ -100,6 +100,12 @@ public abstract class User {
 
     public List<Address> getAddress() {
         return address;
+    }
+
+    public void setAddress(List<Address> address){
+        for(Address address1:address){
+            addAddress(address1);
+        }
     }
 
     public List<Email> getEmails() {

@@ -14,8 +14,8 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-public class TimeSheet {
-    public TimeSheet() {
+public class Timesheet {
+    public Timesheet() {
     }
 
     @Id
@@ -88,9 +88,9 @@ public class TimeSheet {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TimeSheet)) return false;
+        if (!(o instanceof Timesheet)) return false;
 
-        TimeSheet timeSheet = (TimeSheet) o;
+        Timesheet timeSheet = (Timesheet) o;
 
         return id != null ? id.equals(timeSheet.id) : timeSheet.id == null;
 

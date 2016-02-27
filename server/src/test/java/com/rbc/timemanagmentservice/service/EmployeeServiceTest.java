@@ -62,10 +62,10 @@ public class EmployeeServiceTest {
     public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
         // Assemble
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
-        TimeSheet timesheet = getTimeSheet(employee);
+        Timesheet timesheet = getTimeSheet(employee);
 
         // Act
-        TimeSheet result = employeeService.getLatestTimeSheet(employee.getId());
+        Timesheet result = employeeService.getLatestTimeSheet(employee.getId());
 
         // Assert
         assertNotNull("No timesheets returned", result);
@@ -133,13 +133,8 @@ public class EmployeeServiceTest {
 
     @Test
     public void whenAddingAddressToEmployeeExpectAddressAdded() throws Exception {
-        // Assemble
-        Employee employee = createEmployee();
-        Address address = startupUtility.getAddress();
-        employee.addAddress(address);
+        Employee employee = addAddressToEmployee();
 
-        // Act
-        employeeService.updateEmployee(employee);
 
         // Assert
         Employee result = employeeService.getEmployee(employee.getId());
@@ -150,6 +145,23 @@ public class EmployeeServiceTest {
         }
 
     }
+
+
+
+
+    @Test
+    public void whenDeletingAddressFromEmployee_expectAddressDeleted() throws Exception {
+        // Assemble
+        Employee employee = addAddressToEmployee();
+
+        // Act
+        employeeService.removeAddressFromEmployee(employee.getId(),employee.getAddress().get(0).getId());
+
+        // Assert
+        assertTrue("Address not removed",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getAddress()));
+
+    }
+
     @Test
     public void whenAddingContractToEmployee_expectContractAdded() throws Exception {
         // Assemble
@@ -190,7 +202,7 @@ public class EmployeeServiceTest {
         getTimeSheet(employee);
 
         // Assert
-        TimeSheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
+        Timesheet timesheet = employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
         assertNotNull("No timesheet created", timesheet);
         assertNotNull("No timesheet persisted", timesheet.getId());
         List<TimeSheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
@@ -202,7 +214,7 @@ public class EmployeeServiceTest {
     public void whenUpdatingTimeEntries_expectTimeEntriesUpdated() throws Exception {
         // Assemble
         Employee employee = createEmployee();
-        TimeSheet timesheet = getTimeSheet(employee);//employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
+        Timesheet timesheet = getTimeSheet(employee);//employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
         TimeSheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
         timeSheetEntry.setHours(HOURS);
 
@@ -245,11 +257,21 @@ public class EmployeeServiceTest {
         return employeeService.createEmployee(employee);
     }
 
-    private TimeSheet getTimeSheet(Employee employee) {
+    private Timesheet getTimeSheet(Employee employee) {
         Contract contract = contractService.saveContract(new Contract());
 
         Job job = contractService.createJob(new Job(),contract.getId());
         employeeService.createTimeSheet(employee.getId(), job.getId());
         return employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
+    }
+
+    private Employee addAddressToEmployee() {
+        // Assemble
+        Employee employee = createEmployee();
+        Address address = startupUtility.getAddress();
+
+        // Act
+        employeeService.addAddressToEmployee(employee.getId(),address);
+        return employee;
     }
 }

@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
@@ -15,6 +16,7 @@ public class Address {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
+//    @RestResource(exported = false)
     private User user;
 
     private String street1;

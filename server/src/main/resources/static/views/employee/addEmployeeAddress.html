@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/tomorrow-night.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+    <title>Add Employee Address</title>
+</head>
+<body ng-app="timesheetApp">
+<div class="page-header">
+    <h1>Add Employee Address for {{employee}}</h1>
+</div>
+<div class="container" ng-controller="EditEmployeeAddressController">
+    <div class="form-group" >
+        <form class="form-horizontal" role="form" ng-submit="addEmployeeAddress(employee)">
+            <div class="input-group">
+                <table class="table">
+                    <th>Street 1</th>
+                    <th>Street 2</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zip Code</th>
+                    <tr>
+                        <td><input type="text" class="form-control" ng-model="employee.address.street1"
+                                   placeholder="Street 1"/></td>
+                        <td><input type="text" class="form-control" ng-model="employee.address.street2"
+                                   placeholder="Enter Street2"/></td>
+                        <td><input type="text" class="form-control" ng-model="employee.address.city"
+                                   placeholder="Enter City"/></td>
+                        <td><input type="text" class="form-control" ng-model="employee.address.state"
+                                   placeholder="Enter State"/></td>
+                        <td><input type="text" class="form-control" ng-model="employee.address.zip"
+                                   placeholder="Enter Zip Code"/></td>
+                    </tr>
+                </table>
+            <span class="input-group-btn">
+            <button class="btn btn-default" type="submit" title="Add">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            </span>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

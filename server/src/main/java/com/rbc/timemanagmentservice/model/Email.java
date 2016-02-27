@@ -20,7 +20,6 @@ public class Email {
     private Integer id;
 
     @org.hibernate.validator.constraints.Email
-//    @JsonProperty(value = "emailAddress")
     private String email;
 
     @ManyToOne

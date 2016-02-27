@@ -198,7 +198,7 @@ public class EmployeeControllerTest extends ControllerTests{
     @Test
     public void whenPuttingTimeSheetEntry_expectEntryAdded() throws Exception {
         // Assemble
-        final TimeSheet timeSheet = employee.getTimesheets().get(0);
+        final Timesheet timeSheet = employee.getTimesheets().get(0);
         TimeSheetEntry firstTimeSheetEntry = timeSheet.getTimeSheetEntries().get(0);
         firstTimeSheetEntry.setHours(12);
         final String url = ROOT_URI + employee.getId() + "/timesheet/" + timeSheet.getId()

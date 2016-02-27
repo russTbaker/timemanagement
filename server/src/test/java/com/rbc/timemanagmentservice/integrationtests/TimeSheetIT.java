@@ -65,13 +65,13 @@ public class TimeSheetIT {
 
         // Act
 //        addEmployeeToContract(employee,contract);
-        TimeSheet timeSheet = getTimesheet(contract.getJobs().get(0));
+        Timesheet timeSheet = getTimesheet(contract.getJobs().get(0));
         employee.addTimeSheet(timeSheet);
         employee = employeeRepository.save(employee);
 
 
         // Assert
-        TimeSheet result = timeSheetRepository.findOne(employee.getTimesheets().get(0).getId());
+        Timesheet result = timeSheetRepository.findOne(employee.getTimesheets().get(0).getId());
         final List<TimeSheetEntry> timeSheetEntries = result.getTimeSheetEntries();
         assertFalse("No timesheet entries returned", CollectionUtils.isEmpty(timeSheetEntries));
         assertEquals("Wrong number of timesheet entries",7, timeSheetEntries.size());
@@ -124,13 +124,13 @@ public class TimeSheetIT {
     }
 
 
-    private TimeSheet getTimesheet(Job contract){
-        TimeSheet timeSheet = new TimeSheet();
+    private Timesheet getTimesheet(Job contract){
+        Timesheet timeSheet = new Timesheet();
         timeSheet.getTimeSheetEntries().addAll(getWeekOfTimeSheetEntries(contract, timeSheet));
         return timeSheet;
     }
 
-    private List<TimeSheetEntry> getWeekOfTimeSheetEntries(Job contract, TimeSheet timeSheet) {
+    private List<TimeSheetEntry> getWeekOfTimeSheetEntries(Job contract, Timesheet timeSheet) {
         List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
         for(int i=0;i<7;i++) {
             TimeSheetEntry timeSheetEntry = new TimeSheetEntry();

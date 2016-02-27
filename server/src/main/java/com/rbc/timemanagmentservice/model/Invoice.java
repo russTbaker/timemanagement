@@ -18,8 +18,8 @@ public class Invoice {
 
     @ManyToMany(targetEntity = Contract.class)
     private List<Contract> contracts;
-    @OneToMany(targetEntity = TimeSheet.class)
-    private List<TimeSheet> timeSheets;
+    @OneToMany(targetEntity = Timesheet.class)
+    private List<Timesheet> timeSheets;
     private DateTime invoiceDate;
     private DateTime dueDate;
     private boolean paid;

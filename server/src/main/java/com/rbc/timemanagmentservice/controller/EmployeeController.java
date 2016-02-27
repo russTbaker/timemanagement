@@ -8,6 +8,7 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -55,8 +56,9 @@ public class EmployeeController {
     }
 
     @RequestMapping(value = "/{employeeId}", method = RequestMethod.DELETE)
-    public void deleteEmployee(@PathVariable("employeeId") Integer employeeId){
+    public ResponseEntity<?> deleteEmployee(@PathVariable("employeeId") Integer employeeId){
         employeeService.deleteEmployee(employeeId);
+        return new ResponseEntity<Object>(null,HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "/{employeeId}/email/{emailId}", method = RequestMethod.PUT)
@@ -78,6 +80,17 @@ public class EmployeeController {
                 }).get();
     }
 
+    @RequestMapping(value = "/{employeeId}/address", method = RequestMethod.POST)
+    public ResponseEntity<?> addEmployeeAddress(@PathVariable(value = "employeeId") Integer employeeId,
+    @RequestBody Address address){
+        employeeService.addAddressToEmployee(employeeId,address);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(address.getId()).toUri());
+        return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+    }
+
 
     @RequestMapping(value = "/{employeeId}/address/{addressId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateAddress(@PathVariable(value = "employeeId") Integer employeeId,
@@ -96,6 +109,12 @@ public class EmployeeController {
 
                     return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
                 }).get();
+    }
+
+    @RequestMapping(value = "/{employeeId}/address/{addressId}", method = RequestMethod.DELETE)
+    public void deleteAddress(@PathVariable(value = "employeeId") Integer employeeId,
+                                           @PathVariable(value = "addressId") Integer addressId) {
+        employeeService.removeAddressFromEmployee(employeeId, addressId);
     }
 
     @RequestMapping(value = "/{employeeId}/phone/{phoneId}", method = RequestMethod.PUT)
@@ -123,7 +142,7 @@ public class EmployeeController {
             consumes = "application/hal+json")
     public Resources<TimeSheetResource> getTimesheet(@PathVariable("employeeId") Integer employeeId,
                                                      @PathVariable("timesheetId") Integer timesheetId) {
-        TimeSheet timesheet = employeeService.getEmployee(employeeId).getTimesheets()
+        Timesheet timesheet = employeeService.getEmployee(employeeId).getTimesheets()
                 .stream()
                 .filter(timeSheet -> timeSheet.getId().equals(timesheetId))
                 .findFirst()
@@ -169,7 +188,7 @@ public class EmployeeController {
     @RequestMapping(path = "/{employeeId}/timesheet", produces = "application/hal+json")
     public Resources<TimeSheetResource> getLatestTimeSheet(@PathVariable("employeeId") Integer employeeId) {
         final Link link = linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(employeeId)).withSelfRel();
-        final TimeSheet latestTimeSheet = employeeService.getLatestTimeSheet(employeeId);
+        final Timesheet latestTimeSheet = employeeService.getLatestTimeSheet(employeeId);
         List<TimeSheetResource> resources = timeSheetToResource(latestTimeSheet);
         return new Resources<>(resources, link);
 
@@ -208,8 +227,8 @@ public class EmployeeController {
 
 
         public List<EmployeeController.TimeSheetResource> getTimeSheets() {
-            final List<TimeSheet> timesheets = this.employee.getTimesheets();
-            return timeSheetToResource(timesheets.toArray(new TimeSheet[timesheets.size()]));
+            final List<Timesheet> timesheets = this.employee.getTimesheets();
+            return timeSheetToResource(timesheets.toArray(new Timesheet[timesheets.size()]));
         }
     }
 
@@ -227,18 +246,18 @@ public class EmployeeController {
         return resources;
     }
 
-    //--------- TimeSheet
+    //--------- Timesheet
 
     class TimeSheetResource extends ResourceSupport {
-        private final TimeSheet timeSheet;
+        private final Timesheet timeSheet;
 
-        public TimeSheetResource(TimeSheet timeSheet) {
+        public TimeSheetResource(Timesheet timeSheet) {
             this.timeSheet = timeSheet;
             this.add(linkTo(methodOn(EmployeeController.class).getTimesheet(timeSheet.getEmployee().getId(),timeSheet.getId())).withSelfRel());
             this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(timeSheet.getEmployee().getId())).withRel(TIMESHEETS));
         }
 
-        public TimeSheet getTimesheet() {
+        public Timesheet getTimesheet() {
             return this.timeSheet;
         }
 
@@ -249,9 +268,9 @@ public class EmployeeController {
     }
 
     @SuppressWarnings("unchecked")
-    List<TimeSheetResource> timeSheetToResource(TimeSheet... timeSheets) {
+    List<TimeSheetResource> timeSheetToResource(Timesheet... timeSheets) {
         List<TimeSheetResource> resources = new ArrayList<>(timeSheets.length);
-        for (TimeSheet timesheet : timeSheets) {
+        for (Timesheet timesheet : timeSheets) {
             resources.add(new TimeSheetResource(timesheet));
         }
         return resources;

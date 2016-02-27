@@ -15,38 +15,17 @@ import javax.persistence.*;
 public class TimeSheetEntry {
     public TimeSheetEntry() {
     }
-//    public TimeSheetEntry(TimeSheet timeSheet) {
-//        this.timeSheet = timeSheet;
-//    }
-
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
 
-//    @ManyToOne
-//    @JoinColumn(name = "timesheetId")
-//    @RestResource(exported = false)
-//    private TimeSheet timeSheet;
-
-//    @ManyToOne
-//    @JoinColumn(name = "contractId")
-//    @RestResource(exported = false)
-//    private Job job;
-
     @Column(name = "TIMESHEET_ID")
     private Integer timesheetId;
 
     @Column(name = "JOB_ID")
     private Integer jobId;
-
-
-    //    @JsonProperty(value = "job")
-//    public Integer getContractId(){
-//        return job.getId();
-//    }
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime date;
@@ -77,13 +56,6 @@ public class TimeSheetEntry {
     public void setJobId(Integer jobId) {
         this.jobId = jobId;
     }
-    //    public void setTimeSheet(TimeSheet timeSheet) {
-//        this.timeSheet = timeSheet;
-//    }
-//
-//    public void setJob(Job job) {
-//        this.job = job;
-//    }
 
     public DateTime getDate() {
         return date;
@@ -100,12 +72,4 @@ public class TimeSheetEntry {
     public void setHours(Integer hours) {
         this.hours = hours;
     }
-
-//    public Job getJob() {
-//        return job;
-//    }
-//
-//    public TimeSheet getTimeSheet() {
-//        return timeSheet;
-//    }
 }

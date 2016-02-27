@@ -17,9 +17,9 @@ public class Employee extends User{
 
     @OneToMany(cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<TimeSheet> timesheets = new ArrayList<>();
+    private List<Timesheet> timesheets = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 
@@ -28,7 +28,7 @@ public class Employee extends User{
     }
 
 
-    public List<TimeSheet> getTimesheets() {
+    public List<Timesheet> getTimesheets() {
         return timesheets;
     }
 
@@ -54,7 +54,7 @@ public class Employee extends User{
 
 
     @JsonIgnore
-    public void addTimeSheet(TimeSheet timeSheet) {
+    public void addTimeSheet(Timesheet timeSheet) {
         if (!this.timesheets.contains(timeSheet)) {
             this.timesheets.add(timeSheet);
             timeSheet.setEmployee(this);

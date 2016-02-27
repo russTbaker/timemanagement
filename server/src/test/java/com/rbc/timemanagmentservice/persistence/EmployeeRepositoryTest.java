@@ -47,7 +47,7 @@ public class EmployeeRepositoryTest {
         final Employee employee = new Employee();
         employee.addJob(job);
         Employee saved = employeeRepository.save(employee);
-        final TimeSheet timesheet = new TimeSheet();
+        final Timesheet timesheet = new Timesheet();
         timesheet.getTimeSheetEntries().add(new TimeSheetEntry());
         saved.addTimeSheet(timesheet);
         saved.addEmail(new Email());
@@ -56,8 +56,8 @@ public class EmployeeRepositoryTest {
 
         // Assert
         assertFalse("Timesheet list is empty",CollectionUtils.isEmpty(result.getTimesheets()));
-        for(TimeSheet timeSheet: result.getTimesheets()) {
-            assertFalse("TimeSheet entries list is empty",CollectionUtils.isEmpty(timeSheet.getTimeSheetEntries()));
+        for(Timesheet timeSheet: result.getTimesheets()) {
+            assertFalse("Timesheet entries list is empty",CollectionUtils.isEmpty(timeSheet.getTimeSheetEntries()));
         }
         assertFalse("Email list is empty",CollectionUtils.isEmpty(result.getEmails()));
     }

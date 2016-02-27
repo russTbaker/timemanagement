@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/tomorrow-night.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css"/>
+</head>
+<body ng-app="timesheetApp">
+<div class="container" ng-controller="employeesController">
+    <div class="page-header">
+        <h1>Employees</h1>
+    </div>
+    <div class="alert alert-info" role="alert" ng-hide="employees && employees.length > 0">
+        There are no items yet.
+    </div>
+
+    <div class="form-group" ng-repeat="employee in employees">
+        <div class="col-xs-9">
+            <table class="table">
+                <th><strong>Common Name</strong></th>
+                <th><strong>First Name</strong></th>
+                <th><strong>Last Name</strong></th>
+                <th><strong>Role</strong></th>
+                <th><strong>Delete Employee</strong></th>
+                <tr>
+                    <td>{{employee.dba}}</td>
+                    <td>{{employee.firstName}}</td>
+                    <td>{{employee.lastName}}</td>
+                    <td>{{employee.roles}}</td>
+                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+                                                ng-click="deleteEmployee(employee)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button></td>
+                </tr>
+            </table>
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToTimeSheets(employee._links.timesheets.href)">Show
+                Timesheets
+            </button>
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToAddresses(employee._links.address.href)">Show
+                Addresses
+            </button>
+        </div>
+
+        <div uib-collapse="!isAddressCollapsed">
+            <table class="table">
+                <th>&nbsp;</th>
+                <th><strong>Street 1</strong></th>
+                <th><strong>Street 2</strong></th>
+                <th><strong>City</strong></th>
+                <th><strong>State</strong></th>
+                <th><strong>Zip Code</strong></th>
+                <th><strong>Delete Address</strong></th>
+                <th><strong>Add Address <button class="pull-right btn btn-link" type="button" title="Add Address"
+                                                ng-click="goToAddAddress(employee)">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button></strong></th>
+                <tr ng-repeat="address in addresses">
+                    <td>&nbsp;</td>
+                    <td>{{address.street1}}</td>
+                    <td>{{address.street2}}</td>
+                    <td>{{address.city}}</td>
+                    <td>{{address.state}}</td>
+                    <td>{{address.zip}}</td>
+                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+                                         ng-click="deleteEmployeeAddress(employee,address)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button></td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div uib-collapse="!isTimeSheetCollapsed">
+            <table class="table">
+                <th>&nbsp;</th>
+                <th><strong>Billed</strong></th>
+                <th><strong>Start Date</strong></th>
+                <th><strong>End Date</strong></th>
+                <tr ng-repeat="timesheet in timesheets">
+                    <td>
+                        <button class="btn btn-primary"
+                                ng-click="onClickNavigateToTimeSheetEntries(timesheet._links.timeSheetEntries.href)">
+                            Show Timesheet Entries
+                        </button>
+                    </td>
+                    <td>{{timesheet.billed}}</td>
+                    <td>{{timesheet.startDate}}</td>
+                    <td>{{timesheet.endDate}}</td>
+                </tr>
+            </table>
+
+            <div uib-collapse="!isTimeSheetEntryCollapsed">
+                <table class="table">
+                    <th><strong>Date</strong></th>
+                    <th><strong>Job Id</strong></th>
+                    <th><strong>Hours</strong></th>
+                    <tr ng-repeat="timesheetEntry in timesheetEntries">
+                        <td>{{timesheetEntry.date}}</td>
+                        <td>{{timesheetEntry.jobId}}</td>
+                        <td>{{timesheetEntry.hours}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+    <hr/>
+
+    </form>
+
+
+</div>
+
+<!--<script src="/js/services/timesheetEntryServices.js"></script>-->
+<script src="../../lib/bower/angular/angular.js"></script>
+<script src="../../lib/bower/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="../../lib/bower/angular-resource/angular-resource.js"></script>
+<script src="../../lib/bower/angular-route/angular-route.js"></script>
+<script src="../../lib/bower/highlightjs/highlight.pack.js"></script>
+<script src="../../lib/bower/angular-highlightjs/build/angular-highlightjs.js"></script>
+<script src="../../lib/bower/angular-spring-data-rest/dist/angular-spring-data-rest.js"></script>
+<script type="text/javascript" src="../../app/app.js"></script>
+
+</body>
+</html>

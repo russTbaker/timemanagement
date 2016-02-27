@@ -50,6 +50,24 @@ public class EmployeeService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public void addAddressToEmployee(final Integer employeeId, final Address address){
+        final Employee employee = employeeRepository.findOne(employeeId);
+        employee.addAddress(address);
+        employeeRepository.save(employee);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removeAddressFromEmployee(Integer employeeId, Integer addressId) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        final List<Address> addresses = employee.getAddress();
+        addresses.remove(addresses.stream()
+                .filter(address -> address.getId().equals(addressId))
+                .findFirst()
+                .get());
+        employeeRepository.save(employee);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public void addEmployeeToJob(final Integer employeeId, Job job) {
         final Employee employee = employeeRepository.findOne(employeeId);
         job = job.getId() != null ? jobRepository.findOne(job.getId()) :
@@ -72,7 +90,7 @@ public class EmployeeService {
     public List<Employee> findAll(Integer start, Integer end) {
         final List<Employee> employeeList = start != null && end != null ?
                 employeeRepository.findAll(new PageRequest(start, end)).getContent()
-                : (List<Employee>) employeeRepository.findAll();
+                : employeeRepository.findAll();
         if (CollectionUtils.isEmpty(employeeList)) {
             throw new NotFoundException("List of employees is empty");
         }
@@ -91,7 +109,7 @@ public class EmployeeService {
     public void createTimeSheet(final Integer employeeId, final Integer jobId) {
         Employee employee = employeeRepository.findOne(employeeId);
         final Job job = jobRepository.findOne(jobId);
-        final TimeSheet timeSheet = new TimeSheet();
+        final Timesheet timeSheet = new Timesheet();
         final List<TimeSheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
         for (int i = 0; i < DAYS_PER_WEEK; i++) {
             final TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
@@ -105,7 +123,7 @@ public class EmployeeService {
 
         employee.addTimeSheet(timeSheet);
         employeeRepository.save(employee);
-        TimeSheet latestTimeSheet = getLatestTimeSheet(employeeId);
+        Timesheet latestTimeSheet = getLatestTimeSheet(employeeId);
         latestTimeSheet.getTimeSheetEntries().stream().forEach(tse -> {
             tse.setTimesheetId(latestTimeSheet.getId());
             job.addTimeSheetEntry(tse);
@@ -117,7 +135,7 @@ public class EmployeeService {
     public void addTimeSheetEntry(Integer employeeId, Integer timeSheetId, TimeSheetEntry timeSheetEntry,
                                   Integer timeSheetEntryId) {
         final Employee employee = employeeRepository.findOne(employeeId);
-        final TimeSheet timeSheet = employee.getTimesheets()
+        final Timesheet timeSheet = employee.getTimesheets()
                 .stream()
                 .filter(timeSheet1 -> timeSheet1.getId().equals(timeSheetId))
                 .findFirst().get();
@@ -129,15 +147,17 @@ public class EmployeeService {
         BeanUtils.copyProperties(timeSheetEntry, existingTimeSheet, "id");
     }
 
-    public TimeSheet getLatestTimeSheet(Integer employeeId) {
+    public Timesheet getLatestTimeSheet(Integer employeeId) {
         final Employee employee = employeeRepository.findOne(employeeId);
         if (employee != null) {
-            final List<TimeSheet> timesheets = employee.getTimesheets();
+            final List<Timesheet> timesheets = employee.getTimesheets();
             timesheets.sort((o1, o2) -> o1.getStartDate().compareTo(o2.getStartDate()));
             return timesheets.get(0);
         }
         throw new NotFoundException("No timesheets found for employee: " + employeeId);
     }
+
+
 
 
     //--------------- Private Methods
