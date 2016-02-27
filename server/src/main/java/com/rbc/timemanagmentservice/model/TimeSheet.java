@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Entity
 public class Timesheet {
-    public Timesheet() { }
+    public Timesheet() {}
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
