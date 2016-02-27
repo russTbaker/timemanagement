@@ -131,6 +131,17 @@ public class EmployeeController {
 
     //---------- Phone
 
+    @RequestMapping(value = "/{employeeId}/phones", method = RequestMethod.POST)
+    public ResponseEntity<?> addEmployeePhone(@PathVariable(value = "employeeId") Integer employeeId,
+                                                @RequestBody Phone phone) {
+        employeeService.addPhoneToUser(employeeId, phone);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(phone.getId()).toUri());
+        return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+    }
+
     @RequestMapping(value = "/{employeeId}/phones/{phoneId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updatePhones(@PathVariable(value = "employeeId") Integer employeeId,
                                           @PathVariable(value = "phoneId") Integer phoneId,

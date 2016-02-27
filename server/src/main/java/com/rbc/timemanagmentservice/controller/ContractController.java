@@ -32,7 +32,7 @@ public class ContractController {
         return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/{contractId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "{contractId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateContract(@PathVariable(value = "contractId") Integer contractId,
                                             @RequestBody Contract contract) {
 
@@ -43,5 +43,11 @@ public class ContractController {
                 .fromCurrentRequest().path("/{id}")
                 .buildAndExpand(contract.getId()).toUri());
         return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "{contractId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteContract(@PathVariable("contractId") Integer contractId){
+        contractService.deleteContract(contractId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

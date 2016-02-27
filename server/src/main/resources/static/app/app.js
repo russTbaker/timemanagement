@@ -13,6 +13,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             .when('/addEmployeeAddress/:employeeId', {
                 templateUrl: 'views/employee/addEmployeeAddress.html'
             })
+            .when('/addEmployeePhone/:employeeId', {
+                templateUrl: 'views/employee/addEmployeePhone.html'
+            })
             // .when('/samples/automatic-link-fetching', {
             //    templateUrl: 'partials/samples/automatic-link-fetching.html'
             //}).when('/samples/add-query-string-parameters', {
@@ -58,6 +61,12 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             var href = employee._links.self.href;
             var employeeId = href.substr(href.lastIndexOf("/") + 1, href.length);
             $location.path('addEmployeeAddress/' + employeeId);
+        };
+
+        $scope.goToAddPhone = function (employee) {
+            var href = employee._links.self.href;
+            var employeeId = href.substr(href.lastIndexOf("/") + 1, href.length);
+            $location.path('addEmployeePhone/' + employeeId);
         };
 
         var httpPromise = $http.get('http://localhost:8080/api/employees').success(function (response) {
@@ -217,6 +226,29 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
         };
 
     })
-    .controller('EditEmployeePhoneController',function($scope, $http, SpringDataRestAdapter){
+    .controller('EditEmployeePhoneController',function($scope, $http, SpringDataRestAdapter, $routeParams){
+        var employeeId = $routeParams.employeeId;
+        var httpPromise = $http.get('/api/employees/' + employeeId).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        });
 
+        SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+            //$scope.employee = processedResponse._embeddedItems;
+            $scope.processedResponse = angular.toJson(processedResponse, true);
+            $scope.employee = processedResponse
+        });
+
+        $scope.addEmployeePhone = function (employee) {
+            var httpPromise = $http.post('/hydrated/employees/' + employeeId + '/phones', employee.phone,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                });
+            SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+                $scope.employee = processedResponse
+                console.log("Phone Added!");
+            });
+
+        };
     });

@@ -5,6 +5,7 @@ import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Customer;
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
+import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -27,8 +28,7 @@ import static org.junit.Assert.*;
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
 public class ContractServiceTest {
 
-    public static final Contract.Terms ORIGINAL_TERMS = Contract.Terms.net15;
-    public static final String TEST_JOB_DESCRIPTION = "Test job description";
+
     @Autowired
     private ContractService contractService;
 
@@ -38,6 +38,9 @@ public class ContractServiceTest {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private ContractTestUtil contractTestUtil;
+
 
     @Autowired
     private StartupUtility startupUtility;
@@ -46,7 +49,7 @@ public class ContractServiceTest {
     @Test
     public void whenCreatingNewContract_expectContractCreated() throws Exception {
         // Assemble
-        Contract contract = getContract();
+        Contract contract = contractTestUtil.getContract();
         assertNotNull("Contract not created", contract);
         assertEquals("Contracts are different", contract, contract);
     }
@@ -63,7 +66,7 @@ public class ContractServiceTest {
     @Test
     public void whenFindingContract_expectContractReturned() throws Exception {
         // Assemble
-        Contract contract = getContract();
+        Contract contract = contractTestUtil.getContract();
 
         // Act
         Contract result = contractService.getContract(contract.getId());
@@ -76,7 +79,7 @@ public class ContractServiceTest {
     @Test
     public void whenUpdatingContract_expectContractUpdated() throws Exception {
         // Assemble
-        Contract contract = getContract();
+        Contract contract = contractTestUtil.getContract();
         Contract.Terms expectedTerms = Contract.Terms.net45;
         contract.setTerms(expectedTerms);
 
@@ -93,7 +96,7 @@ public class ContractServiceTest {
     @Test(expected = NotFoundException.class)
     public void whenDeletingContract_expectContractDeleted() throws Exception {
         // Assemble
-        Contract contract = getContract();
+        Contract contract = contractTestUtil.getContract();
         Customer customer = customerService.createUser(startupUtility.getCustomer());
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
         customerService.addContractToUser(customer.getId(), contract.getId());
@@ -114,7 +117,7 @@ public class ContractServiceTest {
     @Test
     public void whenAddingJobToContract_expectJobAdded() throws Exception {
         // Assemble
-        JobCreator jobCreator = new JobCreator().invoke();
+        ContractTestUtil.JobCreator jobCreator = contractTestUtil.getJobCreator().invoke();
         Contract contract = jobCreator.getThisContract();
         Job jobCreated = jobCreator.getJobCreated();
 
@@ -128,7 +131,7 @@ public class ContractServiceTest {
     @Test
     public void whenUpdatingJob_expectJobUpdated() throws Exception {
         // Assemble
-        JobCreator jobCreator = new JobCreator().invoke();
+        ContractTestUtil.JobCreator jobCreator = contractTestUtil.getJobCreator().invoke();
         Contract contract = jobCreator.getThisContract();
 
         contract = contractService.getContract(contract.getId());
@@ -145,7 +148,7 @@ public class ContractServiceTest {
     @Test
     public void whenRemovingJobFromContract_expectJobRemoved() throws Exception {
         // Assemble
-        JobCreator jobCreator = new JobCreator().invoke();
+        ContractTestUtil.JobCreator jobCreator = contractTestUtil.getJobCreator().invoke();
         Contract contract = jobCreator.getThisContract();
 
         // Act
@@ -157,47 +160,7 @@ public class ContractServiceTest {
     }
 //----------- Private Methods
 
-    private Contract getContract() {
-        Contract contract = createContract();
 
-        contractService.createContract(contract);
-        return contract;
-    }
 
-    private Contract createContract() {
-        Contract contract = new Contract();
-        contract.setStartDate(new DateTime());
-        contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setTerms(ORIGINAL_TERMS);
-        contract.setValue(87999D);
-        return contract;
-    }
 
-    private class JobCreator {
-        private Contract contract;
-        private Job jobCreated;
-
-        public Contract getThisContract() {
-            return this.contract;
-        }
-
-        public Job getJobCreated() {
-            return jobCreated;
-        }
-
-        public JobCreator invoke() {
-            contract = getContract();
-            Customer customer = customerService.createUser(startupUtility.getCustomer());
-            Employee employee = employeeService.createUser(startupUtility.getEmployee());
-            customerService.addContractToUser(customer.getId(), contract.getId());
-            employeeService.addContractToUser(employee.getId(), contract.getId());
-            Job job = new Job();
-            job.setName("Job name");
-            job.setDescription(TEST_JOB_DESCRIPTION);
-
-            // Act
-            jobCreated = contractService.createJob(job, contract.getId());
-            return this;
-        }
-    }
 }

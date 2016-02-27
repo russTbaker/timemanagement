@@ -32,7 +32,6 @@ public class Job {
     public void addTimeSheetEntry(TimeSheetEntry timeSheetEntry) {
         if (!this.timeSheetEntries.contains(timeSheetEntry)) {
             this.timeSheetEntries.add(timeSheetEntry);
-//            timeSheetEntry.setJob(this);
         } else {
             this.timeSheetEntries.remove(timeSheetEntry);
             this.timeSheetEntries.add(timeSheetEntry);
