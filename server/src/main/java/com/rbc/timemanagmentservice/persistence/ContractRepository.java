@@ -12,5 +12,5 @@ import java.util.List;
  */
 @RepositoryRestResource
 public interface ContractRepository extends PagingAndSortingRepository<Contract,Integer>{
-//    List<Contract> findByUsersDba(@Param("dba") String name);
+    List<Contract> findByUsersDba(@Param("name") String name);
 }

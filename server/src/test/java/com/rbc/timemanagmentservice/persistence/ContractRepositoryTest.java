@@ -12,6 +12,8 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
+
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -23,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 public class ContractRepositoryTest {
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private UserRepository<Customer> userRepository;
 
     @Autowired
     private ContractRepository contractRepository;
@@ -32,18 +34,31 @@ public class ContractRepositoryTest {
 
     @Test
     public void whenInsertingContract_expectContractInserted() throws Exception {
+        // Assemble
+        assembleContractForCustomer();
+
+
         assertNotNull("No contract inserted",getContract());
     }
 
-//    @Test
-//    public void whenFindingContractByCustomerName_expectContractFound() throws Exception {
-//        // Assemble
-//        getJob();
-//
-//        // Assert
-//        assertNotNull("No contract returned",contractRepository.findByUsersDba(CONTACT_NAME));
-//
-//    }
+
+
+    @Test
+    public void whenFindingContractByCustomerName_expectContractFound() throws Exception {
+        // Assemble
+        assembleContractForCustomer();
+
+        // Assert
+        assertNotNull("No contract returned",contractRepository.findByUsersDba(CONTACT_NAME));
+
+    }
+
+    //-------------- Private Methods
+
+    private void assembleContractForCustomer() {
+        Customer customer = getCustomer();
+        customer.addContract(getContract());
+    }
 
     private Customer getCustomer() {
         Customer customer = new Customer();
@@ -52,15 +67,14 @@ public class ContractRepositoryTest {
         customer.setName("Z2M4");
         customer.setContactName(CONTACT_NAME);
         customer.setRoles(User.Roles.customer);
-        return customerRepository.save(customer);
+        return userRepository.save(customer);
     }
+
     private Contract getContract() {
         Contract contract = new Contract();
         contract.setStartDate(new DateTime());
         contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setRate(87.5);
         contract.setTerms(Contract.Terms.net15);
-        contract.setCustomer(getCustomer());
         contract.setValue(87999D);
         return contractRepository.save(contract);
     }

@@ -46,33 +46,31 @@ Contract {
     @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime endDate;
 
-    private Double rate;
+
 
     @Enumerated(value = EnumType.STRING)
     private Terms terms;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 
-    @ManyToOne
-//    @JoinTable(name = "CUSTOMER_CONTRACT",
-//    joinColumns=@JoinColumn(name = "USER_ID"),
-//            inverseJoinColumns=@JoinColumn(name="CONTRACT_ID"))
+    @ManyToMany(mappedBy = "contracts")
     @RestResource(exported = false)
-    private Customer customer;
+    private List<User> users = new ArrayList<>();
 
 
 
     public List<Job> getJobs() {
         return jobs;
     }
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public List<User> getUsers() {
+        return users;
     }
 
     public Integer getId() {
@@ -105,14 +103,6 @@ Contract {
 
     public void setEndDate(DateTime endDate) {
         this.endDate = endDate;
-    }
-
-    public Double getRate() {
-        return rate;
-    }
-
-    public void setRate(Double rate) {
-        this.rate = rate;
     }
 
     public Terms getTerms() {

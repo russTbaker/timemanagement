@@ -25,6 +25,24 @@ import java.util.List;
         }
 )
 public abstract class User {
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "USER_CONTRACT",
+    joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "USER_ID"))
+    @JsonIgnore
+    protected List<Contract> contracts = new ArrayList<>();
+
+    @JsonIgnore
+    public void addContract(Contract contract){
+//
+        if(!this.contracts.contains(contract)){
+            this.contracts.add(contract);
+            contract.getUsers().add(this);
+        } else {
+            this.contracts.remove(contract);
+            this.contracts.add(contract);
+        }
+    }
+
     public enum Roles {
         administrator,
         employee,
@@ -46,6 +64,10 @@ public abstract class User {
 
     public Integer getId() {
         return id;
+    }
+
+    public List<Contract> getContracts() {
+        return contracts;
     }
 
     public void setId(Integer id) {

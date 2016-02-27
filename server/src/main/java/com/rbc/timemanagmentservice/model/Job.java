@@ -19,6 +19,8 @@ public class Job {
 
     private String description;
 
+    private Double rate;
+
     @ManyToOne
     private Contract contract;
 
@@ -60,6 +62,15 @@ public class Job {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public Double getRate() {
+        return rate;
+    }
+
+    public void setRate(Double rate) {
+        this.rate = rate;
+    }
+
 
     public Contract getContract() {
         return contract;

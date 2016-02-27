@@ -113,7 +113,7 @@ public class EmployeeControllerTest extends ControllerTests{
     @Test
     public void whenUpdatingCustomersEmails_expectEmailsUpdated() throws Exception {
         // Assemble
-        employee = employeeService.getEmployee(employee.getId());
+        employee = employeeService.getUser(employee.getId());
         final Email email = employee.getEmails().get(0);
         final String newValue = "a new value";
         email.setEmail(newValue);
@@ -128,7 +128,7 @@ public class EmployeeControllerTest extends ControllerTests{
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        employee = employeeService.getEmployee(employee.getId());
+        employee = employeeService.getUser(employee.getId());
         assertEquals("Wrong email",email.getEmail(),employee.getEmails().get(0).getEmail());
 
     }
@@ -136,7 +136,7 @@ public class EmployeeControllerTest extends ControllerTests{
     @Test
     public void whenUpdatingCustomersAddress_expectAddressUpdated() throws Exception {
         // Assemble
-        employee = employeeService.getEmployee(employee.getId());
+        employee = employeeService.getUser(employee.getId());
         final Address address = employee.getAddress().get(0);
         final String newValue = "a new value";
         address.setStreet1(newValue);
@@ -151,7 +151,7 @@ public class EmployeeControllerTest extends ControllerTests{
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        employee = employeeService.getEmployee(employee.getId());
+        employee = employeeService.getUser(employee.getId());
         assertEquals("Wrong address",address.getStreet1(),employee.getAddress().get(0).getStreet1());
 
     }
@@ -160,7 +160,7 @@ public class EmployeeControllerTest extends ControllerTests{
     @Test
     public void whenUpdatingCustomersPhone_expectPhonesUpdated() throws Exception {
         // Assemble
-        employee = employeeService.getEmployee(employee.getId());
+        employee = employeeService.getUser(employee.getId());
         final Phone phone = employee.getPhones().get(0);
         final String newValue = "a new value";
         phone.setPhone(newValue);
@@ -175,7 +175,7 @@ public class EmployeeControllerTest extends ControllerTests{
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        employee = employeeService.getEmployee(employee.getId());
+        employee = employeeService.getUser(employee.getId());
         assertEquals("Wrong phone",phone.getPhone(),employee.getPhones().get(0).getPhone());
 
     }

@@ -32,28 +32,29 @@ public class StartupUtility {
 
     public  Employee init(){
         // Set up business relationship
-        customer = customerService.createCustomer(getCustomer());
+        customer = customerService.createUser(getCustomer());
         customer.addEmail(getEmail(customer.getName()));
         final Address address = getAddress();
         customer.addAddress(address);
         final Phone phone = getPhone();
         customer.addPhone(phone);
-        customer = customerService.updateCustomer(customer);
+        customer = customerService.updateUser(customer);
 
 
         Contract customerContract = getContractForCustomer(customer);
-        final Job job = contractService.createJob(new Job(),customerContract.getId());
+        final Job job = new Job();
+        job.setRate(87.5);
 
 
         // Set up employee with job
-        Employee employee = employeeService.createEmployee(getEmployee());
+        Employee employee = employeeService.createUser(getEmployee());
         employee.addEmail(getEmail(employee.getUsername()));
         employee.addAddress(getAddress());
         employee.addPhone(getPhone());
-        employee = employeeService.updateEmployee(employee);
+        employee = employeeService.updateUser(employee);
         employeeService.createTimeSheet(employee.getId(),customerContract.getId());
-        employeeService.addEmployeeToJob(employee.getId(), job);
-        return employeeService.getEmployee(employee.getId());
+        employeeService.addEmployeeToJob(employee.getId(), contractService.createJob(job,customerContract.getId()));
+        return employeeService.getUser(employee.getId());
     }
 
     public Customer getCustomerObject(){
@@ -64,11 +65,10 @@ public class StartupUtility {
         Contract contract = new Contract();
         contract.setStartDate(new DateTime());
         contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setRate(87.5);
         contract.setTerms(Contract.Terms.net15);
         contract.setValue(87999D);
         contract = contractService.saveContract(contract);
-        customerService.addContractToCustomer(customer.getId(),contract.getId());
+        customerService.addContractToUser(customer.getId(),contract.getId());
         return contract;
     }
 
@@ -118,25 +118,4 @@ public class StartupUtility {
         phone.setPhone("3035551212");
         return phone;
     }
-
-
-
-//    public  Timesheet getTimeSheet( Employee employee,
-//                                   Contract contract){
-//        Timesheet timeSheet = new Timesheet(employee);
-//        timeSheet.setBilled(false);
-//        timeSheet.setStartDate(new DateTime());
-//        timeSheet.setEndDate(timeSheet.getStartDate().plusDays(7));
-//        timeSheetRepository.save(timeSheet);
-//        for(int i=0;i<7;i++){
-//            TimeSheetEntry timeSheetEntry = new TimeSheetEntry(timeSheet, contract);
-//            timeSheetEntry.setHours(8);
-//            timeSheetEntry.setDate(new DateTime().plusDays(i));
-//            timeSheetEntryRepository.save(timeSheetEntry);
-//            timeSheet.getJobs().add(timeSheetEntry);
-//            contract.getJobs().add(timeSheetEntry);
-//        }
-//
-//        return timeSheet;
-//    }
 }

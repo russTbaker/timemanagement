@@ -49,14 +49,14 @@ public class EmployeeController {
 
     @RequestMapping(value = "/{employeeId}", produces = "application/hal+json")
     public ResponseEntity<Resources<EmployeeResource>> getEmployee(@PathVariable("employeeId") Integer employeeId) {
-        Optional<Employee> employee = Optional.of(employeeService.getEmployee(employeeId));
+        Optional<Employee> employee = Optional.of(employeeService.getUser(employeeId));
         List<EmployeeResource> resources = employeeToResource(employee.get());
         return new ResponseEntity<>(new Resources<>(resources), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{employeeId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteEmployee(@PathVariable("employeeId") Integer employeeId) {
-        employeeService.deleteEmployee(employeeId);
+        employeeService.deleteUser(employeeId);
         return new ResponseEntity<Object>(null, HttpStatus.ACCEPTED);
     }
 
@@ -70,7 +70,7 @@ public class EmployeeController {
 //                .map(employee -> {
 //                    email.setId(emailId);
 //                    employee.addEmail(email);
-//                    employee = employeeService.updateEmployee(employee);
+//                    employee = employeeService.updateUser(employee);
 //
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
@@ -108,11 +108,11 @@ public class EmployeeController {
     public ResponseEntity<?> updateAddress(@PathVariable(value = "employeeId") Integer employeeId,
                                            @PathVariable(value = "addressId") Integer emailId,
                                            @RequestBody Address address) {
-        return Optional.of(employeeService.getEmployee(employeeId))
+        return Optional.of(employeeService.getUser(employeeId))
                 .map(employee -> {
                     address.setId(emailId);
                     employee.addAddress(address);
-                    employee = employeeService.updateEmployee(employee);
+                    employee = employeeService.updateUser(employee);
 
                     HttpHeaders httpHeaders = new HttpHeaders();
                     httpHeaders.setLocation(ServletUriComponentsBuilder
@@ -157,7 +157,7 @@ public class EmployeeController {
             consumes = "application/hal+json")
     public Resources<TimeSheetResource> getTimesheet(@PathVariable("employeeId") Integer employeeId,
                                                      @PathVariable("timesheetId") Integer timesheetId) {
-        Timesheet timesheet = employeeService.getEmployee(employeeId).getTimesheets()
+        Timesheet timesheet = employeeService.getUser(employeeId).getTimesheets()
                 .stream()
                 .filter(timeSheet -> timeSheet.getId().equals(timesheetId))
                 .findFirst()
@@ -188,7 +188,7 @@ public class EmployeeController {
     public Resources<TimeSheetEntryResource> getTimeSheetEntry(@PathVariable("employeeId") Integer employeeId,
                                                                @PathVariable("timesheetId") Integer timesheetId,
                                                                @PathVariable("timesheetEntryId") Integer timesheetEntryId) {
-        TimeSheetEntry timeSheetEntry = employeeService.getEmployee(employeeId).getTimesheets()
+        TimeSheetEntry timeSheetEntry = employeeService.getUser(employeeId).getTimesheets()
                 .stream()
                 .filter(timeSheet -> timeSheet.getId().equals(timesheetId)).findFirst()
                 .get().getTimeSheetEntries()
@@ -212,7 +212,7 @@ public class EmployeeController {
     @RequestMapping(path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries", produces = "application/hal+json")
     public Resources<TimeSheetEntryResource> getTimeSheetEntrys(@PathVariable("employeeId") Integer employeeId,
                                                                 @PathVariable("timesheetId") Integer timesheetId) {
-        Optional<List<TimeSheetEntry>> timeSheetEntry = Optional.of(employeeService.getEmployee(employeeId).getTimesheets()
+        Optional<List<TimeSheetEntry>> timeSheetEntry = Optional.of(employeeService.getUser(employeeId).getTimesheets()
                 .stream()
                 .filter(timeSheet -> timeSheet.getId().equals(timesheetId))
                 .findFirst()

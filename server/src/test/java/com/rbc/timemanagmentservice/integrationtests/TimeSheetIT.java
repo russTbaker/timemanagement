@@ -87,7 +87,6 @@ public class TimeSheetIT {
     private Contract assembleContract() {
         Contract contract = new Contract();
         contract.setTerms(Contract.Terms.net30);
-        contract.setRate(87.5);
         contract.setValue(90000d);
         contract.setStartDate(new DateTime().minusDays(2));
         contract.setEndDate(new DateTime().plusMonths(6));

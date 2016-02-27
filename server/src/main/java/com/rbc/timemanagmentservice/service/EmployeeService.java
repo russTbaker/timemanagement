@@ -1,17 +1,18 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.Job;
+import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.Timesheet;
+import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.JobRepository;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
@@ -21,34 +22,19 @@ import java.util.List;
  * Created by russbaker on 2/16/16.
  */
 @Repository
-public class EmployeeService extends UserService {
+public class EmployeeService extends UserService<Employee> {
 
     public static final int DAYS_PER_WEEK = 7;
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
 
     @Autowired
-    public EmployeeService(UserRepository userRepository, JobRepository jobRepository) {
-        super(userRepository);
+    public EmployeeService(UserRepository userRepository, JobRepository jobRepository,
+                           ContractRepository contractRepository) {
+        super(userRepository, contractRepository);
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
     }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    /**
-     * Requires phone, email and address populated
-     */
-    public Employee createEmployee(Employee employee) {
-        return (Employee) userRepository.save(employee);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Employee updateEmployee(final Employee employee) {
-        return (Employee) userRepository.save(employee);
-    }
-
-
-
 
 
     //------------- Job
@@ -61,36 +47,9 @@ public class EmployeeService extends UserService {
         employee.addJob(job);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public Employee getEmployee(Integer id) {
-        final Employee employee = (Employee) userRepository.findOne(id);
-        if (employee == null) {
-            throw new NotFoundException("Employee with id: " + id + " not found.");
-        }
-        return employee;
-    }
-
-
-    @SuppressWarnings("unchecked")
-    @Transactional(readOnly = true)
-    public List<Employee> findAll(Integer start, Integer end) {
-        final List<Employee> employeeList = start != null && end != null ?
-                userRepository.findAll(new PageRequest(start, end)).getContent()
-                : (List<Employee>) userRepository.findAll();
-        if (CollectionUtils.isEmpty(employeeList)) {
-            throw new NotFoundException("List of employees is empty");
-        }
-        return employeeList;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteEmployee(Integer employeeId) {
-        userRepository.delete(employeeId);
-    }
 
     //--------- Timesheeets
 
-    //TODO: Rework for job
     @Transactional(propagation = Propagation.REQUIRED)
     public void createTimeSheet(final Integer employeeId, final Integer jobId) {
         Employee employee = (Employee) userRepository.findOne(employeeId);
@@ -142,20 +101,6 @@ public class EmployeeService extends UserService {
         }
         throw new NotFoundException("No timesheets found for employee: " + employeeId);
     }
-
-
-
-
-    //--------------- Private Methods
-
-    private DateTime getLastDayOfWeek() {
-        return new DateTime().withDayOfWeek(DateTimeConstants.SUNDAY);
-    }
-
-    private DateTime getFirstDayOfWeek() {
-        return new DateTime().withDayOfWeek(DateTimeConstants.MONDAY);
-    }
-
 
 
 }

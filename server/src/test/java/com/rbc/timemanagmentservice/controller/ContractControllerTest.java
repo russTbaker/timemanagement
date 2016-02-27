@@ -2,7 +2,6 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Contract;
-import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -21,8 +20,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.core.Is.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -58,7 +55,6 @@ public class ContractControllerTest extends ControllerTests{
         Contract contract = new Contract();
         contract.setStartDate(new DateTime());
         contract.setEndDate(new DateTime().plusMonths(6));
-        contract.setRate(87.5);
         contract.setTerms(Contract.Terms.net15);
         contract.setValue(87999D);
 

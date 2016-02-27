@@ -1,7 +1,10 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Address;
+import com.rbc.timemanagmentservice.model.Email;
+import com.rbc.timemanagmentservice.model.Phone;
+import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,12 +14,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.ws.rs.NotFoundException;
 import java.util.List;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.*;
 
 /**
  * Created by russbaker on 2/27/16.
@@ -26,6 +27,8 @@ import static org.junit.Assert.*;
 @Transactional
 @SuppressWarnings("unchecked")
 public abstract class UserServiceTest<U extends User> {
+    protected U user;
+
     @Autowired
     private StartupUtility startupUtility;
 
@@ -35,11 +38,81 @@ public abstract class UserServiceTest<U extends User> {
         this.userService = userService;
     }
 
-    public abstract U createUser();
+
+    public void setUp(){
+        user = createUser();
+    }
+
+    // Create
+    @Test
+    public void whenCreatingCustomer_expectUserCreated() throws Exception {
+        // Assemble
+
+        assertNotNull("No result returned", userService.getUser(user.getId()));
+
+    }
+
+    // Read
+    @Test
+    public void whenCallingGetUser_expectUserReturned() throws Exception {
+
+        // Act
+        U result = userService.getUser(user.getId());
+
+        // Assert
+        assertNotNull("No user returned", result);
+        assertEquals("Wrong user returned", user, result);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void whenFindingUserById_expectNotFoundException() throws Exception {
+        userService.getUser(0);
+    }
+
+
+    // Read All
+    @Test
+    public void whenGettingAllUsers_expectAllUsersReturned() throws Exception {
+
+        // Act
+        List<U> result = userService.findAll(null,null);
+
+        // Assert
+        assertFalse("No users returned", CollectionUtils.isEmpty(result));
+    }
+
+    // Update
+
+    @Test
+    public void whenUpdatingUser_expectUserUpdated() throws Exception {
+        // Assemble
+        user.setDba("new Name");
+
+        // Act
+        U result = userService.updateUser(user);
+        assertEquals("Customer not updated", user.getDba(), result.getDba());
+    }
+
+
+    @Test(expected = NotFoundException.class)
+    public void whenDeletingUser_expectUserDeleted() throws Exception {
+
+        // Act
+        userService.deleteUser(user.getId());
+
+        // Assert
+        userService.getUser(user.getId());
+
+    }
+
+    protected abstract U createUser();
+
+
+
     //---------- Address
 
     @Test
-    public void whenAddingAddressToEmployeeExpectAddressAdded() throws Exception {
+    public void whenAddingAddressToUserExpectAddressAdded() throws Exception {
         User user = addAddressToUser();
 
 

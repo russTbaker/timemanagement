@@ -78,7 +78,7 @@ public class CustomerControllerTest extends ControllerTests{
         this.mockMvc = webAppContextSetup(webApplicationContext).addFilter(this.springSecurityFilterChain).build();
         startupUtility.init();
         customer = startupUtility.getCustomerObject();
-        customer = customerService.getCustomer(customer.getId());
+        customer = customerService.getUser(customer.getId());
     }
 
 
@@ -100,7 +100,7 @@ public class CustomerControllerTest extends ControllerTests{
     @Test
     public void whenUpdatingCustomersEmails_expectEmailsUpdated() throws Exception {
         // Assemble
-        customer = customerService.getCustomer(customer.getId());
+        customer = customerService.getUser(customer.getId());
         final Email email = customer.getEmails().get(0);
         final String newValue = "a new value";
         email.setEmail(newValue);
@@ -115,7 +115,7 @@ public class CustomerControllerTest extends ControllerTests{
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        customer = customerService.getCustomer(customer.getId());
+        customer = customerService.getUser(customer.getId());
         assertEquals("Wrong email",email.getEmail(),customer.getEmails().get(0).getEmail());
 
     }
@@ -124,7 +124,7 @@ public class CustomerControllerTest extends ControllerTests{
     @Test
     public void whenUpdatingCustomersAddress_expectAddressUpdated() throws Exception {
         // Assemble
-        customer = customerService.getCustomer(customer.getId());
+        customer = customerService.getUser(customer.getId());
         final Address address = customer.getAddress().get(0);
         final String street1 = "a new value";
         address.setStreet1(street1);
@@ -146,7 +146,7 @@ public class CustomerControllerTest extends ControllerTests{
     @Test
     public void whenUpdatingCustomersPhone_expectPhoneUpdated() throws Exception {
         // Assemble
-        customer = customerService.getCustomer(customer.getId());
+        customer = customerService.getUser(customer.getId());
         final Phone phone = customer.getPhones().get(0);
         final String street1 = "a new value";
         phone.setPhone(street1);
@@ -168,7 +168,7 @@ public class CustomerControllerTest extends ControllerTests{
     @Test
     public void whenFindingContract_expectContractReturned() throws Exception {
         // Assert
-        customer = customerService.getCustomer(customer.getId());
+        customer = customerService.getUser(customer.getId());
 
         // Act/Assert
         mockMvc.perform(get(ROOT_URI + +customer.getId() + "/contract/" + customer.getContracts().get(0).getId()))
@@ -176,7 +176,6 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.value",is(customer.getContracts().get(0).getValue())))
                 .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.startDate", is(FMT.print(customer.getContracts().get(0).getStartDate()))))
                 .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.endDate", is(FMT.print(customer.getContracts().get(0).getEndDate()))))
-                .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.rate", is(customer.getContracts().get(0).getRate())))
                 .andExpect(jsonPath(CONTRACT_RESOURCE_ROOT + ".contract.terms", is(customer.getContracts().get(0).getTerms().name())))
                 .andDo(print());
 
@@ -194,7 +193,6 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].value", is(customer.getContracts().get(0).getValue())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].startDate", is(FMT.print(customer.getContracts().get(0).getStartDate()))))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].endDate", is(FMT.print(customer.getContracts().get(0).getEndDate()))))
-                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].rate", is(customer.getContracts().get(0).getRate())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].terms", is(customer.getContracts().get(0).getTerms().name())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].email.", is(customer.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailType.", is(customer.getEmails().get(0).getEmailType().name())))
@@ -215,7 +213,6 @@ public class CustomerControllerTest extends ControllerTests{
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].value", is(customer.getContracts().get(0).getValue())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].startDate", is(FMT.print(customer.getContracts().get(0).getStartDate()))))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].endDate", is(FMT.print(customer.getContracts().get(0).getEndDate()))))
-                .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].rate", is(customer.getContracts().get(0).getRate())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.contracts[0].terms", is(customer.getContracts().get(0).getTerms().name())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].email.", is(customer.getEmails().get(0).getEmail())))
                 .andExpect(jsonPath(customerResourceRoot + "customer.emails[0].emailType.", is(customer.getEmails().get(0).getEmailType().name())))

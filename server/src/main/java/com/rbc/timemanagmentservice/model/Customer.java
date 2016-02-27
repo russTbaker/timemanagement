@@ -2,7 +2,9 @@ package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,6 @@ public class Customer extends User{
     private String name;
     private String contactName;
 
-    @OneToMany//(mappedBy = "users", fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<Contract> contracts = new ArrayList<>();
-
 
     public String getName() {
         return name;
@@ -39,18 +37,6 @@ public class Customer extends User{
 
     public void setContactName(String contactName) {
         this.contactName = contactName;
-    }
-
-    @JsonIgnore
-    public void addContract(Contract contract){
-//
-        if(!this.contracts.contains(contract)){
-            this.contracts.add(contract);
-            contract.setCustomer(this);
-        } else {
-            this.contracts.remove(contract);
-            this.contracts.add(contract);
-        }
     }
 
     public List<Contract> getContracts() {

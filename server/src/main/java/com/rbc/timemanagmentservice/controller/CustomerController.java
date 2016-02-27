@@ -36,18 +36,18 @@ public class CustomerController {
     }
 
     @RequestMapping(produces = "application/hal+json")
-    public Resources<CustomerResource> getCustomers() {
+    public Resources<CustomerResource> getUsers() {
         List<Link> links = new LinkedList<>();
-        links.add(linkTo(methodOn(CustomerController.class).getCustomers()).withSelfRel());
-        final List<Customer> customers = customerService.findAll();
+        links.add(linkTo(methodOn(CustomerController.class).getUsers()).withSelfRel());
+        final List<Customer> customers = customerService.findAll(null,null);
         List<CustomerResource> customerResources = customerToResource(customers.toArray(new Customer[customers.size()]));
         return new Resources<>(customerResources, links);
     }
 
     @RequestMapping(value = "/{customerId}", produces = "application/hal+json")
-    public Resources<CustomerResource> getCustomer(@PathVariable("customerId") Integer customerId) {
-        final Link link = linkTo(methodOn(CustomerController.class).getCustomer(customerId)).withSelfRel();
-        Optional<Customer> customer = Optional.of(customerService.getCustomer(customerId));
+    public Resources<CustomerResource> getUser(@PathVariable("customerId") Integer customerId) {
+        final Link link = linkTo(methodOn(CustomerController.class).getUser(customerId)).withSelfRel();
+        Optional<Customer> customer = Optional.of(customerService.getUser(customerId));
         List<CustomerResource> resources = customerToResource(customer.get());
         return new Resources<>(resources, link);
     }
@@ -55,7 +55,7 @@ public class CustomerController {
     @RequestMapping(value = "/{customerId}/contract/{contractId}", produces = "application/hal+json")
     public Resources<ContractResource> getContract(@PathVariable(value = "customerId") Integer customerId,
                                                    @PathVariable(value = "contractId") Integer contractId) {
-        Optional<List<Contract>> contracts = Optional.of(customerService.getCustomer(customerId).getContracts());
+        Optional<List<Contract>> contracts = Optional.of(customerService.getUser(customerId).getContracts());
         final List<ContractResource> resources = contractToResource(contracts.get().toArray(new Contract[contracts.get().size()]));
         final Link link = linkTo(methodOn(CustomerController.class).getContract(customerId, contractId)).withSelfRel();
         return new Resources<>(resources, link);
@@ -65,11 +65,11 @@ public class CustomerController {
     public ResponseEntity<?> updateEmail(@PathVariable(value = "customerId") Integer customerId,
                                          @PathVariable(value = "emailId") Integer emailId,
                                          @RequestBody Email email) {
-        return Optional.of(customerService.getCustomer(customerId))
+        return Optional.of(customerService.getUser(customerId))
                 .map(customer -> {
                     email.setId(emailId);
                     customer.addEmail(email);
-                    customer = customerService.updateCustomer(customer);
+                    customer = customerService.updateUser(customer);
 
                     HttpHeaders httpHeaders = new HttpHeaders();
                     httpHeaders.setLocation(ServletUriComponentsBuilder
@@ -84,11 +84,11 @@ public class CustomerController {
     public ResponseEntity<?> getAddress(@PathVariable(value = "customerId") Integer customerId,
                                         @PathVariable(value = "addressId") Integer addressId,
                                         @RequestBody Address address) {
-        return Optional.of(customerService.getCustomer(customerId))
+        return Optional.of(customerService.getUser(customerId))
                 .map(customer -> {
                     address.setId(addressId);
                     customer.addAddress(address);
-                    customer = customerService.updateCustomer(customer);
+                    customer = customerService.updateUser(customer);
 
                     HttpHeaders httpHeaders = new HttpHeaders();
                     httpHeaders.setLocation(ServletUriComponentsBuilder
@@ -105,11 +105,11 @@ public class CustomerController {
     public ResponseEntity<?> getPhones(@PathVariable(value = "customerId") Integer customerId,
                                         @PathVariable(value = "phoneId") Integer phoneId,
                                         @RequestBody Phone phone) {
-        return Optional.of(customerService.getCustomer(customerId))
+        return Optional.of(customerService.getUser(customerId))
                 .map(customer -> {
                     phone.setId(phoneId);
                     customer.addPhone(phone);
-                    customer = customerService.updateCustomer(customer);
+                    customer = customerService.updateUser(customer);
 
                     HttpHeaders httpHeaders = new HttpHeaders();
                     httpHeaders.setLocation(ServletUriComponentsBuilder
@@ -127,7 +127,7 @@ public class CustomerController {
         List<CustomerResource> resources = new ArrayList<>(customers.length);
         for (Customer customer : customers) {
             List<Link> links = new ArrayList<>();
-            links.add(linkTo(methodOn(CustomerController.class).getCustomer(customer.getId())).withSelfRel());
+            links.add(linkTo(methodOn(CustomerController.class).getUser(customer.getId())).withSelfRel());
             for (Contract contract : customer.getContracts()) {
 
                 links.add(linkTo(methodOn(CustomerController.class).getContract(customer.getId(), contract.getId())).withRel("contracts"));
@@ -146,7 +146,7 @@ public class CustomerController {
             this.add(links);
         }
 
-        public Customer getCustomer() {
+        public Customer getUser() {
             return this.customer;
         }
 
@@ -155,7 +155,7 @@ public class CustomerController {
     class ContractResource extends ResourceSupport {
         private final Contract contract;
 
-        public ContractResource(Contract contract, Link selfLink) {
+        public ContractResource(Contract contract, List<Link> selfLink) {
             this.contract = contract;
             this.add(selfLink);
         }
@@ -168,9 +168,13 @@ public class CustomerController {
     private List<ContractResource> contractToResource(Contract... contracts) {
         List<ContractResource> resources = new ArrayList<>(contracts.length);
         for (Contract contract : contracts) {
-            Link selfLink = linkTo(methodOn(CustomerController.class).getContract(contract.getCustomer()
-                    .getId(), contract.getId())).withSelfRel();
-            resources.add(new ContractResource(contract, selfLink));
+            final List<User> users = contract.getUsers();
+            final List<Link> links = new ArrayList<>(users.size());
+            for(final User user:users) {
+                links.add(linkTo(methodOn(CustomerController.class).getContract((user)
+                        .getId(), contract.getId())).withSelfRel());
+            }
+            resources.add(new ContractResource(contract, links));
         }
         return resources;
     }

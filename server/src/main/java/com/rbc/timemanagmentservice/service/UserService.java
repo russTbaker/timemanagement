@@ -1,12 +1,14 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.Address;
-import com.rbc.timemanagmentservice.model.Email;
-import com.rbc.timemanagmentservice.model.Phone;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
 import java.util.List;
@@ -14,12 +16,23 @@ import java.util.List;
 /**
  * Created by russbaker on 2/22/16.
  */
+@SuppressWarnings("unchecked")
 public class UserService<U extends User> {
 
     protected final UserRepository userRepository;
+    private final ContractRepository contractRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ContractRepository contractRepository) {
         this.userRepository = userRepository;
+        this.contractRepository = contractRepository;
+    }
+
+
+    //-- User CRUD
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public U createUser(U user) {
+        return (U) userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
@@ -30,6 +43,30 @@ public class UserService<U extends User> {
         }
         return user;
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public U updateUser(final U employee) {
+        return (U) userRepository.save(employee);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
+    public List<U> findAll(Integer start, Integer end) {
+        final List<Employee> employeeList = start != null && end != null ?
+                userRepository.findAll(new PageRequest(start, end)).getContent()
+                : (List<Employee>) userRepository.findAll();
+        if (CollectionUtils.isEmpty(employeeList)) {
+            throw new NotFoundException("List of employees is empty");
+        }
+        return (List<U>) employeeList;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteUser(Integer userId) {
+        userRepository.delete(userId);
+    }
+
     //--------- Address
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -89,5 +126,24 @@ public class UserService<U extends User> {
                 .findFirst()
                 .get());
         userRepository.save(user);
+    }
+
+
+    protected DateTime getLastDayOfWeek() {
+        return new DateTime().withDayOfWeek(DateTimeConstants.SUNDAY);
+    }
+
+    protected DateTime getFirstDayOfWeek() {
+        return new DateTime().withDayOfWeek(DateTimeConstants.MONDAY);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void addContractToUser(Integer customerId, Integer contractId) {
+        final U user = (U) userRepository.findOne(customerId);
+        Contract contract = contractRepository.findOne(contractId);
+        if(contract == null){
+            contract = contractRepository.save(contract);
+        }
+        user.addContract(contract);
     }
 }
