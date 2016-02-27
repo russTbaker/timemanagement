@@ -41,6 +41,15 @@
                     ng-click="onClickNavigateToAddresses(employee._links.address.href)">Show
                 Addresses
             </button>
+
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToPhones(employee._links.phones.href)">Show
+                Phones
+            </button>
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToEmails(employee._links.emails.href)">Show
+                Emails
+            </button>
         </div>
 
         <div uib-collapse="!isAddressCollapsed">
@@ -71,6 +80,37 @@
                 </tr>
             </table>
         </div>
+
+        <div uib-collapse="!isPhonesCollapsed">
+            <table class="table">
+                <th><strong>Phone Number</strong></th>
+                <th><strong>Delete Phone</strong></th>
+                <tr ng-repeat="phone in phones">
+                    <td>{{phone.phone}}</td>
+                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+                                ng-click="deleteEmployeePhone(employee,phone)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button></td>
+                </tr>
+            </table>
+        </div>
+
+        <div uib-collapse="!isEmailsCollapsed">
+            <table class="table">
+                <th><strong>Email</strong></th>
+                <th><strong>Type</strong></th>
+                <th><strong>Delete Email</strong></th>
+                <tr ng-repeat="email in emails">
+                    <td>{{email.email}}</td>
+                    <td>{{email.emailType}}</td>
+                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+                                ng-click="deleteEmployeeEmail(employee,email)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button></td>
+                </tr>
+            </table>
+        </div>
+
 
 
         <div uib-collapse="!isTimeSheetCollapsed">

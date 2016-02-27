@@ -29,10 +29,6 @@ public class EmployeeServiceTest {
     @Autowired
     private EmployeeService employeeService;
 
-//    @Autowired
-//    private EmployeeRepository employeeRepository;
-//
-//
     @Autowired
     private ContractService contractService;
 
@@ -59,35 +55,6 @@ public class EmployeeServiceTest {
     }
 
     @Test
-    public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
-        // Assemble
-        Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
-        Timesheet timesheet = getTimeSheet(employee);
-
-        // Act
-        Timesheet result = employeeService.getLatestTimeSheet(employee.getId());
-
-        // Assert
-        assertNotNull("No timesheets returned", result);
-        assertTrue("Wrong timesheet", timesheet.equals(result));
-        for(TimeSheetEntry timeSheetEntry:result.getTimeSheetEntries()){
-            assertNotNull("No Id",timeSheetEntry.getId());
-            assertNull("Hours populated",timeSheetEntry.getHours());
-            assertNotNull("No date",timeSheetEntry.getDate());
-            assertEquals("No timesheet",result.getId(),timeSheetEntry.getTimesheetId());
-        }
-
-    }
-
-
-
-    @Test(expected = NotFoundException.class)
-    public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {
-        // Act
-        employeeService.getLatestTimeSheet(0);
-    }
-
-    @Test
     public void whenCreatingNewEmployee_expectNoContractsOrTimeSheetsAssociated() throws Exception {
         // Act
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
@@ -96,6 +63,19 @@ public class EmployeeServiceTest {
         assertNotNull("Employee is null", employee);
         assertInitialEmployeeCorrect(employee);
         assertNotNull("No id", employee.getId());
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void whenDeletingEmployee_expectEmployeeDeleted() throws Exception {
+        // Assemble
+        Employee employee = createEmployee();
+
+        // Act
+        employeeService.deleteEmployee(employee.getId());
+
+        // Assert
+        employeeService.getEmployee(employee.getId());
+
     }
 
     @Test
@@ -131,6 +111,8 @@ public class EmployeeServiceTest {
         assertNotNull("Password is empty", updated.getPassword());
     }
 
+    //---------- Address
+
     @Test
     public void whenAddingAddressToEmployeeExpectAddressAdded() throws Exception {
         Employee employee = addAddressToEmployee();
@@ -146,9 +128,6 @@ public class EmployeeServiceTest {
 
     }
 
-
-
-
     @Test
     public void whenDeletingAddressFromEmployee_expectAddressDeleted() throws Exception {
         // Assemble
@@ -162,8 +141,60 @@ public class EmployeeServiceTest {
 
     }
 
+    //---------- Phones
+
     @Test
-    public void whenAddingContractToEmployee_expectContractAdded() throws Exception {
+    public void whenAddingPhoneToEmployee_expectPhoneAdded() throws Exception {
+        // Assemble
+        Employee employee = addPhoneToEmployee();
+
+        // Assert
+        assertFalse("No phones added",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getPhones()));
+
+    }
+
+    @Test
+    public void whenDeletingPhonesFromEmployee_expectAddressDeleted() throws Exception {
+        // Assemble
+        Employee employee = addPhoneToEmployee();
+
+        // Act
+        employeeService.removePhoneFromEmployee(employee.getId(),employee.getPhones().get(0).getId());
+
+        // Assert
+        assertTrue("Phone not removed",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getPhones()));
+
+    }
+
+    //-------------- Emails
+
+    @Test
+    public void whenAddingEmailToEmployee_expectPhoneAdded() throws Exception {
+        // Assemble
+        Employee employee = addEmailToEmployee();
+
+        // Assert
+        assertFalse("No emails added",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getEmails()));
+
+    }
+
+    @Test
+    public void whenDeletingEmailFromEmployee_expectAddressDeleted() throws Exception {
+        // Assemble
+        Employee employee = addEmailToEmployee();
+
+        // Act
+        employeeService.removeEmailFromEmployee(employee.getId(),employee.getEmails().get(0).getId());
+
+        // Assert
+        assertTrue("Email not removed",CollectionUtils.isEmpty(employeeService.getEmployee(employee.getId()).getPhones()));
+
+    }
+
+    //------------- Jobs
+
+    @Test
+    public void whenAddingJobToEmployee_expectContractAdded() throws Exception {
         // Assemble
         Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
         Contract contract = contractService.saveContract(new Contract());
@@ -193,6 +224,37 @@ public class EmployeeServiceTest {
         final List<Job> jobs = result.getJobs();
         assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
 
+    }
+
+    //------------ Timesheets
+
+    @Test
+    public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
+        // Assemble
+        Employee employee = employeeService.createEmployee(startupUtility.getEmployee());
+        Timesheet timesheet = getTimeSheet(employee);
+
+        // Act
+        Timesheet result = employeeService.getLatestTimeSheet(employee.getId());
+
+        // Assert
+        assertNotNull("No timesheets returned", result);
+        assertTrue("Wrong timesheet", timesheet.equals(result));
+        for(TimeSheetEntry timeSheetEntry:result.getTimeSheetEntries()){
+            assertNotNull("No Id",timeSheetEntry.getId());
+            assertNull("Hours populated",timeSheetEntry.getHours());
+            assertNotNull("No date",timeSheetEntry.getDate());
+            assertEquals("No timesheet",result.getId(),timeSheetEntry.getTimesheetId());
+        }
+
+    }
+
+
+
+    @Test(expected = NotFoundException.class)
+    public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {
+        // Act
+        employeeService.getLatestTimeSheet(0);
     }
 
     @Test
@@ -227,18 +289,7 @@ public class EmployeeServiceTest {
 
     }
 
-    @Test(expected = NotFoundException.class)
-    public void whenDeletingEmployee_expectEmployeeDeleted() throws Exception {
-        // Assemble
-        Employee employee = createEmployee();
 
-        // Act
-        employeeService.deleteEmployee(employee.getId());
-
-        // Assert
-        employeeService.getEmployee(employee.getId());
-
-    }
 //--------------- Private Methods
 
     private void assertInitialEmployeeCorrect(Employee employee) {
@@ -272,6 +323,24 @@ public class EmployeeServiceTest {
 
         // Act
         employeeService.addAddressToEmployee(employee.getId(),address);
+        return employee;
+    }
+
+    private Employee addPhoneToEmployee() {
+        Employee employee = createEmployee();
+        Phone phone = startupUtility.getPhone();
+
+        // Act
+        employeeService.addPhoneToEmployee(employee.getId(),phone);
+        return employee;
+    }
+
+    private Employee addEmailToEmployee() {
+        Employee employee = createEmployee();
+        Email email = startupUtility.getEmail("username");
+
+        // Act
+        employeeService.addEmailToEmployee(employee.getId(),email);
         return employee;
     }
 }

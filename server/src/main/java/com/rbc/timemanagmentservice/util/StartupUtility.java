@@ -97,7 +97,7 @@ public class StartupUtility {
         return customer;
     }
 
-    private Email getEmail(String username){
+    public Email getEmail(String username){
         Email email = new Email();
         email.setEmail(String.format("%s@company.com",username));
         email.setEmailType(Email.EmailTypes.both);
@@ -113,7 +113,7 @@ public class StartupUtility {
         return address;
     }
 
-    private  Phone getPhone(){
+    public  Phone getPhone(){
         Phone phone = new Phone();
         phone.setPhone("3035551212");
         return phone;

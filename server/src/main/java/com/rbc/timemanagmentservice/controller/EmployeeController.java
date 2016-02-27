@@ -8,7 +8,6 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -39,7 +38,7 @@ public class EmployeeController {
 
     @RequestMapping(produces = "application/hal+json")
 //    public Resources<EmployeeResource> getEmployees() {
-            public List<Employee> getEmployees() {
+    public List<Employee> getEmployees() {
         List<Link> links = new LinkedList<>();
         links.add(linkTo(methodOn(EmployeeController.class).getEmployees()).withSelfRel());
         final List<Employee> allEmployees = employeeService.findAll(null, null);
@@ -56,34 +55,47 @@ public class EmployeeController {
     }
 
     @RequestMapping(value = "/{employeeId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteEmployee(@PathVariable("employeeId") Integer employeeId){
+    public ResponseEntity<?> deleteEmployee(@PathVariable("employeeId") Integer employeeId) {
         employeeService.deleteEmployee(employeeId);
-        return new ResponseEntity<Object>(null,HttpStatus.ACCEPTED);
+        return new ResponseEntity<Object>(null, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/{employeeId}/email/{emailId}", method = RequestMethod.PUT)
+    //-------- Email
+
+    @RequestMapping(value = "/{employeeId}/emails/{emailId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateEmail(@PathVariable(value = "employeeId") Integer employeeId,
                                          @PathVariable(value = "emailId") Integer emailId,
                                          @RequestBody Email email) {
-        return Optional.of(employeeService.getEmployee(employeeId))
-                .map(employee -> {
-                    email.setId(emailId);
-                    employee.addEmail(email);
-                    employee = employeeService.updateEmployee(employee);
-
-                    HttpHeaders httpHeaders = new HttpHeaders();
-                    httpHeaders.setLocation(ServletUriComponentsBuilder
-                            .fromCurrentRequest().path("/{id}")
-                            .buildAndExpand(email.getId()).toUri());
-
-                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
-                }).get();
+//        return Optional.of(employeeService.getEmployee(employeeId))
+//                .map(employee -> {
+//                    email.setId(emailId);
+//                    employee.addEmail(email);
+//                    employee = employeeService.updateEmployee(employee);
+//
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(email.getId()).toUri());
+//
+//                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+//                }).get();
+        email.setId(emailId);
+        employeeService.addEmailToEmployee(employeeId, email);
+        return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
     }
+
+    @RequestMapping(value = "/{employeeId}/emails/{emailId}", method = RequestMethod.DELETE)
+    public void deleteEmployeeEmail(@PathVariable(value = "employeeId") Integer employeeId,
+                                    @PathVariable(value = "emailId") Integer emailId) {
+        employeeService.removeEmailFromEmployee(employeeId, emailId);
+    }
+
+    //--------- Address
 
     @RequestMapping(value = "/{employeeId}/address", method = RequestMethod.POST)
     public ResponseEntity<?> addEmployeeAddress(@PathVariable(value = "employeeId") Integer employeeId,
-    @RequestBody Address address){
-        employeeService.addAddressToEmployee(employeeId,address);
+                                                @RequestBody Address address) {
+        employeeService.addAddressToEmployee(employeeId, address);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{id}")
@@ -113,27 +125,30 @@ public class EmployeeController {
 
     @RequestMapping(value = "/{employeeId}/address/{addressId}", method = RequestMethod.DELETE)
     public void deleteAddress(@PathVariable(value = "employeeId") Integer employeeId,
-                                           @PathVariable(value = "addressId") Integer addressId) {
+                              @PathVariable(value = "addressId") Integer addressId) {
         employeeService.removeAddressFromEmployee(employeeId, addressId);
     }
 
-    @RequestMapping(value = "/{employeeId}/phone/{phoneId}", method = RequestMethod.PUT)
+    //---------- Phone
+
+    @RequestMapping(value = "/{employeeId}/phones/{phoneId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updatePhones(@PathVariable(value = "employeeId") Integer employeeId,
-                                          @PathVariable(value = "phoneId") Integer emailId,
+                                          @PathVariable(value = "phoneId") Integer phoneId,
                                           @RequestBody Phone phone) {
-        return Optional.of(employeeService.getEmployee(employeeId))
-                .map(employee -> {
-                    phone.setId(emailId);
-                    employee.addPhone(phone);
-                    employee = employeeService.updateEmployee(employee);
+        phone.setId(phoneId);
+        employeeService.addPhoneToEmployee(employeeId,phone);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setLocation(ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(phone.getId()).toUri());
 
-                    HttpHeaders httpHeaders = new HttpHeaders();
-                    httpHeaders.setLocation(ServletUriComponentsBuilder
-                            .fromCurrentRequest().path("/{id}")
-                            .buildAndExpand(phone.getId()).toUri());
+        return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
+    }
 
-                    return new ResponseEntity(null, httpHeaders, HttpStatus.CREATED);
-                }).get();
+    @RequestMapping(value =  "/{employeeId}/phones/{phoneId}", method = RequestMethod.DELETE)
+    public void deleteEmployeePhone(@PathVariable(value = "employeeId") Integer employeeId,
+                                    @PathVariable(value = "phoneId") Integer phoneId) {
+        employeeService.removePhoneFromEmployee(employeeId, phoneId);
     }
 
     //------------- Timesheet
@@ -150,7 +165,7 @@ public class EmployeeController {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
                 .fromCurrentRequest().build().toUri());
-        Link selfLink = linkTo(methodOn(EmployeeController.class).getTimesheet(employeeId,timesheetId)).withSelfRel();
+        Link selfLink = linkTo(methodOn(EmployeeController.class).getTimesheet(employeeId, timesheetId)).withSelfRel();
         List<TimeSheetResource> resources = timeSheetToResource(timesheet);
         return new Resources<>(resources, selfLink);
     }
@@ -253,7 +268,7 @@ public class EmployeeController {
 
         public TimeSheetResource(Timesheet timeSheet) {
             this.timeSheet = timeSheet;
-            this.add(linkTo(methodOn(EmployeeController.class).getTimesheet(timeSheet.getEmployee().getId(),timeSheet.getId())).withSelfRel());
+            this.add(linkTo(methodOn(EmployeeController.class).getTimesheet(timeSheet.getEmployee().getId(), timeSheet.getId())).withSelfRel());
             this.add(linkTo(methodOn(EmployeeController.class).getLatestTimeSheet(timeSheet.getEmployee().getId())).withRel(TIMESHEETS));
         }
 

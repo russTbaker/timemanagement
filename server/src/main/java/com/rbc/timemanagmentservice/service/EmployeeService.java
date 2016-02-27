@@ -49,12 +49,17 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+
+
+    //--------- Address
+
     @Transactional(propagation = Propagation.REQUIRED)
     public void addAddressToEmployee(final Integer employeeId, final Address address){
         final Employee employee = employeeRepository.findOne(employeeId);
         employee.addAddress(address);
         employeeRepository.save(employee);
     }
+
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void removeAddressFromEmployee(Integer employeeId, Integer addressId) {
@@ -66,6 +71,48 @@ public class EmployeeService {
                 .get());
         employeeRepository.save(employee);
     }
+
+    //----------- Phone
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void addPhoneToEmployee(Integer employeeId, Phone phone) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        employee.addPhone(phone);
+        employeeRepository.save(employee);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removePhoneFromEmployee(Integer employeeId, Integer phoneId) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        final List<Phone> phones = employee.getPhones();
+        phones.remove(phones.stream()
+                .filter(phone -> phone.getId().equals(phoneId))
+                .findFirst()
+                .get());
+        employeeRepository.save(employee);
+    }
+
+    //--------- Email
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void addEmailToEmployee(Integer employeeId, Email email) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        employee.addEmail(email);
+        employeeRepository.save(employee);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removeEmailFromEmployee(Integer employeeId, Integer emailId) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        final List<Email> emails = employee.getEmails();
+        emails.remove(emails.stream()
+                .filter(email -> email.getId().equals(emailId))
+                .findFirst()
+                .get());
+        employeeRepository.save(employee);
+    }
+
+    //------------- Job
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void addEmployeeToJob(final Integer employeeId, Job job) {
@@ -169,6 +216,7 @@ public class EmployeeService {
     private DateTime getFirstDayOfWeek() {
         return new DateTime().withDayOfWeek(DateTimeConstants.MONDAY);
     }
+
 
 
 }

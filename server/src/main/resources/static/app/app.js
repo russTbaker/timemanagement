@@ -46,7 +46,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
         $scope.isTimeSheetCollapsed = false;
         $scope.isTimeSheetEntryCollapsed = false;
         $scope.isAddressCollapsed = false;
-        $scope.isAddAddressCollapsed = true;
+        $scope.isAddAddressCollapsed = false;
+        $scope.isPhonesCollapsed = false;
+        $scope.isEmailsCollapsed = false;
         $scope.roles = ['administrator',
             'employee',
             'customer',
@@ -105,6 +107,37 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $scope.isAddressCollapsed = !$scope.isAddressCollapsed;
         };
 
+
+        $scope.onClickNavigateToPhones = function (url) {
+            var httpPromise = $http.get(url).success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            });
+
+            SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+                $scope.phones = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+            $scope.isPhonesCollapsed = !$scope.isPhonesCollapsed;
+        };
+
+
+        $scope.onClickNavigateToEmails = function (url) {
+            var httpPromise = $http.get(url).success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            });
+
+            SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+                $scope.emails = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+            $scope.isEmailsCollapsed = !$scope.isEmailsCollapsed;
+        };
+
+
+
+
+
+
         $scope.deleteEmployee = function (employee) {
             var httpPromiseTimesheet = $http.delete(employee._links.self.href, employee, 'Content-Type:application/json+hal').success(
                 function (response) {
@@ -124,6 +157,32 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             var addressId = addressHref.substring(addressHref.lastIndexOf('/')+1,addressHref.length);
 
             var httpPromise = $http.delete('/hydrated/employees/' + employeeId + "/address/" + addressId).success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            });
+
+            $route.reload();
+        }
+
+        $scope.deleteEmployeePhone = function(employee,phone) {
+            var employeeHref = employee._links.self.href;
+            var phoneHref = phone._links.self.href;
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/')+1,employeeHref.length);
+            var phoneId = phoneHref.substring(phoneHref.lastIndexOf('/')+1,phoneHref.length);
+
+            var httpPromise = $http.delete('/hydrated/employees/' + employeeId + "/phones/" + phoneId).success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            });
+
+            $route.reload();
+        }
+
+        $scope.deleteEmployeeEmail = function(employee,email) {
+            var employeeHref = employee._links.self.href;
+            var emailHref = email._links.self.href;
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/')+1,employeeHref.length);
+            var emailId = emailHref.substring(emailHref.lastIndexOf('/')+1,emailHref.length);
+
+            var httpPromise = $http.delete('/hydrated/employees/' + employeeId + "/emails/" + emailId).success(function (response) {
                 $scope.response = angular.toJson(response, true);
             });
 
@@ -156,5 +215,8 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             });
 
         };
+
+    })
+    .controller('EditEmployeePhoneController',function($scope, $http, SpringDataRestAdapter){
 
     });
