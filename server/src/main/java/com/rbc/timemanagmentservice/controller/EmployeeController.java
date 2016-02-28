@@ -28,14 +28,6 @@ public class EmployeeController extends UserController<Employee>{
     }
 
 
-
-    @RequestMapping(value = "/{employeeId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteEmployee(@PathVariable("employeeId") Integer employeeId) {
-        employeeService.deleteUser(employeeId);
-        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
-    }
-
-
     //------------- Timesheet
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheet/{timesheetId}/timesheetentries/{timesheetEntryId}",

@@ -27,6 +27,14 @@ public class UserController<U extends User> {
         this.userService = userService;
     }
 
+    // User
+
+    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteUser(@PathVariable("userId") Integer userId) {
+        userService.deleteUser(userId);
+        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+    }
+
     //--------- Address
 
     @RequestMapping(value = "/{userId}/address", method = RequestMethod.POST)
@@ -128,6 +136,10 @@ public class UserController<U extends User> {
                 .buildAndExpand(entity.getId()).toUri());
         return httpHeaders;
     }
+
+
+
+    // TODO: Get Contract for user
 
 
 }

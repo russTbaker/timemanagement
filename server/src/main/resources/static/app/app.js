@@ -251,14 +251,31 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         };
     })
     .controller('ContractsController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
-        var httpPromise = $http.get('/api/contracts').success(function (response) {
-            $scope.response = angular.toJson(response, true);
-        });
 
-        SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+        // Preload contracts
+        SpringDataRestAdapter.process($http.get('/api/contracts').success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
             $scope.contracts = processedResponse._embeddedItems;
             $scope.processedResponse = angular.toJson(processedResponse, true);
         });
+
+        // Preload Employees
+        SpringDataRestAdapter.process( $http.get('/api/employees' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            $scope.employees = processedResponse._embeddedItems;
+            $scope.processedResponse = angular.toJson(processedResponse, true);
+        });
+
+        // Preload Customers
+        SpringDataRestAdapter.process( $http.get('/api/customers' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            $scope.customers = processedResponse._embeddedItems;
+            $scope.processedResponse = angular.toJson(processedResponse, true);
+        });
+
 
 
         $scope.startDate = {
@@ -280,16 +297,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             'net45'];
 
         $scope.addContract = function (contract) {
-            var httpPromiseTimesheet = $http.post('/hydrated/contract/', contract,
+            SpringDataRestAdapter.process($http.post('/hydrated/contract/', contract,
                 'Content-Type:application/json+hal').success(
                 function (response) {
-                    //$scope.response = angular.toJson(response, true);
-                });
-            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
-                //$scope.processedResponse = angular.toJson(processedResponse, true);
-                //$scope.contract = processedResponse
-                console.log("Contract Added!");
-            });
+                    console.log("Added contract!")
+                }));
 
             console.log("Directing back to contracts page");
             $location.path('home');
@@ -320,6 +332,37 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             });
 
             $route.reload();
+        };
+
+        $scope.getEmployees = function(){
+            var httpPromiseContractUsers = $http.get('/api/employees' ).success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            });
+
+            SpringDataRestAdapter.process(httpPromiseContractUsers).then(function (processedResponse) {
+                $scope.employees = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+        }
+
+        $scope.addEmployeeToContract = function(contract,user){
+            var contractId = contract.substring(contract.lastIndexOf('/')+1,contract.length);
+            var userId = user.substring(user.lastIndexOf('/')+1,user.length);
+            SpringDataRestAdapter.process( $http.put('/hydrated/employees/' + userId + '/contracts/' + contractId,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    console.log("Added employee to contract!");
+                }));
+        };
+
+        $scope.addCustomerToContract = function(contract,user){
+            var contractId = contract.substring(contract.lastIndexOf('/')+1,contract.length);
+            var userId = user.substring(user.lastIndexOf('/')+1,user.length);
+            SpringDataRestAdapter.process( $http.put('/hydrated/customers/' + userId + '/contracts/' + contractId,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    console.log("Added customer to contract!");
+                }));
         };
 
     });
