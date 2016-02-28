@@ -7,9 +7,6 @@ import com.rbc.timemanagmentservice.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.ws.rs.NotFoundException;
-import java.util.List;
-
 /**
  * Created by russbaker on 2/18/16.
  */

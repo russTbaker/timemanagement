@@ -2,6 +2,7 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,9 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     @Autowired
     private ContractService contractService;
+
+    @Autowired
+    private ContractTestUtil contractTestUtil;
 
 
     @Autowired
@@ -168,6 +172,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         // Assert
         Employee result = employeeService.getUser(employee.getId());
         assertEquals("Hours not updated", HOURS, result.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours(), 0);
+
+    }
+
+    //----------- Contracts
+
+    @Test
+    public void whenGettingEmployeesContracts_expectNoneFound() throws Exception {
+        // Assemble
+        Employee employee = createUser();
+        contractTestUtil.getJobCreator().invoke();
+        Contract contract = contractTestUtil.getContract();
+        employeeService.addContractToUser(employee.getId(),contract.getId());
+
+        // Act
+        List<Contract> contracts = employeeService.getUserContracts(employee.getId());
+        assertFalse("No contracts returned",CollectionUtils.isEmpty(contracts));
 
     }
 

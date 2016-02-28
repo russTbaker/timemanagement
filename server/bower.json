@@ -1,8 +1,8 @@
 {
-	"name": "angular-spring-data-rest-sample",
+	"name": "TimeManagement",
 	"version": "0.1.0",
-	"description": "Spring Boot based sample project for the https://github.com/guylabs/angular-spring-data-rest Angular module.",
-	"license": "MIT",
+	"description": "Spring Boot based sample project for the https://github.com/russTbaker/timemanagement/tree/develop TimeManagement Project.",
+	"license": "NONE",
 	"private": true,
 	"ignore": [
 		"**/.*",
@@ -19,16 +19,17 @@
 		"api"
 	],
 	"authors": [
-		"Guy Brand <admin@guylabs.org>"
+		"Russ Baker <russbakerconsulting@mindcop.net>"
 	],
 	"homepage": "http://guylabs.ch/project/angular-spring-data-rest",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/guylabs/angular-spring-data-rest-sample.git"
+		"url": "https://github.com/russTbaker/timemanagement.git"
 	},
 	"dependencies": {
 		"angular": "~1.4.8",
 		"angular-bootstrap": "~0.14.3",
+		"angular-ui-bootstrap-datetimepicker":"0.4.0",
 		"angular-resource": "~1.4.8",
 		"angular-route": "~1.4.8",
 		"angular-highlightjs": "~0.5.1",

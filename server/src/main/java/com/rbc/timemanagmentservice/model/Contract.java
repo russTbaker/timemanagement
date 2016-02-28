@@ -14,8 +14,7 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-public class
-Contract {
+public class Contract implements EntityMarkerInterface{
 
 
     public void addJob(Job job) {
@@ -37,7 +36,8 @@ Contract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "CONTRACT_ID")
     private Integer id;
-
+    private String name;
+    private String description;
     private Double value;
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
@@ -79,6 +79,22 @@ Contract {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Double getValue() {

@@ -15,7 +15,7 @@ import javax.persistence.*;
 @ToString(exclude = "user")
 @EqualsAndHashCode(exclude = {"phone","user"})
 @Entity
-public class Phone {
+public class Phone implements EntityMarkerInterface{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

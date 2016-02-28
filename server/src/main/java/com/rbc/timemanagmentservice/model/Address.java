@@ -8,7 +8,7 @@ import javax.persistence.*;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-public class Address {
+public class Address implements EntityMarkerInterface{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

@@ -67,6 +67,8 @@ public class StartupUtility {
         contract.setEndDate(new DateTime().plusMonths(6));
         contract.setTerms(Contract.Terms.net15);
         contract.setValue(87999D);
+        contract.setName("HDS Social Innovation");
+        contract.setDescription("Second Phase of original contract");
         contract = contractService.saveContract(contract);
         customerService.addContractToUser(customer.getId(),contract.getId());
         return contract;

@@ -110,7 +110,7 @@ public abstract class User {
     @JsonIgnore
     private List<Address> address = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Email> emails = new ArrayList<>();
 

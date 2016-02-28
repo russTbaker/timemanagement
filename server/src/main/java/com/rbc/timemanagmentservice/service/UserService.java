@@ -70,10 +70,15 @@ public class UserService<U extends User> {
     //--------- Address
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addAddressToUser(final Integer userId, final Address address){
+    public Address addAddressToUser(final Integer userId, final Address address){
         final U user = (U) userRepository.findOne(userId);
         user.addAddress(address);
-        userRepository.save(user);
+        final U savedUser = (U) userRepository.save(user);
+        return savedUser.getAddress()
+                .stream()
+                .filter(addr -> addr.getStreet1().equals(address.getStreet1()))
+                .findFirst()
+                .get();
     }
 
 
@@ -91,10 +96,15 @@ public class UserService<U extends User> {
     //----------- Phone
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addPhoneToUser(final Integer userId, final Phone phone) {
+    public Phone addPhoneToUser(final Integer userId, final Phone phone) {
         final U user = (U) userRepository.findOne(userId);
         user.addPhone(phone);
-        userRepository.save(user);
+        final U saved = (U) userRepository.save(user);
+        return saved.getPhones()
+                .stream()
+                .filter(ph -> ph.getPhone().equals(phone.getPhone()))
+                .findFirst()
+                .get();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -111,10 +121,15 @@ public class UserService<U extends User> {
     //--------- Email
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addEmailToUser(final Integer userId, final Email email) {
+    public Email addEmailToUser(final Integer userId, final Email email) {
         final U user = (U) userRepository.findOne(userId);
         user.addEmail(email);
-        userRepository.save(user);
+        final U tempVal = (U) userRepository.save(user);
+        return tempVal.getEmails()
+                .stream()
+                .filter(em -> em.getEmail().equalsIgnoreCase(email.getEmail()))
+                .findFirst()
+                .get();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -145,5 +160,14 @@ public class UserService<U extends User> {
             contract = contractRepository.save(contract);
         }
         user.addContract(contract);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<Contract> getUserContracts(Integer userId) {
+        final U user = (U) userRepository.findOne(userId);
+        if(user == null){
+            throw new NotFoundException("Cannot find user with Id: " + userId);
+        }
+        return user.getContracts();
     }
 }

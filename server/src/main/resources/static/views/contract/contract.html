@@ -1,0 +1,101 @@
+<div class="container" ng-controller="ContractsController">
+
+    <div class="form-group">
+        <table class="table">
+            <th><strong>Name</strong></th>
+            <th><strong>Description</strong></th>
+            <th><strong>Value</strong></th>
+            <th><strong>Start Date</strong></th>
+            <th><strong>End Date</strong></th>
+            <th><strong>Terms</strong></th>
+            <th><strong>Edit Contract</strong></th>
+            <th><strong>Delete Contract</strong></th>
+            <tr ng-repeat="contract in contracts">
+                <td>{{contract.name}}</td>
+                <td>{{contract.description}}</td>
+                <td>{{contract.value}}</td>
+                <td>{{contract.startDate}}</td>
+                <td>{{contract.endDate}}</td>
+                <td>{{contract.terms}}</td>
+                <td align="center">
+                    <button class="btn btn-default" ng-click="editContract(contract)" title="Edit">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </button>
+                </td>
+                <td align="center">
+                    <button class="pull-right btn btn-danger" type="button" title="Delete"
+                            ng-click="deleteContract(contract)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="form-group">
+        <form class="form-horizontal" role="form" ng-submit="addContract(contract)">
+            <div class="input-group">
+                <table class="table">
+                    <th><strong>Name</strong></th>
+                    <th><strong>Description</strong></th>
+                    <th><strong>Value</strong></th>
+                    <th><strong>Start Date</strong></th>
+                    <th><strong>End Date</strong></th>
+                    <th><strong>Terms</strong></th>
+                    <th><strong>Add Contract</strong></th>
+                    <th>&nbsp;</th>
+                    <tr>
+                        <td><input type="text" class="form-control" ng-model="contract.name"
+                                   placeholder="Enter Contract Name"/></td>
+                        <td><input type="text" class="form-control" ng-model="contract.description"
+                                   placeholder="Enter Contract Description"/></td>
+                        <td><input type="text" class="form-control" ng-model="contract.value"
+                                   placeholder="Enter Contract Value"/></td>
+                        <td>
+                            <p class="input-group">
+                                <input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd"
+                                       ng-model="contract.startDate" is-open="startDate.opened"
+                                       datepicker-options="dateOptions" ng-required="true"
+                                       close-text="Close" alt-input-formats="altInputFormats"/>
+                                  <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openStartDate()"><i
+                                            class="glyphicon glyphicon-calendar"></i></button>
+                                  </span>
+                            </p>
+                        </td>
+                        <td>
+                            <p class="input-group">
+                                <input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd"
+                                       ng-model="contract.endDate" is-open="endDate.opened"
+                                       datepicker-options="dateOptions" ng-required="true"
+                                       close-text="Close" alt-input-formats="altInputFormats"/>
+                                  <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openEndDate()"><i
+                                            class="glyphicon glyphicon-calendar"></i></button>
+                                  </span>
+                            </p>
+                        </td>
+                        <td><select name="repeatSelect1" id="repeatSelect1" ng-model="contract.terms">
+                            <option value=""> ---- Select Terms ----</option>
+                            <option ng-repeat="option in terms" value="{{option}}">{{option}}</option>
+                        </select></td>
+                        <td>
+                            <button class="btn btn-default" type="submit" title="Add">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+    </div>
+
+    <div class="form-group">
+        <form class="form-horizontal" role="form" ng-submit="addUserToContract(contract)">
+            <div class="input-group">
+                <table class="table">
+
+                </table>
+            </div>
+        </form>
+    </div>
+</div>

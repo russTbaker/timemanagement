@@ -9,7 +9,7 @@ import javax.persistence.*;
  * Created by russbaker on 2/19/16.
  */
 @Entity
-public class Email {
+public class Email implements EntityMarkerInterface{
     public enum EmailTypes{
         billing,
         business,

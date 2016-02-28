@@ -10,7 +10,7 @@ import java.util.List;
  * Created by russbaker on 2/24/16.
  */
 @Entity
-public class Job {
+public class Job implements EntityMarkerInterface{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

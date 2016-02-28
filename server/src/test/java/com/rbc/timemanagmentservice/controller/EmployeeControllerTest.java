@@ -1,30 +1,33 @@
 package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Contract;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.Timesheet;
 import com.rbc.timemanagmentservice.service.EmployeeService;
+import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import java.util.List;
+
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 
@@ -36,17 +39,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @WebAppConfiguration
 @Profile({"default", "test"})
 @Transactional
-@Ignore("Angular spring data rest is making this obsolete")
-public class EmployeeControllerTest extends ControllerTests{
-    public static final String ROOT_URI = "/hydrated/employee/";
-    private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
-            MediaTypes.HAL_JSON.getSubtype());
-
-    private MockMvc mockMvc;
-    private String realContentType = "application/hal+json";
-    final String employeeResourceRoot = "$._embedded.employeeResources[0]";
-    final String timesheetResourceRoot = "$._embedded.timeSheetResources[0]";
-    final String timesheetEntryResourceRoot = "$._embedded.timeSheetEntryResources[0]";
+public class EmployeeControllerTest extends ControllerTests<Employee>{
 
 
     @Autowired
@@ -56,152 +49,27 @@ public class EmployeeControllerTest extends ControllerTests{
     private StartupUtility startupUtility;
 
     @Autowired
-    private EmployeeService employeeService;
+    private EmployeeService userService;
+
+    @Autowired
+    private ContractTestUtil contractTestUtil;
 
 
-    private Employee employee;
 
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
-        employee = startupUtility.init();
+        user = startupUtility.init();
     }
 
-    @Test
-    public void whenGettingAllEmployees_expectAllEmployeesReturned() throws Exception {
-        // Assemble
-
-
-        // Act/Assert
-        mockMvc.perform(get(ROOT_URI))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(contentType))
-                .andExpect(jsonPath(employeeResourceRoot + "employee.roles", is(employee.getRoles().name())))
-                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].email", is(employee.getEmails().get(0).getEmail())))
-                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailType", is(employee.getEmails().get(0).getEmailType().name())))
-                .andExpect(jsonPath(employeeResourceRoot + ".timeSheets[0].timeSheetEntries[0].timeSheetEntry.hours", is(employee.getTimesheets()
-                        .get(0).getTimeSheetEntries().get(0).getHours())));;
-
-    }
-
-    @Test
-    public void whenCallingGetEmployee_expectEmployeeReturned() throws Exception {
-        // Assemble
-        Integer employeeId = employee.getId();
-
-        // Act
-        mockMvc.perform(get(ROOT_URI + "/" + employeeId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(realContentType))
-                .andExpect(jsonPath(employeeResourceRoot + ".employee.roles", is(employee.getRoles().name())))
-                .andExpect(jsonPath(employeeResourceRoot + ".employee.emails[0].email", is(employee.getEmails().get(0).getEmail())))
-                .andExpect(jsonPath(employeeResourceRoot + "employee.emails[0].emailType", is(employee.getEmails().get(0).getEmailType().name())))
-                .andExpect(jsonPath(employeeResourceRoot + ".timeSheets[0].timeSheetEntries[0].timeSheetEntry.hours", is(employee.getTimesheets()
-                        .get(0).getTimeSheetEntries().get(0).getHours())));
-
-    }
-
-
-    @Test
-    public void whenCallingGetEmployee_expectNotFound() throws Exception {
-        mockMvc.perform(get(ROOT_URI + "/" + 0))
-                .andExpect(status().isNotFound());
-
-    }
-
-
-    @Test
-    public void whenUpdatingCustomersEmails_expectEmailsUpdated() throws Exception {
-        // Assemble
-        employee = employeeService.getUser(employee.getId());
-        final Email email = employee.getEmails().get(0);
-        final String newValue = "a new value";
-        email.setEmail(newValue);
-        employee.addEmail(email);
-
-        this.mockMvc.perform(
-                put(ROOT_URI +employee.getId() + "/email/" + email.getId())
-                        .session(createMockHttpSessionForPutPost())
-                        .contentType(contentType)
-                        .accept(contentType)
-                        .content(json(email)))
-                .andDo(print())
-                .andExpect(status().isCreated());
-
-        employee = employeeService.getUser(employee.getId());
-        assertEquals("Wrong email",email.getEmail(),employee.getEmails().get(0).getEmail());
-
-    }
-
-    @Test
-    public void whenUpdatingCustomersAddress_expectAddressUpdated() throws Exception {
-        // Assemble
-        employee = employeeService.getUser(employee.getId());
-        final Address address = employee.getAddress().get(0);
-        final String newValue = "a new value";
-        address.setStreet1(newValue);
-        employee.addAddress(address);
-
-        this.mockMvc.perform(
-                put(ROOT_URI +employee.getId() + "/address/" + address.getId())
-                        .session(createMockHttpSessionForPutPost())
-                        .contentType(contentType)
-                        .accept(contentType)
-                        .content(json(address)))
-                .andDo(print())
-                .andExpect(status().isCreated());
-
-        employee = employeeService.getUser(employee.getId());
-        assertEquals("Wrong address",address.getStreet1(),employee.getAddress().get(0).getStreet1());
-
-    }
-
-
-    @Test
-    public void whenUpdatingCustomersPhone_expectPhonesUpdated() throws Exception {
-        // Assemble
-        employee = employeeService.getUser(employee.getId());
-        final Phone phone = employee.getPhones().get(0);
-        final String newValue = "a new value";
-        phone.setPhone(newValue);
-        employee.addPhone(phone);
-
-        this.mockMvc.perform(
-                put(ROOT_URI +employee.getId() + "/phone/" + phone.getId())
-                        .session(createMockHttpSessionForPutPost())
-                        .contentType(contentType)
-                        .accept(contentType)
-                        .content(json(phone)))
-                .andDo(print())
-                .andExpect(status().isCreated());
-
-        employee = employeeService.getUser(employee.getId());
-        assertEquals("Wrong phone",phone.getPhone(),employee.getPhones().get(0).getPhone());
-
-    }
-
-    @Test
-    public void whenGettingEmployeesRecentTimeSheet_expectMostRecentReturned() throws Exception {
-
-        // Act/Assert
-        mockMvc.perform(get(ROOT_URI + employee.getId() + "/timesheet" ))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(timesheetResourceRoot + ".timeSheetEntries[0].timeSheetEntry.date",
-                        is(FMT.print(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getDate()))))
-                .andExpect(jsonPath(timesheetResourceRoot + ".timeSheetEntries[0].timeSheetEntry.hours",
-                        is(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours())));
-//                .andExpect(jsonPath(timesheetResourceRoot + ".timeSheetEntries[0].timeSheetEntry.contract",
-//                        is(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getContractId())));
-
-    }
 
     @Test
     public void whenPuttingTimeSheetEntry_expectEntryAdded() throws Exception {
         // Assemble
-        final Timesheet timeSheet = employee.getTimesheets().get(0);
+        final Timesheet timeSheet = ((Employee)user).getTimesheets().get(0);
         TimeSheetEntry firstTimeSheetEntry = timeSheet.getTimeSheetEntries().get(0);
         firstTimeSheetEntry.setHours(12);
-        final String url = ROOT_URI + employee.getId() + "/timesheet/" + timeSheet.getId()
+        final String url = ROOT_URI + user.getId() + "/timesheet/" + timeSheet.getId()
                 + "/timesheetentries/" + firstTimeSheetEntry.getId();
         String timesheetEntryJson = json(firstTimeSheetEntry);
 
@@ -211,22 +79,29 @@ public class EmployeeControllerTest extends ControllerTests{
                 .content(timesheetEntryJson))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(header().string("location", "http://localhost/hydrated/employee/"+employee.getId()
+                .andExpect(header().string("location", "http://localhost/hydrated/employees/"+user.getId()
                         +"/timesheet/"+timeSheet.getId()+"/timesheetentries/" + firstTimeSheetEntry.getId()));
 
     }
 
+    //----------- Contracts
+
     @Test
-    public void whenGettingAllTimeEntries_expectEntrisReturned() throws Exception {
-        // Act/Assert
-        mockMvc.perform(get(ROOT_URI + employee.getId() + "/timesheet/" + employee.getTimesheets().get(0).getId()
-        + "/timesheetentries"))
-                .andExpect(status().isOk())
-//                .andExpect(jsonPath(timesheetEntryResourceRoot + ".timeSheetEntry.contract",
-//                        is(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getContractId())))
-                .andExpect(jsonPath(timesheetEntryResourceRoot + ".timeSheetEntry.hours",
-                        is(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours())))
-                .andExpect(jsonPath(timesheetEntryResourceRoot + ".timeSheetEntry.date",
-                        is(FMT.print(employee.getTimesheets().get(0).getTimeSheetEntries().get(0).getDate()))));
+    public void whenGettingEmployeesContracts_expectContractsReturned() throws Exception {
+        // Assemble
+        contractTestUtil.getJobCreator().invoke();
+        Contract contract = contractTestUtil.getContract();
+        Employee user = startupUtility.getEmployee();
+        user = userService.createUser(user);
+
+        // Act
+        mockMvc.perform(put(ROOT_URI + user.getId() + "/contracts/" + contract.getId())
+        ).andExpect(status().isAccepted());
+
+        //Assert
+        List<Contract> contracts = userService.getUser(user.getId()).getContracts();
+        assertFalse("No contracts associated with user", CollectionUtils.isEmpty(contracts));
+        assertTrue("Wrong contract",contracts.contains(contract));
+
     }
 }

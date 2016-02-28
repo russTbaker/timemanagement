@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute', 'hljs', 'spring-data-rest'])
+var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetimepicker', 'ngResource', 'ngRoute', 'hljs', 'spring-data-rest'])
     .config(['$routeProvider', function ($routeProvider) {
         $routeProvider.when('/', {
             templateUrl: 'main.html'
@@ -15,6 +15,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             })
             .when('/addEmployeePhone/:employeeId', {
                 templateUrl: 'views/employee/addEmployeePhone.html'
+            })
+            .when('/contract', {
+                templateUrl: 'views/contract/contract.html'
             })
             // .when('/samples/automatic-link-fetching', {
             //    templateUrl: 'partials/samples/automatic-link-fetching.html'
@@ -45,7 +48,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $location.path('/employee');
         }
     })
-    .controller('employeesController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
+    .controller('EmployeesController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
         $scope.isTimeSheetCollapsed = false;
         $scope.isTimeSheetEntryCollapsed = false;
         $scope.isAddressCollapsed = false;
@@ -69,7 +72,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $location.path('addEmployeePhone/' + employeeId);
         };
 
-        var httpPromise = $http.get('http://localhost:8080/api/employees').success(function (response) {
+        var httpPromise = $http.get('/api/employees').success(function (response) {
             $scope.response = angular.toJson(response, true);
         });
 
@@ -142,11 +145,6 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $scope.isEmailsCollapsed = !$scope.isEmailsCollapsed;
         };
 
-
-
-
-
-
         $scope.deleteEmployee = function (employee) {
             var httpPromiseTimesheet = $http.delete(employee._links.self.href, employee, 'Content-Type:application/json+hal').success(
                 function (response) {
@@ -159,11 +157,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $route.reload();
         };
 
-        $scope.deleteEmployeeAddress = function(employee,address) {
+        $scope.deleteEmployeeAddress = function (employee, address) {
             var employeeHref = employee._links.self.href;
             var addressHref = address._links.self.href;
-            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/')+1,employeeHref.length);
-            var addressId = addressHref.substring(addressHref.lastIndexOf('/')+1,addressHref.length);
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            var addressId = addressHref.substring(addressHref.lastIndexOf('/') + 1, addressHref.length);
 
             var httpPromise = $http.delete('/hydrated/employees/' + employeeId + "/address/" + addressId).success(function (response) {
                 $scope.response = angular.toJson(response, true);
@@ -172,11 +170,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $route.reload();
         }
 
-        $scope.deleteEmployeePhone = function(employee,phone) {
+        $scope.deleteEmployeePhone = function (employee, phone) {
             var employeeHref = employee._links.self.href;
             var phoneHref = phone._links.self.href;
-            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/')+1,employeeHref.length);
-            var phoneId = phoneHref.substring(phoneHref.lastIndexOf('/')+1,phoneHref.length);
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            var phoneId = phoneHref.substring(phoneHref.lastIndexOf('/') + 1, phoneHref.length);
 
             var httpPromise = $http.delete('/hydrated/employees/' + employeeId + "/phones/" + phoneId).success(function (response) {
                 $scope.response = angular.toJson(response, true);
@@ -185,11 +183,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             $route.reload();
         }
 
-        $scope.deleteEmployeeEmail = function(employee,email) {
+        $scope.deleteEmployeeEmail = function (employee, email) {
             var employeeHref = employee._links.self.href;
             var emailHref = email._links.self.href;
-            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/')+1,employeeHref.length);
-            var emailId = emailHref.substring(emailHref.lastIndexOf('/')+1,emailHref.length);
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            var emailId = emailHref.substring(emailHref.lastIndexOf('/') + 1, emailHref.length);
 
             var httpPromise = $http.delete('/hydrated/employees/' + employeeId + "/emails/" + emailId).success(function (response) {
                 $scope.response = angular.toJson(response, true);
@@ -226,7 +224,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
         };
 
     })
-    .controller('EditEmployeePhoneController',function($scope, $http, SpringDataRestAdapter, $routeParams){
+    .controller('EditEmployeePhoneController', function ($scope, $http, SpringDataRestAdapter, $routeParams) {
         var employeeId = $routeParams.employeeId;
         var httpPromise = $http.get('/api/employees/' + employeeId).success(function (response) {
             $scope.response = angular.toJson(response, true);
@@ -251,4 +249,77 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ngResource', 'ngRoute
             });
 
         };
+    })
+    .controller('ContractsController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
+        var httpPromise = $http.get('/api/contracts').success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        });
+
+        SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+            $scope.contracts = processedResponse._embeddedItems;
+            $scope.processedResponse = angular.toJson(processedResponse, true);
+        });
+
+
+        $scope.startDate = {
+            opened: false
+        };
+        $scope.endDate = {
+            opened: false
+        };
+
+        $scope.openStartDate = function () {
+            $scope.startDate.opened = true;
+        };
+        $scope.openEndDate = function () {
+            $scope.endDate.opened = true;
+        };
+
+        $scope.terms = ['net15',
+            'net30',
+            'net45'];
+
+        $scope.addContract = function (contract) {
+            var httpPromiseTimesheet = $http.post('/hydrated/contract/', contract,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    //$scope.response = angular.toJson(response, true);
+                });
+            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+                //$scope.processedResponse = angular.toJson(processedResponse, true);
+                //$scope.contract = processedResponse
+                console.log("Contract Added!");
+            });
+
+            console.log("Directing back to contracts page");
+            $location.path('home');
+        };
+
+
+
+        $scope.deleteContract = function (contract) {
+            var httpPromiseTimesheet = $http.delete(contract._links.self.href, contract, 'Content-Type:application/json+hal').success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                });
+            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+                console.log("Contract deleted.")
+            });
+
+            $route.reload();
+        };
+
+
+        $scope.editContract = function (contract) {
+            var httpPromiseTimesheet = $http.put(contract._links.self.href, contract, 'Content-Type:application/json+hal').success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                });
+            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+                console.log("Contract updated.")
+            });
+
+            $route.reload();
+        };
+
     });
