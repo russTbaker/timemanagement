@@ -2,7 +2,6 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.EntityMarkerInterface;
-import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -46,11 +45,11 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{contractId}/jobs", method = RequestMethod.PUT)
+    @RequestMapping(value = "{contractId}/jobs/{jobId}", method = RequestMethod.PUT)
     public ResponseEntity<?> addJobToContract(@PathVariable("contractId") Integer contractId,
-                                              @RequestBody Job job){
-        job = contractService.createJob(job,contractId);
-        return new ResponseEntity<>(null,getHttpHeadersForEntity(job,"jobs"),HttpStatus.ACCEPTED);
+                                              @PathVariable("jobId") Integer jobId){
+        return new ResponseEntity<>(null,getHttpHeadersForEntity(
+                contractService.addJobToContract(jobId,contractId),"jobs"),HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "{contractId}/jobs/{jobId}", method = RequestMethod.DELETE)

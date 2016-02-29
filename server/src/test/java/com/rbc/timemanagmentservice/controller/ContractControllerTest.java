@@ -146,7 +146,7 @@ public class ContractControllerTest extends ControllerTests {
         job.setRate(90.0);
 
         // Act
-        mockMvc.perform(put(ROOT_URI + contract.getId() + "/jobs" )
+        mockMvc.perform(put(ROOT_URI + contract.getId() + "/jobs/" + contractService.createJob(job).getId() )
                 .session(createMockHttpSessionForPutPost())
                 .contentType(contentType)
                 .content(json(job)))

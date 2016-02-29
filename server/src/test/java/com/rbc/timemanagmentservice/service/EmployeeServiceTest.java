@@ -84,7 +84,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         // Assemble
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
         Contract contract = contractService.saveContract(new Contract());
-        Job job = contractService.createJob(new Job(),contract.getId());
+        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
 
         // Act
         employeeService.addEmployeeToJob(employee.getId(), job);
@@ -96,11 +96,11 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     }
 
     @Test
-    public void whenAddingDetatchedJobtToEmployee_expectContractAded() throws Exception {
+    public void whenAddingDetatchedJobToEmployee_expectContractAded() throws Exception {
         // Assemble
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
         Contract contract = contractService.saveContract(new Contract());
-        Job job = contractService.createJob(new Job(),contract.getId());
+        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
 
         // Act
         employeeService.addEmployeeToJob(employee.getId(), job);
@@ -213,7 +213,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     private Timesheet getTimeSheet(Employee employee) {
         Contract contract = contractService.saveContract(new Contract());
 
-        Job job = contractService.createJob(new Job(),contract.getId());
+        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
         employeeService.createTimeSheet(employee.getId(), job.getId());
         return employeeService.getUser(employee.getId()).getTimesheets().get(0);
     }

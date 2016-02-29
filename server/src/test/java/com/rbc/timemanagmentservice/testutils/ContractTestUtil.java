@@ -63,9 +63,9 @@ public class ContractTestUtil {
             Job job = new Job();
             job.setName("Job name");
             job.setDescription(TEST_JOB_DESCRIPTION);
-
+            job = contractService.createJob(job);
             // Act
-            jobCreated = contractService.createJob(job, contract.getId());
+            jobCreated = contractService.addJobToContract(job.getId(), contract.getId());
             return this;
         }
     }

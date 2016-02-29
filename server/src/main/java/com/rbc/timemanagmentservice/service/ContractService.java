@@ -44,8 +44,13 @@ public class ContractService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public Job createJob(Job job, Integer contractId){
-        final Job realJob = jobRepository.save(job);
+    public Job createJob(final Job job){
+        return jobRepository.save(job);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Job addJobToContract(Integer jobId, Integer contractId){
+        final Job realJob = jobRepository.findOne(jobId);
         final Contract contract = contractRepository.findOne(contractId);
         contract.addJob(realJob);
         contractRepository.save(contract);

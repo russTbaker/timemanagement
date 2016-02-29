@@ -32,6 +32,7 @@ public class Contract implements EntityMarkerInterface{
         net30,
         net45
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "CONTRACT_ID")
@@ -56,8 +57,8 @@ public class Contract implements EntityMarkerInterface{
     private List<Job> jobs = new ArrayList<>();
 
     @ManyToMany(mappedBy = "contracts")
-    @RestResource(exported = false)
-    @JsonIgnore
+//    @RestResource(exported = false)
+//    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
 

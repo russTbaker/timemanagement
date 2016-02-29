@@ -42,8 +42,7 @@ public class StartupUtility {
 
 
         Contract customerContract = getContractForCustomer(customer);
-        final Job job = new Job();
-        job.setRate(87.5);
+        final Job job = getJob();
 
 
         // Set up employee with job
@@ -52,10 +51,12 @@ public class StartupUtility {
         employee.addAddress(getAddress());
         employee.addPhone(getPhone());
         employee = employeeService.updateUser(employee);
-        employeeService.addEmployeeToJob(employee.getId(), contractService.createJob(job,customerContract.getId()));
+        employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(contractService.createJob(job).getId(),customerContract.getId()));
         employeeService.createTimeSheet(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
         return employeeService.getUser(employee.getId());
     }
+
+
 
     public Customer getCustomerObject(){
         return this.customer;
@@ -119,5 +120,13 @@ public class StartupUtility {
         Phone phone = new Phone();
         phone.setPhone("3035551212");
         return phone;
+    }
+
+    public Job getJob() {
+        final Job job = new Job();
+        job.setRate(87.5);
+        job.setName("BT");
+        job.setDescription("Second Phase");
+        return job;
     }
 }

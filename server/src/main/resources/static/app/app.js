@@ -252,76 +252,26 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
     })
     .controller('ContractsController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
 
-        // Preload contracts
-        SpringDataRestAdapter.process($http.get('/api/contracts').success(function (response) {
-            $scope.response = angular.toJson(response, true);
-        })).then(function (processedResponse) {
-            $scope.contracts = processedResponse._embeddedItems;
-            $scope.processedResponse = angular.toJson(processedResponse, true);
-        });
 
-        // Preload Employees
-        SpringDataRestAdapter.process( $http.get('/api/employees' ).success(function (response) {
-            $scope.response = angular.toJson(response, true);
-        })).then(function (processedResponse) {
-            $scope.employees = processedResponse._embeddedItems;
-            $scope.processedResponse = angular.toJson(processedResponse, true);
-        });
+        init();
 
-        // Preload Customers
-        SpringDataRestAdapter.process( $http.get('/api/customers' ).success(function (response) {
-            $scope.response = angular.toJson(response, true);
-        })).then(function (processedResponse) {
-            $scope.customers = processedResponse._embeddedItems;
-            $scope.processedResponse = angular.toJson(processedResponse, true);
-        });
-
-        // Preload Jobs
-        SpringDataRestAdapter.process( $http.get('/api/jobs' ).success(function (response) {
-            $scope.response = angular.toJson(response, true);
-        })).then(function (processedResponse) {
-            $scope.jobs = processedResponse._embeddedItems;
-            $scope.processedResponse = angular.toJson(processedResponse, true);
-        });
-
-
-        $scope.startDate = {
-            opened: false
-        };
-        $scope.endDate = {
-            opened: false
-        };
-
-        $scope.openStartDate = function () {
-            $scope.startDate.opened = true;
-        };
-        $scope.openEndDate = function () {
-            $scope.endDate.opened = true;
-        };
-
-        $scope.terms = ['net15',
-            'net30',
-            'net45'];
+        //---------- Contracts
 
         $scope.addContract = function (contract) {
-            SpringDataRestAdapter.process($http.post('/hydrated/contract/', contract,
+            SpringDataRestAdapter.process($http.post('/hydrated/contracts/', contract,
                 'Content-Type:application/json+hal').success(
                 function (response) {
                     console.log("Added contract!")
                 }));
-
-            console.log("Directing back to contracts page");
-            $location.path('home');
         };
 
 
-
         $scope.deleteContract = function (contract) {
-            var httpPromiseTimesheet = $http.delete(contract._links.self.href, contract, 'Content-Type:application/json+hal').success(
+            SpringDataRestAdapter.process($http.delete(contract._links.self.href, contract,
+                'Content-Type:application/json+hal').success(
                 function (response) {
                     $scope.response = angular.toJson(response, true);
-                });
-            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+                })).then(function (processedResponse) {
                 console.log("Contract deleted.")
             });
 
@@ -330,43 +280,131 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
 
         $scope.editContract = function (contract) {
-            var httpPromiseTimesheet = $http.put(contract._links.self.href, contract, 'Content-Type:application/json+hal').success(
+            SpringDataRestAdapter.process($http.put(contract._links.self.href, contract,
+                'Content-Type:application/json+hal').success(
                 function (response) {
                     $scope.response = angular.toJson(response, true);
-                });
-            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+                })).then(function (processedResponse) {
                 console.log("Contract updated.")
             });
 
             $route.reload();
         };
 
-        $scope.getEmployees = function(){
-            var httpPromiseContractUsers = $http.get('/api/employees' ).success(function (response) {
-                $scope.response = angular.toJson(response, true);
-            });
+        //$scope.getEmployees = function () {
+        //    loadEmployees();
+        //}
 
-            SpringDataRestAdapter.process(httpPromiseContractUsers).then(function (processedResponse) {
+
+        $scope.addEmployeeToContract = function (contract, user) {
+            addContract(contract, user, "employees");
+            $route.reload();
+
+        };
+
+        $scope.addCustomerToContract = function (contract, user) {
+            addContract(contract, user, "customers");
+            $route.reload();
+        };
+
+        //------------------------ Jobs
+
+        $scope.addJob = function(job){
+            SpringDataRestAdapter.process($http.post('/api/jobs/', job,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    console.log("Job added!")
+                }));
+            loadJobs();
+            $route.reload();
+        };
+
+        $scope.addJobToContract=function(contract,job){
+            var contractId = contract.substring(contract.lastIndexOf('/') + 1, contract.length);
+            var jobId = job.substring(job.lastIndexOf('/') + 1, job.length);
+            SpringDataRestAdapter.process($http.put('/hydrated/contracts/' + contractId + '/jobs/' + jobId,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    console.log("Added job to contract!");
+                }));
+        }
+        // ------------------------- Functions
+
+        function init() {
+            refreshPage();
+            $scope.startDate = {
+                opened: false
+            };
+            $scope.endDate = {
+                opened: false
+            };
+
+            $scope.openStartDate = function () {
+                $scope.startDate.opened = true;
+            };
+            $scope.openEndDate = function () {
+                $scope.endDate.opened = true;
+            };
+
+            $scope.terms = ['net15',
+                'net30',
+                'net45'];
+        }
+
+        function refreshPage(){
+            loadContracts();
+            loadEmployees();
+            loadCustomers();
+            loadJobs();
+        }
+
+        // Preload contracts
+        function loadContracts() {
+            SpringDataRestAdapter.process($http.get('/api/contracts').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                $scope.contracts = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+        }
+
+        // Preload Employees
+        function loadEmployees() {
+            SpringDataRestAdapter.process($http.get('/api/employees').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
                 $scope.employees = processedResponse._embeddedItems;
                 $scope.processedResponse = angular.toJson(processedResponse, true);
             });
         }
 
-        $scope.addEmployeeToContract = function(contract,user){
-            addContract(contract,user,"employees")
-        };
+        // Preload Customers
+        function loadCustomers() {
+            SpringDataRestAdapter.process($http.get('/api/customers').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                $scope.customers = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+        }
 
-        $scope.addCustomerToContract = function(contract,user){
-            addContract(contract,user,"customers")
-        };
+        // Preload Jobs
+        function loadJobs() {
+            SpringDataRestAdapter.process($http.get('/api/jobs').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                $scope.jobs = processedResponse._embeddedItems;
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+            });
+        }
 
-        function addContract(contract,user,path){
-            var contractId = contract.substring(contract.lastIndexOf('/')+1,contract.length);
-            var userId = user.substring(user.lastIndexOf('/')+1,user.length);
-            SpringDataRestAdapter.process( $http.put('/hydrated/'+path+'/' + userId + '/contracts/' + contractId,
+        function addContract(contract, user, path) {
+            var contractId = contract.substring(contract.lastIndexOf('/') + 1, contract.length);
+            var userId = user.substring(user.lastIndexOf('/') + 1, user.length);
+            SpringDataRestAdapter.process($http.put('/hydrated/' + path + '/' + userId + '/contracts/' + contractId,
                 'Content-Type:application/json+hal').success(
                 function (response) {
-                    console.log("Added "+path+" to contract!");
+                    console.log("Added " + path + " to contract!");
                 }));
         }
 
