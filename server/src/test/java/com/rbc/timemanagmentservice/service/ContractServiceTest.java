@@ -150,7 +150,7 @@ public class ContractServiceTest {
         Contract contract = jobCreator.getThisContract();
 
         // Act
-        contractService.removeJobFromContract(contract.getId(),jobCreator.getJobCreated());
+        contractService.removeJobFromContract(contract.getId(),jobCreator.getJobCreated().getId());
 
         // Assert
         assertTrue("Job not removed",CollectionUtils.isEmpty(contractService.getContract(contract.getId()).getJobs()));

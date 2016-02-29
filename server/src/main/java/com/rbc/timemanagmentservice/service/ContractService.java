@@ -76,9 +76,12 @@ public class ContractService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void removeJobFromContract(final Integer contractId, final Job job) {
+    public void removeJobFromContract(final Integer contractId, final Integer jobId) {
         final Contract contract = contractRepository.findOne(contractId);
+        final Job job = jobRepository.findOne(jobId);
         contract.getJobs().remove(job);
         contractRepository.save(contract);
     }
+
+
 }

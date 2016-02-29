@@ -276,6 +276,13 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $scope.processedResponse = angular.toJson(processedResponse, true);
         });
 
+        // Preload Jobs
+        SpringDataRestAdapter.process( $http.get('/api/jobs' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            $scope.jobs = processedResponse._embeddedItems;
+            $scope.processedResponse = angular.toJson(processedResponse, true);
+        });
 
 
         $scope.startDate = {
@@ -346,23 +353,21 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         }
 
         $scope.addEmployeeToContract = function(contract,user){
-            var contractId = contract.substring(contract.lastIndexOf('/')+1,contract.length);
-            var userId = user.substring(user.lastIndexOf('/')+1,user.length);
-            SpringDataRestAdapter.process( $http.put('/hydrated/employees/' + userId + '/contracts/' + contractId,
-                'Content-Type:application/json+hal').success(
-                function (response) {
-                    console.log("Added employee to contract!");
-                }));
+            addContract(contract,user,"employees")
         };
 
         $scope.addCustomerToContract = function(contract,user){
+            addContract(contract,user,"customers")
+        };
+
+        function addContract(contract,user,path){
             var contractId = contract.substring(contract.lastIndexOf('/')+1,contract.length);
             var userId = user.substring(user.lastIndexOf('/')+1,user.length);
-            SpringDataRestAdapter.process( $http.put('/hydrated/customers/' + userId + '/contracts/' + contractId,
+            SpringDataRestAdapter.process( $http.put('/hydrated/'+path+'/' + userId + '/contracts/' + contractId,
                 'Content-Type:application/json+hal').success(
                 function (response) {
-                    console.log("Added customer to contract!");
+                    console.log("Added "+path+" to contract!");
                 }));
-        };
+        }
 
     });

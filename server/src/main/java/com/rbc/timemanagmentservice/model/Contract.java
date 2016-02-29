@@ -57,6 +57,7 @@ public class Contract implements EntityMarkerInterface{
 
     @ManyToMany(mappedBy = "contracts")
     @RestResource(exported = false)
+    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
 

@@ -2,6 +2,7 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Contract;
+import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
@@ -18,14 +19,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.ws.rs.NotFoundException;
 
 import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -38,7 +43,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @Profile({"default", "test"})
 @Transactional
 public class ContractControllerTest extends ControllerTests {
-    public static final String ROOT_URI = "/hydrated/contract/";
+    public static final String ROOT_URI = "/hydrated/contracts/";
     private MediaType contentType = new MediaType(MediaTypes.HAL_JSON.getType(),
             MediaTypes.HAL_JSON.getSubtype());
 
@@ -73,8 +78,9 @@ public class ContractControllerTest extends ControllerTests {
         // Act
         mockMvc.perform(post(ROOT_URI)
                 .content(json(contract))
-                .contentType(contentType)
-                .header("Location", is("http://localhost/hydrated/contract/1")))
+                .contentType(contentType))
+                .andExpect(header().string("Location",
+                        containsString("/api/contracts/")))
                 .andExpect(status().isCreated());
 
     }
@@ -91,6 +97,8 @@ public class ContractControllerTest extends ControllerTests {
                 .contentType(contentType)
                 .header("Location", is("/hydrated/contract/1")))
                 .andDo(print())
+                .andExpect(header().string("Location",
+                        containsString("/api/contracts/")))
                 .andExpect(status().isCreated());
 
     }
@@ -108,5 +116,43 @@ public class ContractControllerTest extends ControllerTests {
         assertNull("Contract not deleted",contractService.getContract(contract.getId()));
 
 
+    }
+
+    @Test
+    public void whenAddingJobToContract_expectJobAdded() throws Exception {
+        // Assemble
+        assembleJob();
+
+    }
+
+    @Test
+    public void whenDeletingAJob_expectJobDeleted() throws Exception {
+        // Assemble
+        Contract contract = assembleJob();
+
+        // Act
+        mockMvc.perform(delete(ROOT_URI + contract.getId() + "/jobs/" + contract.getJobs().get(0).getId()))
+                .andExpect(status().isOk());
+
+        // Assert
+        assertTrue("Job not removed", CollectionUtils.isEmpty(contractService.getContract(contract.getId()).getJobs()));
+    }
+
+    private Contract assembleJob() throws Exception {
+        contractTestUtil.getJobCreator().invoke();
+
+        Contract contract = contractTestUtil.getContract();
+        Job job = new Job();
+        job.setRate(90.0);
+
+        // Act
+        mockMvc.perform(put(ROOT_URI + contract.getId() + "/jobs" )
+                .session(createMockHttpSessionForPutPost())
+                .contentType(contentType)
+                .content(json(job)))
+                .andExpect(header().string("Location",
+                        containsString("/api/jobs/")))
+                .andExpect(status().isAccepted());
+        return contract;
     }
 }

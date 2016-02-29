@@ -24,7 +24,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  * Created by russbaker on 2/18/16.
  */
 @RestController
-@RequestMapping("/hydrated/customer")
+@RequestMapping("/hydrated/customers")
 public class CustomerController extends UserController<Customer>{
 
 

@@ -98,7 +98,7 @@
                         <th><strong>Associate Customer To Contract</strong></th>
                         <tr>
                             <td><select name="customersSelect" id="customersSelect" ng-model="user">
-                                <option value=""> ---- Select Employee ----</option>
+                                <option value=""> ---- Select Customer ----</option>
                                 <option ng-repeat="option in customers" value="{{option._links.self.href}}">
                                     {{option.dba}}
                                 </option>
@@ -133,6 +133,37 @@
                                 </option>
                             </select></td>
                             <td><select name="contractSelectEmployee" id="contractSelectEmployee" ng-model="contract">
+                                <option value=""> ---- Select Contract ----</option>
+                                <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
+                                    {{option.name}}
+                                </option>
+                            </select></td>
+                            <td>
+                                <button class="btn btn-default" type="submit" title="Add">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+
+
+
+            <form class="form-horizontal" role="form" ng-submit="addJobToContract(contract,job)">
+                <div class="input-group">
+                    <table class="table">
+                        <th><strong>Select Job</strong></th>
+                        <th><strong>Select Contract</strong></th>
+                        <th><strong>Associate Employee To Contract</strong></th>
+                        <tr>
+                            <td><select name="jobsSelect" id="jobsSelect" ng-model="user">
+                                <option value=""> ---- Select Job ----</option>
+                                <option ng-repeat="option in jobs" value="{{option._links.self.href}}">
+                                    {{option.name}}
+                                </option>
+                            </select></td>
+                            <td><select name="contractSelectJobs" id="contractSelectJobs" ng-model="contract">
                                 <option value=""> ---- Select Contract ----</option>
                                 <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
                                     {{option.name}}
