@@ -33,7 +33,6 @@ public abstract class User {
 
     @JsonIgnore
     public void addContract(Contract contract){
-//
         if(!this.contracts.contains(contract)){
             this.contracts.add(contract);
             contract.getUsers().add(this);

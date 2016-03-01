@@ -39,7 +39,7 @@ public class CustomerController extends UserController<Customer>{
 //    @RequestMapping(produces = "application/hal+json")
 //    public Resources<CustomerResource> getUsers() {
 //        List<Link> links = new LinkedList<>();
-//        links.add(linkTo(methodOn(CustomerController.class).getUsers()).withSelfRel());
+//        links.addTimesheet(linkTo(methodOn(CustomerController.class).getUsers()).withSelfRel());
 //        final List<Customer> customers = customerService.findAll(null,null);
 //        List<CustomerResource> customerResources = customerToResource(customers.toArray(new Customer[customers.size()]));
 //        return new Resources<>(customerResources, links);
@@ -73,12 +73,12 @@ public class CustomerController extends UserController<Customer>{
 //        List<CustomerResource> resources = new ArrayList<>(customers.length);
 //        for (Customer customer : customers) {
 //            List<Link> links = new ArrayList<>();
-//            links.add(linkTo(methodOn(CustomerController.class).getUser(customer.getId())).withSelfRel());
+//            links.addTimesheet(linkTo(methodOn(CustomerController.class).getUser(customer.getId())).withSelfRel());
 //            for (Contract contract : customer.getContracts()) {
 //
-//                links.add(linkTo(methodOn(CustomerController.class).getContract(customer.getId(), contract.getId())).withRel("contracts"));
+//                links.addTimesheet(linkTo(methodOn(CustomerController.class).getContract(customer.getId(), contract.getId())).withRel("contracts"));
 //            }
-//            resources.add(new CustomerResource(customer, links));
+//            resources.addTimesheet(new CustomerResource(customer, links));
 //        }
 //        return resources;
 //    }
@@ -89,7 +89,7 @@ public class CustomerController extends UserController<Customer>{
 //
 //        public CustomerResource(Customer customer, List<Link> links) {
 //            this.customer = customer;
-//            this.add(links);
+//            this.addTimesheet(links);
 //        }
 //
 //        public Customer getUser() {
@@ -103,7 +103,7 @@ public class CustomerController extends UserController<Customer>{
 //
 //        public ContractResource(Contract contract, List<Link> selfLink) {
 //            this.contract = contract;
-//            this.add(selfLink);
+//            this.addTimesheet(selfLink);
 //        }
 //
 //        public Contract getContract() {
@@ -117,10 +117,10 @@ public class CustomerController extends UserController<Customer>{
 //            final List<User> users = contract.getUsers();
 //            final List<Link> links = new ArrayList<>(users.size());
 //            for(final User user:users) {
-//                links.add(linkTo(methodOn(CustomerController.class).getContract((user)
+//                links.addTimesheet(linkTo(methodOn(CustomerController.class).getContract((user)
 //                        .getId(), contract.getId())).withSelfRel());
 //            }
-//            resources.add(new ContractResource(contract, links));
+//            resources.addTimesheet(new ContractResource(contract, links));
 //        }
 //        return resources;
 //    }

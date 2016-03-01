@@ -21,8 +21,11 @@ public class Job implements EntityMarkerInterface{
 
     private Double rate;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Contract contract;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Employee employee;
 
     @OneToMany
     @JoinColumn(name = "JOB_ID", referencedColumnName = "id")
@@ -77,6 +80,14 @@ public class Job implements EntityMarkerInterface{
 
     public void setContract(Contract contract) {
         this.contract = contract;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
     }
 
     @Override

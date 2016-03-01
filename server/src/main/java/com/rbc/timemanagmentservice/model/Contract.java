@@ -27,6 +27,11 @@ public class Contract implements EntityMarkerInterface{
         }
     }
 
+    public void removeJob(Job job){
+        this.jobs.remove(job);
+        job.setContract(null);
+    }
+
     public enum Terms{
         net15,
         net30,
@@ -52,13 +57,11 @@ public class Contract implements EntityMarkerInterface{
     @Enumerated(value = EnumType.STRING)
     private Terms terms;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "contract")
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 
     @ManyToMany(mappedBy = "contracts")
-//    @RestResource(exported = false)
-//    @JsonIgnore
     private List<User> users = new ArrayList<>();
 
 

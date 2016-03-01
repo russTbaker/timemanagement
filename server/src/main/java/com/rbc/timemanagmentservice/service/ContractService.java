@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.Contract;
+import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
@@ -31,6 +32,11 @@ public class ContractService {
 
 
     @Transactional(propagation = Propagation.REQUIRED)
+    public Contract createContract(Contract contract) {
+        return contractRepository.save(contract);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public Contract saveContract(final Contract contract){
         return contractRepository.save(contract);
     }
@@ -42,6 +48,8 @@ public class ContractService {
         }
         return contract;
     }
+
+    //--------------- Jobs
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Job createJob(final Job job){
@@ -57,10 +65,6 @@ public class ContractService {
         return realJob;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Contract createContract(Contract contract) {
-        return contractRepository.save(contract);
-    }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Contract updateContract(Contract contract) {
@@ -82,11 +86,35 @@ public class ContractService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void removeJobFromContract(final Integer contractId, final Integer jobId) {
-        final Contract contract = contractRepository.findOne(contractId);
         final Job job = jobRepository.findOne(jobId);
-        contract.getJobs().remove(job);
+        final Contract contract = removeJobFromContract(contractId, job);
+        removeJobFromEmployee(job);
         contractRepository.save(contract);
     }
 
 
+
+
+    public Job updateJob(final Integer contractId, final Job job) {
+        final Contract contract = contractRepository.findOne(contractId);
+        contract.addJob(job);
+        contractRepository.save(contract);
+        return job;
+    }
+
+    //------------------- Private Methods
+    private Contract removeJobFromContract(final Integer contractId, final Job job) {
+        final Contract contract = contractRepository.findOne(contractId);
+        if(contract != null){
+            contract.removeJob(job);
+        }
+        return contract;
+    }
+
+    private void removeJobFromEmployee(final Job job) {
+        final Employee employee1 = job.getEmployee();
+        if(employee1 != null){
+            ((Employee) userRepository.findOne(employee1.getId())).removeJob(job);
+        }
+    }
 }

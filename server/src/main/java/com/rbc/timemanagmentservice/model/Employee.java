@@ -19,7 +19,7 @@ public class Employee extends User{
     @JsonIgnore
     private List<Timesheet> timesheets = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 
@@ -68,13 +68,15 @@ public class Employee extends User{
     public void addJob(Job job) {
         if (!this.jobs.contains(job)) {
             this.jobs.add(job);
+            job.setEmployee(this);
         } else {
             this.jobs.remove(job);
             this.jobs.add(job);
         }
     }
 
-
-
-
+    public void removeJob(Job job){
+        this.jobs.remove(job);
+        job.setEmployee(null);
+    }
 }

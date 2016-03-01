@@ -1,36 +1,34 @@
 <div class="container" ng-controller="ContractsController">
-    <div class="form-group">
-        <table class="table">
-            <th><strong>Name</strong></th>
-            <th><strong>Description</strong></th>
-            <th><strong>Value</strong></th>
-            <th><strong>Start Date</strong></th>
-            <th><strong>End Date</strong></th>
-            <th><strong>Terms</strong></th>
-            <th><strong>Edit Contract</strong></th>
-            <th><strong>Delete Contract</strong></th>
-            <tr ng-repeat="contract in contracts">
-                <td>{{contract.name}}</td>
-                <td>{{contract.description}}</td>
-                <td>{{contract.value}}</td>
-                <td>{{contract.startDate}}</td>
-                <td>{{contract.endDate}}</td>
-                <td>{{contract.terms}}</td>
-                <td align="center">
-                    <button class="btn btn-default" ng-click="editContract(contract)" title="Edit">
-                        <span class="glyphicon glyphicon-edit"></span>
-                    </button>
-                </td>
-                <td align="center">
-                    <button class="pull-right btn btn-danger" type="button" title="Delete"
-                            ng-click="deleteContract(contract)">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button>
-                </td>
-            </tr>
-        </table>
-    </div>
-
+    <h1>Contracts</h1>
+    <table class="table">
+        <th><strong>Name</strong></th>
+        <th><strong>Description</strong></th>
+        <th><strong>Value</strong></th>
+        <th><strong>Start Date</strong></th>
+        <th><strong>End Date</strong></th>
+        <th><strong>Terms</strong></th>
+        <th><strong>Edit Contract</strong></th>
+        <th><strong>Delete Contract</strong></th>
+        <tr ng-repeat="contract in contracts">
+            <td>{{contract.name}}</td>
+            <td>{{contract.description}}</td>
+            <td>{{contract.value}}</td>
+            <td>{{contract.startDate}}</td>
+            <td>{{contract.endDate}}</td>
+            <td>{{contract.terms}}</td>
+            <td >
+                <button class="btn btn-default" ng-click="editContract(contract)" title="Edit">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-danger" type="button" title="Delete Contract"
+                        ng-click="deleteContract(contract)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
     <div class="form-group">
         <form class="form-horizontal" role="form" ng-submit="addContract(contract)">
             <div class="input-group">
@@ -89,6 +87,31 @@
         </form>
     </div>
 
+    <h1>Jobs</h1>
+    <table class="table">
+        <th><strong>Name</strong></th>
+        <th><strong>Description</strong></th>
+        <th><strong>Rate</strong></th>
+        <th><strong>Edit Job</strong></th>
+        <th><strong>Delete Job</strong></th>
+        <tr data-ng-repeat="job in jobs">
+            <td>{{job.name}}</td>
+            <td>{{job.description}}</td>
+            <td>{{job.rate}}</td>
+            <td class="row ">
+                <button class="btn btn-default" ng-click="editJob(job)" title="Edit">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-danger" type="button" title="Delete Job"
+                        ng-click="deleteJob(job)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+
     <div class="form-group">
         <form class="form-horizontal" role="form" ng-submit="addJob(job)">
             <div class="input-group">
@@ -114,98 +137,128 @@
             </div>
         </form>
     </div>
+    <h1>Associate Contracts/Employees/Jobs</h1>
     <div class="table">
-    <div class="row">
-        <div class="form-group">
-            <form class="form-horizontal" role="form" ng-submit="addCustomerToContract(contract,user)">
-                <div class="input-group">
-                    <table class="table">
-                        <th><strong>Select Customer</strong></th>
-                        <th><strong>Select Contract</strong></th>
-                        <th><strong>Associate Customer To Contract</strong></th>
-                        <tr>
-                            <td><select name="customersSelect" id="customersSelect" ng-model="user">
-                                <option value=""> ---- Select Customer ----</option>
-                                <option ng-repeat="option in customers" value="{{option._links.self.href}}">
-                                    {{option.dba}}
-                                </option>
-                            </select></td>
-                            <td><select name="contractSelectCustomer" id="contractSelectCustomer" ng-model="contract">
-                                <option value=""> ---- Select Contract ----</option>
-                                <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
-                                    {{option.name}}
-                                </option>
-                            </select></td>
-                            <td>
-                                <button class="btn btn-default" type="submit" title="Add">
-                                    <span class="glyphicon glyphicon-plus"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </form>
+        <form class="form-horizontal" role="form" ng-submit="addCustomerToContract(contract,user)">
+            <div class="input-group">
+                <table class="table">
+                    <th><strong>Select Customer</strong></th>
+                    <th><strong>Select Contract</strong></th>
+                    <th><strong>Associate Customer To Contract</strong></th>
+                    <tr>
+                        <td><select name="customersSelect" id="customersSelect" ng-model="user">
+                            <option value=""> ---- Select Customer ----</option>
+                            <option ng-repeat="option in customers" value="{{option._links.self.href}}">
+                                {{option.dba}}
+                            </option>
+                        </select></td>
+                        <td><select name="contractSelectCustomer" id="contractSelectCustomer" ng-model="contract">
+                            <option value=""> ---- Select Contract ----</option>
+                            <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
+                                {{option.name}}
+                            </option>
+                        </select></td>
+                        <td>
+                            <button class="btn btn-default" type="submit" title="Add">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
 
-            <form class="form-horizontal" role="form" ng-submit="addEmployeeToContract(contract,user)">
-                <div class="input-group">
-                    <table class="table">
-                        <th><strong>Select Employee</strong></th>
-                        <th><strong>Select Contract</strong></th>
-                        <th><strong>Associate Employee To Contract</strong></th>
-                        <tr>
-                            <td><select name="employeesSelect" id="employeesSelect" ng-model="user">
-                                <option value=""> ---- Select Employee ----</option>
-                                <option ng-repeat="option in employees" value="{{option._links.self.href}}">
-                                    {{option.dba}}
-                                </option>
-                            </select></td>
-                            <td><select name="contractSelectEmployee" id="contractSelectEmployee" ng-model="contract">
-                                <option value=""> ---- Select Contract ----</option>
-                                <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
-                                    {{option.name}}
-                                </option>
-                            </select></td>
-                            <td>
-                                <button class="btn btn-default" type="submit" title="Add">
-                                    <span class="glyphicon glyphicon-plus"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </form>
+        <form class="form-horizontal" role="form" ng-submit="addEmployeeToContract(contract,user)">
+            <div class="input-group">
+                <table class="table">
+                    <th><strong>Select Employee</strong></th>
+                    <th><strong>Select Contract</strong></th>
+                    <th><strong>Associate Employee To Contract</strong></th>
+                    <tr>
+                        <td><select name="employeesSelect" id="employeesSelect" ng-model="user">
+                            <option value=""> ---- Select Employee ----</option>
+                            <option ng-repeat="option in employees" value="{{option._links.self.href}}">
+                                {{option.dba}}
+                            </option>
+                        </select></td>
+                        <td><select name="contractSelectEmployee" id="contractSelectEmployee" ng-model="contract">
+                            <option value=""> ---- Select Contract ----</option>
+                            <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
+                                {{option.name}}
+                            </option>
+                        </select></td>
+                        <td>
+                            <button class="btn btn-default" type="submit" title="Add">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
 
 
 
-            <form class="form-horizontal" role="form" ng-submit="addJobToContract(contract,job)">
-                <div class="input-group">
-                    <table class="table">
-                        <th><strong>Select Job</strong></th>
-                        <th><strong>Select Contract</strong></th>
-                        <th><strong>Associate Employee To Contract</strong></th>
-                        <tr>
-                            <td><select name="jobsSelect" id="jobsSelect" ng-model="job">
-                                <option value=""> ---- Select Job ----</option>
-                                <option ng-repeat="option in jobs" value="{{option._links.self.href}}">
-                                    {{option.name}}
-                                </option>
-                            </select></td>
-                            <td><select name="contractSelectJobs" id="contractSelectJobs" ng-model="contract">
-                                <option value=""> ---- Select Contract ----</option>
-                                <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
-                                    {{option.name}}
-                                </option>
-                            </select></td>
-                            <td>
-                                <button class="btn btn-default" type="submit" title="Add">
-                                    <span class="glyphicon glyphicon-plus"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </form>
-        </div>
-    </div>
+        <form class="form-horizontal" role="form" ng-submit="addJobToContract(contract,job)">
+            <div class="input-group">
+                <table class="table">
+                    <th><strong>Select Job</strong></th>
+                    <th><strong>Select Contract</strong></th>
+                    <th><strong>Associate Job To Contract</strong></th>
+                    <tr>
+                        <td><select name="jobsSelect1" id="jobsSelect1" ng-model="job">
+                            <option value=""> ---- Select Job ----</option>
+                            <option ng-repeat="option in jobs" value="{{option._links.self.href}}">
+                                {{option.name}}
+                            </option>
+                        </select></td>
+                        <td><select name="contractSelectJob" id="contractSelectJob" ng-model="contract">
+                            <option value=""> ---- Select Contract ----</option>
+                            <option ng-repeat="option in contracts" value="{{option._links.self.href}}">
+                                {{option.name}}
+                            </option>
+                        </select></td>
+                        <td>
+                            <button class="btn btn-default" type="submit" title="Add">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+
+
+
+
+        <form class="form-horizontal" role="form" ng-submit="addJobToEmployee(user,job)">
+            <div class="input-group">
+                <table class="table">
+                    <th><strong>Select Job</strong></th>
+                    <th><strong>Select Employee</strong></th>
+                    <th><strong>Associate Employee To Contract</strong></th>
+                    <tr>
+                        <td><select name="jobsSelect" id="jobsSelect" ng-model="job">
+                            <option value=""> ---- Select Job ----</option>
+                            <option ng-repeat="option in jobs" value="{{option._links.self.href}}">
+                                {{option.name}}
+                            </option>
+                        </select></td>
+                        <td><select name="employeesSelect1" id="employeesSelect1" ng-model="user">
+                            <option value=""> ---- Select Employee ----</option>
+                            <option ng-repeat="option in employees" value="{{option._links.self.href}}">
+                                {{option.dba}}
+                            </option>
+                        </select></td>
+                        <td>
+                            <button class="btn btn-default" type="submit" title="Add">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+
     </div>
 </div>

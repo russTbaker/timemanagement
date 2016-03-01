@@ -5,6 +5,7 @@ import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import com.rbc.timemanagmentservice.model.Timesheet;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
+import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import com.rbc.timemanagmentservice.persistence.JobRepository;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
 import org.joda.time.DateTime;
@@ -27,24 +28,26 @@ public class EmployeeService extends UserService<Employee> {
     public static final int DAYS_PER_WEEK = 7;
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Autowired
     public EmployeeService(UserRepository userRepository, JobRepository jobRepository,
-                           ContractRepository contractRepository) {
+                           ContractRepository contractRepository, EmployeeRepository employeeRepository) {
         super(userRepository, contractRepository);
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
+        this.employeeRepository = employeeRepository;
     }
 
 
     //------------- Job
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addEmployeeToJob(final Integer employeeId, Job job) {
-        final Employee employee = (Employee) userRepository.findOne(employeeId);
-        job = job.getId() != null ? jobRepository.findOne(job.getId()) :
-                jobRepository.save(job);
+    public void addEmployeeToJob(final Integer employeeId, Integer jobId) {
+        final Employee employee = (Employee) employeeRepository.findOne(employeeId);
+        final Job job = jobRepository.findOne(jobId);
         employee.addJob(job);
+        employeeRepository.save(employee);
     }
 
 
@@ -92,7 +95,7 @@ public class EmployeeService extends UserService<Employee> {
         BeanUtils.copyProperties(timeSheetEntry, existingTimeSheet, "id");
     }
 
-    public Timesheet getLatestTimeSheet(Integer employeeId) {
+    public Timesheet getLatestTimeSheet(final Integer employeeId) {
         final Employee employee = (Employee) userRepository.findOne(employeeId);
         if (employee != null) {
             final List<Timesheet> timesheets = employee.getTimesheets();

@@ -87,7 +87,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
 
         // Act
-        employeeService.addEmployeeToJob(employee.getId(), job);
+        employeeService.addEmployeeToJob(employee.getId(), job.getId());
 
         // Assert
         Employee result = employeeService.getUser(employee.getId());
@@ -103,7 +103,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
 
         // Act
-        employeeService.addEmployeeToJob(employee.getId(), job);
+        employeeService.addEmployeeToJob(employee.getId(), job.getId());
 
         // Assert
         Employee result = employeeService.getUser(employee.getId());

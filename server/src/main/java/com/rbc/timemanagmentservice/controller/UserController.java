@@ -17,7 +17,7 @@ import java.util.Optional;
  * Created by russbaker on 2/28/16.
  */
 @SuppressWarnings("unchecked")
-public class UserController<U extends User> {
+public class UserController<U extends User> extends BaseController{
     public static final String PHONES = "phones";
     public static final String EMAILS = "emails";
     public static final String ADDRESSES = "addresses";
@@ -129,13 +129,7 @@ public class UserController<U extends User> {
     }
 
     //--------- Private Methods
-    private HttpHeaders getHttpHeadersForEntity(EntityMarkerInterface entity, String resourceUri) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/api/"+resourceUri+"/{id}")
-                .buildAndExpand(entity.getId()).toUri());
-        return httpHeaders;
-    }
+
 
 
 

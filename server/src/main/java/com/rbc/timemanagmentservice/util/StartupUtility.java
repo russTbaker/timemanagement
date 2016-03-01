@@ -51,7 +51,7 @@ public class StartupUtility {
         employee.addAddress(getAddress());
         employee.addPhone(getPhone());
         employee = employeeService.updateUser(employee);
-        employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(contractService.createJob(job).getId(),customerContract.getId()));
+        employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(contractService.createJob(job).getId(),customerContract.getId()).getId());
         employeeService.createTimeSheet(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
         return employeeService.getUser(employee.getId());
     }

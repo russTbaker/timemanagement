@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
@@ -24,6 +25,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
+@Transactional
 public class ContractServiceTest {
 
 
@@ -134,10 +136,11 @@ public class ContractServiceTest {
 
         contract = contractService.getContract(contract.getId());
         String description = "new description";
-        contract.getJobs().get(0).setDescription(description);
+        Job job = contract.getJobs().get(0);
+        job.setDescription(description);
 
         // Act
-        contractService.updateContract(contract);
+        contractService.updateJob(contract.getId(),job);
 
         // Assert
         assertEquals("Contract not updated",description,contractService.getContract(contract.getId()).getJobs().get(0).getDescription());
@@ -156,9 +159,5 @@ public class ContractServiceTest {
         assertTrue("Job not removed",CollectionUtils.isEmpty(contractService.getContract(contract.getId()).getJobs()));
 
     }
-//----------- Private Methods
-
-
-
 
 }

@@ -2,6 +2,7 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.EntityMarkerInterface;
+import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  */
 @RestController
 @RequestMapping("/hydrated/contracts")
-public class ContractController {
+public class ContractController extends BaseController{
     public static final String API_URI = "contracts";
     private final ContractService contractService;
 
@@ -45,11 +46,18 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{contractId}/jobs/{jobId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "{contractId}/jobs/{jobId}", method = RequestMethod.POST)
     public ResponseEntity<?> addJobToContract(@PathVariable("contractId") Integer contractId,
                                               @PathVariable("jobId") Integer jobId){
         return new ResponseEntity<>(null,getHttpHeadersForEntity(
                 contractService.addJobToContract(jobId,contractId),"jobs"),HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "{contractId}/jobs/{jobId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateContractJob(@PathVariable("contractId") Integer contractId,
+                                             @RequestBody Job job){
+        return new ResponseEntity<>(null,getHttpHeadersForEntity(
+                contractService.updateJob(contractId,job),"jobs"),HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(value = "{contractId}/jobs/{jobId}", method = RequestMethod.DELETE)
@@ -59,12 +67,4 @@ public class ContractController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //----------- Private Methods
-    private HttpHeaders getHttpHeadersForEntity(EntityMarkerInterface entity, String resourceUri) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/api/"+resourceUri+"/{id}")
-                .buildAndExpand(entity.getId()).toUri());
-        return httpHeaders;
-    }
 }

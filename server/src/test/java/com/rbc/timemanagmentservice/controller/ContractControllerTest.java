@@ -121,14 +121,14 @@ public class ContractControllerTest extends ControllerTests {
     @Test
     public void whenAddingJobToContract_expectJobAdded() throws Exception {
         // Assemble
-        assembleJob();
+        assembleContractWithJob();
 
     }
 
     @Test
     public void whenDeletingAJob_expectJobDeleted() throws Exception {
         // Assemble
-        Contract contract = assembleJob();
+        Contract contract = assembleContractWithJob();
 
         // Act
         mockMvc.perform(delete(ROOT_URI + contract.getId() + "/jobs/" + contract.getJobs().get(0).getId()))
@@ -138,7 +138,28 @@ public class ContractControllerTest extends ControllerTests {
         assertTrue("Job not removed", CollectionUtils.isEmpty(contractService.getContract(contract.getId()).getJobs()));
     }
 
-    private Contract assembleJob() throws Exception {
+    @Test
+    public void whenUpdatingJob_expectJobUpdated() throws Exception {
+        // Assemble
+        Contract contract = assembleContractWithJob();
+        Job job = contract.getJobs().get(0);
+        String description = "New description.";
+        job.setDescription(description);
+
+        // Act
+        mockMvc.perform(put(ROOT_URI + contract.getId() + "/jobs/" + job.getId(),job)
+        .session(createMockHttpSessionForPutPost())
+        .contentType(contentType)
+        .content(json(job)))
+                .andExpect(status().isAccepted())
+                .andExpect(header().string("Location",
+                        containsString("/api/jobs/")));
+
+
+    }
+//----------------- Private Methods
+
+    private Contract assembleContractWithJob() throws Exception {
         contractTestUtil.getJobCreator().invoke();
 
         Contract contract = contractTestUtil.getContract();
