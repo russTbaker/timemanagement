@@ -1,6 +1,8 @@
 package com.rbc.timemanagmentservice.persistence;
 
 import com.rbc.timemanagmentservice.model.Contract;
+import com.rbc.timemanagmentservice.model.Job;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -13,4 +15,5 @@ import java.util.List;
 @RepositoryRestResource
 public interface ContractRepository extends PagingAndSortingRepository<Contract,Integer>{
     List<Contract> findByUsersDba(@Param("name") String name);
+
 }

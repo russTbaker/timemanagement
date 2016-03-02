@@ -19,6 +19,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             .when('/contract', {
                 templateUrl: 'views/contract/contract.html'
             })
+            .when('/timesheet', {
+                templateUrl: 'views/timesheet/timesheet.html'
+            })
             // .when('/samples/automatic-link-fetching', {
             //    templateUrl: 'partials/samples/automatic-link-fetching.html'
             //}).when('/samples/add-query-string-parameters', {
@@ -291,10 +294,6 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $route.reload();
         };
 
-        //$scope.getEmployees = function () {
-        //    loadEmployees();
-        //}
-
 
         $scope.addEmployeeToContract = function (contract, user) {
             addContract(contract, user, "employees");
@@ -320,13 +319,15 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         };
 
         $scope.deleteJob = function (job) {
-            if(job._links.contract.href != null) {
+            if (job._links.contract.href != null) {
                 SpringDataRestAdapter.process($http.get(job._links.contract.href)
-                    .success(function (response) {})).then(function (processedResponse) {
+                    .success(function (response) {
+                    })).then(function (processedResponse) {
                     console.log("Got jobs!");
                     var links = processedResponse._links.contract.href;
-                    SpringDataRestAdapter.process($http.get(links).success(function (response) {}))
-                        .then(findContractAndDeleteJob(processedResponse,job));
+                    SpringDataRestAdapter.process($http.get(links).success(function (response) {
+                        }))
+                        .then(findContractAndDeleteJob(processedResponse, job));
                 });
 
                 loadJobs();
@@ -451,16 +452,16 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 }));
         }
 
-        function killJob(job){
+        function killJob(job) {
             SpringDataRestAdapter.process($http.delete(job._links.job.href).success(function (response) {
                 $scope.response = angular.toJson(response, true);
-            }),  true).then(function (processedResponse) {
+            }), true).then(function (processedResponse) {
                 $scope.categories = processedResponse._embeddedItems;
                 $scope.processedResponse = angular.toJson(processedResponse, true);
             });
         }
 
-        function getContractFromJob(job){
+        function getContractFromJob(job) {
             SpringDataRestAdapter.process($http.get(job._links.contract.href).success(function (response) {
                 $scope.response = angular.toJson(response, true);
             })).then(function (processedResponse) {
@@ -469,10 +470,67 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 SpringDataRestAdapter.process($http.get(links).success(function (response) {
                     $scope.response = angular.toJson(response, true);
                 })).then(function (processedResponse) {
-                    console.log("Returning Contracts " +  processedResponse._links);
-                    return  processedResponse._links;
+                    console.log("Returning Contracts " + processedResponse._links);
+                    return processedResponse._links;
                 });
             });
         }
 
-    });
+    })
+    .controller('TimesheetController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
+            loadTimesheets();
+            loadTimesheetEntries();
+            getJobsForEmployee();
+
+$scope.changeJob = function (job) {
+    var i=0
+    for( i=0;i<$scope.timesheetEntries.length;i++){
+        $scope.timesheetEntries[i].jobId = job;
+    }
+};
+        $scope.updateTimesheet = function(timesheetEntries){
+            console.log("Trying to update timesheet entries" + '/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId);
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId + "/timesheetentries", timesheetEntries,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                })).then(function (processedResponse) {
+                console.log("Timesheet updated.")
+            });
+
+            $route.reload();
+        };
+
+        // Functions
+            // Preload timesheets
+            function loadTimesheets() {
+                // TODO: Hard coded for now, get this from the userPricipal
+                SpringDataRestAdapter.process($http.get('/api/employees/2/timesheets').success(function (response) {
+                    $scope.response = angular.toJson(response, true);
+                })).then(function (processedResponse) {
+                    $scope.timesheets = processedResponse._embeddedItems;
+                    //$scope.processedResponse = angular.toJson(processedResponse, true);
+                });
+            }
+
+            function loadTimesheetEntries() {
+                // TODO: Hard coded for now, get this from the userPricipal
+                SpringDataRestAdapter.process($http.get('/api/timesheets/1/timeSheetEntries').success(function (response) {
+                    $scope.response = angular.toJson(response, true);
+                })).then(function (processedResponse) {
+                    $scope.timesheetEntries = processedResponse._embeddedItems;
+                    //$scope.timesheetEntries = angular.toJson(processedResponse, true);
+                });
+            }
+
+            function getJobsForEmployee() {
+                SpringDataRestAdapter.process($http.get('/hydrated/employees/2/jobs').success(function (response) {
+                    var response2 =
+                    $scope.response = angular.toJson(response, true);
+                })).then(function (processedResponse) {
+                    $scope.jobs =  processedResponse._embeddedItems;
+                    console.log("Got jobs ")
+                });
+            }
+        }
+    );

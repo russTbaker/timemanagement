@@ -5,7 +5,7 @@ import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.CustomerRepository;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
-import com.rbc.timemanagmentservice.persistence.TimeSheetRepository;
+import com.rbc.timemanagmentservice.persistence.TimesheetRepository;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class TimeSheetIT {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private TimeSheetRepository timeSheetRepository;
+    private TimesheetRepository timeSheetRepository;
 
 
     @Test
@@ -76,7 +76,7 @@ public class TimeSheetIT {
         assertFalse("No timesheet entries returned", CollectionUtils.isEmpty(timeSheetEntries));
         assertEquals("Wrong number of timesheet entries",7, timeSheetEntries.size());
         for(TimeSheetEntry timeSheetEntry: timeSheetEntries){
-//            assertEquals("Wrong job",contract.getJobs().get(0),timeSheetEntry.getJob());
+//            assertEquals("Wrong job",contract.getJobs().get(0),timeSheetEntry.getJobId());
             assertEquals("Wrong timesheet",result.getId(),timeSheetEntry.getTimesheetId());
         }
 

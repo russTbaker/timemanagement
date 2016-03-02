@@ -1,0 +1,64 @@
+<div class="container" ng-controller="TimesheetController">
+    <h1>Timesheets</h1>
+    <td>
+        <table class="table">
+            <th><strong>Billed</strong></th>
+            <th><strong>Start Date</strong></th>
+            <th><strong>End Date</strong></th>
+            <tr ng-repeat="timesheet in timesheets">
+                <td>{{timesheet.billed}}</td>
+                <td>{{timesheet.startDate}}</td>
+                <td>{{timesheet.endDate}}</td>
+            </tr>
+        </table>
+
+    <td class="table-bordered">
+        <form class="form-group" role="form" ng-submit="updateTimesheet(timesheetEntries)">
+            <table class="table">
+                <tr ng-repeat="job in jobs">
+                    <td>
+                        <table class="table">
+                            <tr>
+                                <td><select name="jobSelect" id="jobSelect" ng-model="jobId" ng-change="changeJob(jobId)">
+                                    <option value="" selected> ---- Select Job ----</option>
+                                    <option ng-repeat="option in jobs" value="{{option.jobId}}" >
+                                        {{option.job.name}}
+                                    </option>
+                                </select></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hours</strong></td>
+                            </tr>
+
+                        </table>
+                    </td>
+                    <td>
+                        <table class="table">
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td ng-repeat="timesheetEntry in timesheetEntries">{{timesheetEntry.date | date:'EEE MMM-dd-yyyy'}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td ng-repeat="timesheetEntry in timesheetEntries"><input type="text"
+                                                                                          class="form-control"
+                                                                                          ng-model="timesheetEntry.hours"
+                                                                                          placeholder="{{timesheetEntry.hours}}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+                            <span class="input-group-btn">
+            <button class="btn btn-default" type="submit" title="Add">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            </span>
+        </form>
+</div>

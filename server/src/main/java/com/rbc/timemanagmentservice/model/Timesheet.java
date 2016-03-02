@@ -22,7 +22,7 @@ public class Timesheet {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL)//, mappedBy = "timeSheet")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)//, mappedBy = "timeSheet")
     @JoinColumn(name = "TIMESHEET_ID", referencedColumnName = "id")
     @JsonIgnore
     private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();

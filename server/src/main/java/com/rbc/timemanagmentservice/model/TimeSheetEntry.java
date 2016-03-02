@@ -3,6 +3,8 @@ package com.rbc.timemanagmentservice.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import javax.persistence.*;
 
@@ -51,8 +53,8 @@ public class TimeSheetEntry {
         return jobId;
     }
 
-    public void setJobId(Integer jobId) {
-        this.jobId = jobId;
+    public void setJobId(Integer job) {
+        this.jobId = job;
     }
 
     public DateTime getDate() {
@@ -69,5 +71,27 @@ public class TimeSheetEntry {
 
     public void setHours(Integer hours) {
         this.hours = hours;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+        if (this == o) return true;
+        if (!(o instanceof TimeSheetEntry)) return false;
+
+        TimeSheetEntry that = (TimeSheetEntry) o;
+
+        if (timesheetId != null ? !timesheetId.equals(that.timesheetId) : that.timesheetId != null) return false;
+        if (jobId != null ? !jobId.equals(that.jobId) : that.jobId != null) return false;
+        return date != null ? fmt.print(date).equals(fmt.print(that.date)) : that.date == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = timesheetId != null ? timesheetId.hashCode() : 0;
+        result = 31 * result + (jobId != null ? jobId.hashCode() : 0);
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        return result;
     }
 }

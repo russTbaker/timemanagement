@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.*;
@@ -24,7 +25,6 @@ import static junit.framework.TestCase.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
-@Transactional
 public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     public static final int HOURS = 8;
@@ -40,6 +40,9 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     @Autowired
     private StartupUtility startupUtility;
+
+    @Autowired
+    private JobService jobService;
 
     @Before
     public void setUp(){
@@ -112,7 +115,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     }
 
-    //------------ Timesheets
+    @Test
+    public void whenGettingEmployeesAvailableJobs_expectJobsReturned() throws Exception {
+        // Assemble
+        Employee employee = employeeService.createUser(startupUtility.getEmployee());
+        Contract contract = contractService.saveContract(new Contract());
+        employeeService.addContractToUser(employee.getId(),contract.getId());
+        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
+
+        // Act
+        List<Job> result = employeeService.getEmployeesAvailableJobs(employee.getId());
+
+        // Assert
+        assertFalse("No jobs returned",CollectionUtils.isEmpty(result));
+        assertTrue("Wrong job",result.contains(job));
+    }
+//------------ Timesheets
 
     @Test
     public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
@@ -159,10 +177,10 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     }
 
     @Test
-    public void whenUpdatingTimeEntries_expectTimeEntriesUpdated() throws Exception {
+    public void whenUpdatingTimeEntry_expectTimeEntryUpdated() throws Exception {
         // Assemble
         Employee employee = createUser();
-        Timesheet timesheet = getTimeSheet(employee);//employeeService.getEmployee(employee.getId()).getTimesheets().get(0);
+        Timesheet timesheet = getTimeSheet(employee);
         TimeSheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
         timeSheetEntry.setHours(HOURS);
 
@@ -175,7 +193,29 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     }
 
-    //----------- Contracts
+    @Test
+    public void whenUpdatingTimeSheetEntries_expectEntriesUpdated() throws Exception {
+        // Assemble
+        Employee employee = startupUtility.init();
+        Timesheet timesheet = employee.getTimesheets().get(0);
+        final List<TimeSheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
+        TimeSheetEntry timeSheetEntry = timeSheetEntries.get(0);
+        timeSheetEntry.setHours(20);
+
+        // Act
+        employeeService.addTimeSheetEntries(new ArrayList<>(timeSheetEntries)  , employee.getId(), timesheet.getId());
+
+        // Assert
+        employee = employeeService.getUser(employee.getId());
+        final List<TimeSheetEntry> timeEntryResults = employee.getTimesheets().get(0).getTimeSheetEntries();
+        assertEquals("Wrong number of timesheet entries",7,timeEntryResults.size());
+        assertTrue("Wrong timesheet updated.", timeEntryResults.contains(timeSheetEntry));
+        final List<TimeSheetEntry> jobTimesheetEntries = jobService.findJob(employee.getJobs().get(0).getId()).getTimeSheetEntries();
+        assertEquals("Wrong number of job timesheet entries",7,jobTimesheetEntries.size());
+        assertTrue("Job doesn't have updates", jobTimesheetEntries.containsAll(timeSheetEntries));
+
+    }
+//----------- Contracts
 
     @Test
     public void whenGettingEmployeesContracts_expectNoneFound() throws Exception {

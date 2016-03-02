@@ -1,13 +1,7 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
-import com.rbc.timemanagmentservice.model.Timesheet;
-import com.rbc.timemanagmentservice.persistence.ContractRepository;
-import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
-import com.rbc.timemanagmentservice.persistence.JobRepository;
-import com.rbc.timemanagmentservice.persistence.UserRepository;
+import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.persistence.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +23,20 @@ public class EmployeeService extends UserService<Employee> {
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
     private final EmployeeRepository employeeRepository;
+    private final ContractRepository contractRepository;
+    private final TimesheetRepository timesheetRepository;
+    private final TimeSheetEntryRepository timeSheetEntryRepository;
 
     @Autowired
     public EmployeeService(UserRepository userRepository, JobRepository jobRepository,
-                           ContractRepository contractRepository, EmployeeRepository employeeRepository) {
+                           ContractRepository contractRepository, EmployeeRepository employeeRepository, TimesheetRepository timesheetRepository, TimeSheetEntryRepository timeSheetEntryRepository) {
         super(userRepository, contractRepository);
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
         this.employeeRepository = employeeRepository;
+        this.contractRepository = contractRepository;
+        this.timesheetRepository = timesheetRepository;
+        this.timeSheetEntryRepository = timeSheetEntryRepository;
     }
 
 
@@ -95,6 +95,29 @@ public class EmployeeService extends UserService<Employee> {
         BeanUtils.copyProperties(timeSheetEntry, existingTimeSheet, "id");
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void addTimeSheetEntries(List<TimeSheetEntry> timeSheetEntries, Integer employeeId, Integer timesheetId) {
+        final Timesheet timesheet = timesheetRepository.findOne(timesheetId);
+        final Employee employee = employeeRepository.findOne(employeeId);
+        timesheet.getTimeSheetEntries().clear();
+        timesheet.getTimeSheetEntries().addAll(timeSheetEntries);
+        // Add to Jobs
+        timeSheetEntries
+                .stream()
+                .forEach(timeSheetEntry -> {
+                    timeSheetEntryRepository.save(timeSheetEntry);
+                    final Job job = jobRepository.findOne(timeSheetEntry.getJobId());
+                    job.addTimeSheetEntry(timeSheetEntry);
+//                    jobRepository.save(job);
+                });
+        final Timesheet savedTimesheet = timesheetRepository.save(timesheet);
+
+        employee.getTimesheets().remove(savedTimesheet);
+        employee.getTimesheets().add(savedTimesheet);
+        employeeRepository.save(employee);
+    }
+
+    @Transactional(readOnly = true)
     public Timesheet getLatestTimeSheet(final Integer employeeId) {
         final Employee employee = (Employee) userRepository.findOne(employeeId);
         if (employee != null) {
@@ -105,5 +128,19 @@ public class EmployeeService extends UserService<Employee> {
         throw new NotFoundException("No timesheets found for employee: " + employeeId);
     }
 
+    @Transactional(readOnly = true)
+    public List<Job> getEmployeesAvailableJobs(Integer employeeId) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        if (employee == null) {
+            throw new NotFoundException("Cannot find employee with id: " + employeeId);
+        }
+        final List<Contract> employeeContracts = contractRepository.findByUsersDba(employee.getDba());
+        List<Job> retVal = new ArrayList<>();
+        employeeContracts
+                .parallelStream()
+                .flatMap(contract -> contract.getJobs().stream())
+                .forEach(job -> retVal.add(job));
+        return retVal;
+    }
 
 }

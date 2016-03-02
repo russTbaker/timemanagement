@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.List;
  * Created by russbaker on 2/24/16.
  */
 @Entity
+//@JsonRootName("job")
 public class Job implements EntityMarkerInterface{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,7 +31,7 @@ public class Job implements EntityMarkerInterface{
 
     @OneToMany
     @JoinColumn(name = "JOB_ID", referencedColumnName = "id")
-    @RestResource(exported = false)
+//    @RestResource(exported = false)
     private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
 
     public void addTimeSheetEntry(TimeSheetEntry timeSheetEntry) {
@@ -39,6 +41,10 @@ public class Job implements EntityMarkerInterface{
             this.timeSheetEntries.remove(timeSheetEntry);
             this.timeSheetEntries.add(timeSheetEntry);
         }
+    }
+
+    public List<TimeSheetEntry> getTimeSheetEntries() {
+        return timeSheetEntries;
     }
 
     public Integer getId() {

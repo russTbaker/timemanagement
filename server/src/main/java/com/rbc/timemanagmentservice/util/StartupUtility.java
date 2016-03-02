@@ -7,11 +7,13 @@ import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by russbaker on 2/12/16.
  */
 @Component
+@Transactional
 public class StartupUtility {
 
 
@@ -51,9 +53,22 @@ public class StartupUtility {
         employee.addAddress(getAddress());
         employee.addPhone(getPhone());
         employee = employeeService.updateUser(employee);
-        employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(contractService.createJob(job).getId(),customerContract.getId()).getId());
+
+        // Add the employee to the contract
+        employeeService.addContractToUser(employee.getId(),customerContract.getId());
+
+        // Now add the employee to the job
+        final Integer jobId = contractService.createJob(job).getId();
+        employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(
+                jobId,customerContract.getId()).getId());
         employeeService.createTimeSheet(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
-        return employeeService.getUser(employee.getId());
+
+        final Employee user = employeeService.getUser(employee.getId());
+        user.getTimesheets()
+        .stream()
+        .findFirst()
+        .get().getTimeSheetEntries().stream().forEach(timeSheetEntry -> { timeSheetEntry.setJobId(job.getId());});
+        return employeeService.updateUser(user);
     }
 
 

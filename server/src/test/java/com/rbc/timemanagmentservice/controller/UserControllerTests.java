@@ -255,6 +255,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
         assertTrue("Wrong contract",contracts.contains(contract));
     }
 
+
     //--------------- Private Methods
     private void createAddress(Address address) throws Exception {
         this.mockMvc.perform(
