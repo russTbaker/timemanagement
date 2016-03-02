@@ -83,7 +83,6 @@ public class EmployeeController extends UserController<Employee>{
         public JobsResource(Job job) {
             this.job = job;
             this.add(linkTo(methodOn(EmployeeController.class).getEmployeeJobs(job.getId())).withSelfRel());
-            this.add();
         }
 
         public Job getJob(){
