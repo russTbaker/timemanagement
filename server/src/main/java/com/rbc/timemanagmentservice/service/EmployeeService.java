@@ -108,7 +108,6 @@ public class EmployeeService extends UserService<Employee> {
                     timeSheetEntryRepository.save(timeSheetEntry);
                     final Job job = jobRepository.findOne(timeSheetEntry.getJobId());
                     job.addTimeSheetEntry(timeSheetEntry);
-//                    jobRepository.save(job);
                 });
         final Timesheet savedTimesheet = timesheetRepository.save(timesheet);
 
