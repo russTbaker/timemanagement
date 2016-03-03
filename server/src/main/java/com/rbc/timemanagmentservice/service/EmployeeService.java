@@ -3,6 +3,7 @@ package com.rbc.timemanagmentservice.service;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.persistence.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -59,9 +60,10 @@ public class EmployeeService extends UserService<Employee> {
         final Job job = jobRepository.findOne(jobId);
         final Timesheet timeSheet = new Timesheet();
         final List<TimeSheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
+        final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
         for (int i = 0; i < DAYS_PER_WEEK; i++) {
             final TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
-            timeSheetEntry.setDate(new DateTime().plusDays(i));
+            timeSheetEntry.setDate(weekStart.plusDays(i));
             timeSheetEntryList.add(timeSheetEntry);
         }
         timeSheet.setStartDate(getFirstDayOfWeek());
@@ -76,6 +78,7 @@ public class EmployeeService extends UserService<Employee> {
             tse.setTimesheetId(latestTimeSheet.getId());
             job.addTimeSheetEntry(tse);
         });
+        jobRepository.save(job);
     }
 
 

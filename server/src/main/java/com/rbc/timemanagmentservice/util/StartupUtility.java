@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StartupUtility {
 
 
+    public static final double RATE = 87.5;
     private final EmployeeService employeeService;
     private final CustomerService customerService;
     private final ContractService contractService;
@@ -139,7 +140,7 @@ public class StartupUtility {
 
     public Job getJob() {
         final Job job = new Job();
-        job.setRate(87.5);
+        job.setRate(RATE);
         job.setName("BT");
         job.setDescription("Second Phase");
         return job;

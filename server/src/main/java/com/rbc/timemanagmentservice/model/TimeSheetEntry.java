@@ -1,10 +1,12 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
@@ -15,6 +17,8 @@ import javax.persistence.*;
 public class TimeSheetEntry {
     public TimeSheetEntry() {
     }
+    @Transient
+    private DateTimeFormatter FMT = DateTimeFormat.forPattern("EEE MMM d, yyyy");
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,8 +28,12 @@ public class TimeSheetEntry {
     @Column(name = "TIMESHEET_ID")
     private Integer timesheetId;
 
-    @Column(name = "JOB_ID")
+    @Transient
     private Integer jobId;
+
+    @ManyToOne
+    @JsonIgnore
+    private Job job;
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
     private DateTime date;
@@ -57,6 +65,14 @@ public class TimeSheetEntry {
         this.jobId = job;
     }
 
+    public Job getJob() {
+        return job;
+    }
+
+    public void setJob(Job job) {
+        this.job = job;
+    }
+
     public DateTime getDate() {
         return date;
     }
@@ -71,6 +87,16 @@ public class TimeSheetEntry {
 
     public void setHours(Integer hours) {
         this.hours = hours;
+    }
+
+    public String getEntryDate(){
+        return FMT.print(date);
+    }
+
+    @RestResource(exported = false)
+    @JsonIgnore
+    public Double getAmount(){
+        return job.getRate() * hours;
     }
 
     @Override

@@ -14,6 +14,7 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
+@Table(name = "TIMESHEET")
 public class Timesheet {
     public Timesheet() {
     }

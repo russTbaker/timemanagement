@@ -11,7 +11,6 @@ import java.util.List;
  * Created by russbaker on 2/24/16.
  */
 @Entity
-//@JsonRootName("job")
 public class Job implements EntityMarkerInterface{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,14 +28,13 @@ public class Job implements EntityMarkerInterface{
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Employee employee;
 
-    @OneToMany
-    @JoinColumn(name = "JOB_ID", referencedColumnName = "id")
-//    @RestResource(exported = false)
+    @OneToMany(mappedBy = "job", fetch = FetchType.EAGER)
     private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
 
     public void addTimeSheetEntry(TimeSheetEntry timeSheetEntry) {
         if (!this.timeSheetEntries.contains(timeSheetEntry)) {
             this.timeSheetEntries.add(timeSheetEntry);
+            timeSheetEntry.setJob(this);
         } else {
             this.timeSheetEntries.remove(timeSheetEntry);
             this.timeSheetEntries.add(timeSheetEntry);

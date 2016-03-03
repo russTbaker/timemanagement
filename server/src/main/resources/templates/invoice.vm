@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+        }
+
+        .border {
+            width: 90%;
+            height: 90%;
+            align-items: center;
+            /*background: #f06d06;*/
+            position: center;
+            margin: 20px;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            box-shadow: 0 0 0 1px hsl(0, 0%, 50%);
+        }
+
+        .border-small {
+            width: 400px;
+            height: 175px;
+            align-items: left;
+            /*position: center;*/
+            margin: 20px;
+            font-size: 15px;
+            font-family: Arial;
+            font-weight: bold;
+            box-shadow: 0 0 0 1px hsl(0, 0%, 50%);
+        }
+    </style>
+</head>
+<body>
+<div class="border">
+    <h3>Russ Baker Consulting, LLC</h3>
+    <h1 align="left">Invoice</h1>
+        <table cellpadding="6" cellspacing="0" width="100%">
+            <tr>
+                <td align="left" width="50%"><strong>Bill To:</strong></br>
+                    $invoice.customer.dba, $invoice.customer.firstName $invoice.customer.lastName</br>
+                        $invoice.customer.address[0].street1</br>
+                    $invoice.customer.address[0].city, $invoice.customer.address[0].state</br>
+                        $invoice.customer.address[0].zip</br>
+                </td>
+                <td>&nbsp;</td>
+                <td align="left" width="40%"><strong>Invoice# </strong> $invoice.id</br>
+                    <strong>Invoice Date:</strong>  $invoice.invoiceDateString</br>
+                        <strong>Payment Due Date:</strong> $invoice.invoiceDueDateString</br>
+                    <strong>Terms:</strong> $contract.terms
+                </td>
+            </tr>
+
+            <tr>
+
+                <td><strong>Customer Email:</strong></br>
+                        $invoice.customer.emails[0].email</br>
+
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    <hr/>
+    <div align="center">
+        <table class="invoice" cellspacing="0" cellpadding="0" width="100%">
+            #foreach ( $job in $invoice.jobs )
+                <tr bgcolor="#d3d3d3">
+                    <th><strong>ACTIVITY</strong></th>
+                    <th><strong>DATE</strong></th>
+                    <th><strong>QTY</strong></th>
+                    <th><strong>RATE</strong></th>
+                    <th><strong>AMOUNT</strong></th>
+                </tr>
+                #foreach( $timesheetentry in $job.timeSheetEntries)
+                    <tr class="mine">
+                        <td align="center">$job.name</td>
+                        <td align="center">$timesheetentry.entryDate</td>
+                        <td align="center">$timesheetentry.hours</td>
+                        <td align="center">$timesheetentry.job.rate</td>
+                        <td align="center">$timesheetentry.amount</td>
+                    </tr>
+                #end
+            #end
+            <th></th>
+            <th></th>
+            <tr align="right">
+                <td>&nbsp;</td>
+                <td align="right"><strong>Total Hours: $invoice.hours</td>
+            </tr>
+
+        </table>
+    </div>
+    <hr style="border-top: 2px dotted black"/>
+    <table cellpadding="0" cellspacing="0" width="80%">
+        <tr>
+            <td>$message</td>
+            <td>BALANCE DUE</td>
+            <td><strong>$$invoice.amount</strong></td>
+        </tr>
+    </table>
+</div>
+</body>
+
+</html>

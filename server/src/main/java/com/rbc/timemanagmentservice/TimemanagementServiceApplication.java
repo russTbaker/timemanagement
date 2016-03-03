@@ -1,6 +1,11 @@
 package com.rbc.timemanagmentservice;
 
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.VelocityException;
+import org.apache.velocity.tools.generic.DateTool;
+import org.apache.velocity.tools.generic.MathTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.velocity.VelocityEngineFactoryBean;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -24,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 @SpringBootApplication
 public class TimemanagementServiceApplication {
@@ -127,6 +134,27 @@ public class TimemanagementServiceApplication {
         resolver.setPrefix("/WEB-INF/views/");
         resolver.setSuffix(".jsp");
         return resolver;
+    }
+
+    //------------------- Velocity
+    @Bean
+    public VelocityEngine velocityEngine() throws VelocityException, IOException {
+        VelocityEngineFactoryBean factory = new VelocityEngineFactoryBean();
+        Properties props = new Properties();
+        props.put("resource.loader", "class");
+        props.put("class.resource.loader.class",
+                "org.apache.velocity.runtime.resource.loader." +
+                        "ClasspathResourceLoader");
+        props.put("date",new DateTool());
+        factory.setVelocityProperties(props);
+        return factory.createVelocityEngine();
+    }
+
+    @Bean
+    public VelocityContext velocityContext() {
+        final VelocityContext velocityContext = new VelocityContext();
+        velocityContext.put("math", new MathTool());
+        return velocityContext;
     }
 
 

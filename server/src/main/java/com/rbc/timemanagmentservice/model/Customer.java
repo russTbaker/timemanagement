@@ -2,6 +2,8 @@ package com.rbc.timemanagmentservice.model;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +19,9 @@ public class Customer extends User{
 
     private String name;
     private String contactName;
+
+    @OneToMany(mappedBy = "customer")
+    private List<Invoice> invoices = new ArrayList<>();
 
 
     public String getName() {
@@ -35,8 +40,18 @@ public class Customer extends User{
         this.contactName = contactName;
     }
 
-    public List<Contract> getContracts() {
-        return contracts;
+    public List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void addInvoiceToCustomer(final Invoice invoice){
+        if(!invoices.contains(invoice)){
+            invoices.add(invoice);
+            invoice.setCustomer(this);
+        } else {
+            invoices.remove(invoice);
+            invoices.add(invoice);
+        }
     }
 
     @Override

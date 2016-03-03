@@ -18,6 +18,12 @@
     </logger>
 
 
+    <logger name="org.apache.velocity.tools" level="debug" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+
+
     <root level="error">
         <appender-ref ref="STDOUT" />
     </root>

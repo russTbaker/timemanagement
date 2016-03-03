@@ -14,7 +14,6 @@ This project uses [Spring Boot](http://spring.io) as the container and back end 
 
 
 # TODO
-* Finish controller for customer
-* Finish controller for contracts
-* Finish controller for timesheets
 * Finish invoicing
+* Create database
+* Configure Security

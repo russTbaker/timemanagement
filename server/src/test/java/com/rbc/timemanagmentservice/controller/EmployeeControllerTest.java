@@ -40,7 +40,6 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @SpringApplicationConfiguration(classes = TimemanagementServiceApplication.class)
 @WebAppConfiguration
 @Profile({"default", "test"})
-@Transactional
 public class EmployeeControllerTest extends UserControllerTests<Employee> {
 
 

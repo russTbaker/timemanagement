@@ -3,6 +3,7 @@ package com.rbc.timemanagmentservice.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public abstract class User {
     private String firstName;
     private String lastName;
     private String dba;
+    private DateTime deleteDate;
 
     public Integer getId() {
         return id;
@@ -137,6 +139,13 @@ public abstract class User {
         return phones;
     }
 
+    public DateTime getDeleteDate() {
+        return deleteDate;
+    }
+
+    public void setDeleteDate(DateTime deleteDate) {
+        this.deleteDate = deleteDate;
+    }
 
     @JsonIgnore
     public void addAddress(Address address){
