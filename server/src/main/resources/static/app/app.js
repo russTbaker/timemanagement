@@ -482,26 +482,34 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             loadTimesheetEntries();
             getJobsForEmployee();
 
-$scope.changeJob = function (job) {
-    var i=0
-    for( i=0;i<$scope.timesheetEntries.length;i++){
-        $scope.timesheetEntries[i].jobId = job;
-    }
-};
-        $scope.updateTimesheet = function(timesheetEntries){
-            console.log("Trying to update timesheet entries" + '/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId);
-            SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId + "/timesheetentries", timesheetEntries,
-                'Content-Type:application/json+hal').success(
-                function (response) {
-                    $scope.response = angular.toJson(response, true);
-                })).then(function (processedResponse) {
-                console.log("Timesheet updated.")
-            });
+            $scope.changeJob = function (job) {
+                var i = 0
+                for (i = 0; i < $scope.timesheetEntries.length; i++) {
+                    $scope.timesheetEntries[i].jobId = job;
+                }
+            };
 
-            $route.reload();
-        };
+        $scope.onClickCreateTimesheet = function (employeeHref) {
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            console.log("EmployeeId " + employeeId);
+        }
 
-        // Functions
+
+
+            $scope.updateTimesheet = function (timesheetEntries) {
+                console.log("Trying to update timesheet entries" + '/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId);
+                SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId + "/timesheetentries", timesheetEntries,
+                    'Content-Type:application/json+hal').success(
+                    function (response) {
+                        $scope.response = angular.toJson(response, true);
+                    })).then(function (processedResponse) {
+                    console.log("Timesheet updated.")
+                });
+
+                $route.reload();
+            };
+
+            // Functions
             // Preload timesheets
             function loadTimesheets() {
                 // TODO: Hard coded for now, get this from the userPricipal
@@ -526,9 +534,9 @@ $scope.changeJob = function (job) {
             function getJobsForEmployee() {
                 SpringDataRestAdapter.process($http.get('/hydrated/employees/2/jobs').success(function (response) {
                     var response2 =
-                    $scope.response = angular.toJson(response, true);
+                        $scope.response = angular.toJson(response, true);
                 })).then(function (processedResponse) {
-                    $scope.jobs =  processedResponse._embeddedItems;
+                    $scope.jobs = processedResponse._embeddedItems;
                     console.log("Got jobs ")
                 });
             }

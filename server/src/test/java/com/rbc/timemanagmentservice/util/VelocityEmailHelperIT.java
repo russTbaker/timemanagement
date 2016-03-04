@@ -3,7 +3,7 @@ package com.rbc.timemanagmentservice.util;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Invoice;
 import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.TimesheetEntry;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -40,9 +40,9 @@ public class VelocityEmailHelperIT {
     @Test
     public void whenSendingInvoice_expectInvoiceReceived() throws Exception {
         // Assemble
-        List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
+        List<TimesheetEntry> timeSheetEntries = new ArrayList<>();
         for(int i = 0; i<= NUM_TIME_ENTRIES; i++){
-            timeSheetEntries.add(getTimeSheetEntry(i));
+            timeSheetEntries.add(getTimesheetEntry(i));
         }
 
         Job job = new Job();
@@ -67,8 +67,8 @@ public class VelocityEmailHelperIT {
 
     }
 
-    private TimeSheetEntry getTimeSheetEntry(Integer index) {
-        TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
+    private TimesheetEntry getTimesheetEntry(Integer index) {
+        TimesheetEntry timeSheetEntry = new TimesheetEntry();
         timeSheetEntry.setDate(new DateTime().plusDays(index));
         dateResults.add(fmt.print(timeSheetEntry.getDate()));
         timeSheetEntry.setHours(8);

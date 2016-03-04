@@ -4,7 +4,7 @@ import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Customer;
 import com.rbc.timemanagmentservice.model.Invoice;
 import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.TimesheetEntry;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -51,9 +51,9 @@ public class VelocityHelperTest {
         Job job = new Job();
         job.setName(JOB_NAME);
         job.setRate(87.5);
-        List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
+        List<TimesheetEntry> timeSheetEntries = new ArrayList<>();
         for(int i = 0; i<= NUM_TIME_ENTRIES; i++){
-            timeSheetEntries.add(getTimeSheetEntry(i, job));
+            timeSheetEntries.add(getTimesheetEntry(i, job));
         }
 
 
@@ -89,12 +89,12 @@ public class VelocityHelperTest {
 
     }
 
-    private TimeSheetEntry getTimeSheetEntry(Integer index, Job job) {
-        TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
+    private TimesheetEntry getTimesheetEntry(Integer index, Job job) {
+        TimesheetEntry timeSheetEntry = new TimesheetEntry();
         timeSheetEntry.setDate(new DateTime().plusDays(index));
         dateResults.add(fmt.print(timeSheetEntry.getDate()));
         timeSheetEntry.setHours(8);
-        job.addTimeSheetEntry(timeSheetEntry);
+        job.addTimesheetEntry(timeSheetEntry);
         return timeSheetEntry;
     }
 }

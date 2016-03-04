@@ -48,7 +48,7 @@ public class EmployeeRepositoryTest {
         employee.addJob(job);
         Employee saved = employeeRepository.save(employee);
         final Timesheet timesheet = new Timesheet();
-        timesheet.getTimeSheetEntries().add(new TimeSheetEntry());
+        timesheet.getTimeSheetEntries().add(new TimesheetEntry());
         saved.addTimeSheet(timesheet);
         saved.addEmail(new Email());
 

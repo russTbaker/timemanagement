@@ -2,7 +2,7 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
+import com.rbc.timemanagmentservice.model.TimesheetEntry;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -45,8 +45,8 @@ public class EmployeeController extends UserController<Employee>{
     public ResponseEntity<?> addTimesheet(@PathVariable("employeeId") Integer employeeId,
                                           @PathVariable("timesheetId") Integer timesheetId,
                                           @PathVariable("timesheetEntryId") Integer timesheetEntryId,
-                                          @RequestBody TimeSheetEntry input) {
-        employeeService.addTimeSheetEntry(employeeId, timesheetId, input, timesheetEntryId);
+                                          @RequestBody TimesheetEntry input) {
+        employeeService.addTimesheetEntry(employeeId, timesheetId, input, timesheetEntryId);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setLocation(ServletUriComponentsBuilder
                 .fromCurrentRequest().build().toUri());
@@ -57,7 +57,7 @@ public class EmployeeController extends UserController<Employee>{
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{timesheetId}/timesheetentries")
     public ResponseEntity<?> updateTimesheet(@PathVariable("employeeId") Integer employeeId,
                                              @PathVariable("timesheetId") Integer timesheetId,
-                                             @RequestBody List<TimeSheetEntry> timesheetEntries){
+                                             @RequestBody List<TimesheetEntry> timesheetEntries){
         employeeService.addTimeSheetEntries(timesheetEntries,employeeId,timesheetId);
         return new ResponseEntity<>(null, getHttpHeadersForEntity(() -> timesheetId,"timesheets"),HttpStatus.ACCEPTED);
     }

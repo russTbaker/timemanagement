@@ -1,8 +1,5 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
-import org.springframework.data.rest.core.annotation.RestResource;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +26,19 @@ public class Job implements EntityMarkerInterface{
     private Employee employee;
 
     @OneToMany(mappedBy = "job", fetch = FetchType.EAGER)
-    private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
+    private List<TimesheetEntry> timeSheetEntries = new ArrayList<>();
 
-    public void addTimeSheetEntry(TimeSheetEntry timeSheetEntry) {
+    public void addTimesheetEntry(TimesheetEntry timeSheetEntry) {
         if (!this.timeSheetEntries.contains(timeSheetEntry)) {
             this.timeSheetEntries.add(timeSheetEntry);
-            timeSheetEntry.setJob(this);
         } else {
             this.timeSheetEntries.remove(timeSheetEntry);
             this.timeSheetEntries.add(timeSheetEntry);
         }
+        timeSheetEntry.setJob(this);
     }
 
-    public List<TimeSheetEntry> getTimeSheetEntries() {
+    public List<TimesheetEntry> getTimeSheetEntries() {
         return timeSheetEntries;
     }
 

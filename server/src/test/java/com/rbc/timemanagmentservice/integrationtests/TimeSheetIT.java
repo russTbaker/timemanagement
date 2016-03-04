@@ -2,11 +2,9 @@ package com.rbc.timemanagmentservice.integrationtests;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.ContractRepository;
-import com.rbc.timemanagmentservice.persistence.CustomerRepository;
-import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
-import com.rbc.timemanagmentservice.persistence.TimesheetRepository;
+import com.rbc.timemanagmentservice.persistence.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +37,9 @@ public class TimeSheetIT {
     @Autowired
     private TimesheetRepository timeSheetRepository;
 
+    @Autowired
+    private TimesheetEntryRepository timeSheetEntryRepository;
+
 
     @Test
     public void whenCreatingContract_expectContractHydrated() throws Exception {
@@ -62,6 +63,7 @@ public class TimeSheetIT {
         // Assemble
         Contract contract = assembleContract();
         Employee employee = getEmployee();
+        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
 
         // Act
 //        addEmployeeToContract(employee,contract);
@@ -72,12 +74,13 @@ public class TimeSheetIT {
 
         // Assert
         Timesheet result = timeSheetRepository.findOne(employee.getTimesheets().get(0).getId());
-        final List<TimeSheetEntry> timeSheetEntries = result.getTimeSheetEntries();
+        final List<TimesheetEntry> timeSheetEntries = result.getTimeSheetEntries();
         assertFalse("No timesheet entries returned", CollectionUtils.isEmpty(timeSheetEntries));
         assertEquals("Wrong number of timesheet entries",7, timeSheetEntries.size());
-        for(TimeSheetEntry timeSheetEntry: timeSheetEntries){
+        for(int i=0;i<timeSheetEntries.size();i++){     //TimesheetEntry timeSheetEntry: timeSheetEntries){
 //            assertEquals("Wrong job",contract.getJobs().get(0),timeSheetEntry.getJobId());
-            assertEquals("Wrong timesheet",result.getId(),timeSheetEntry.getTimesheetId());
+//            assertEquals("Wrong timesheet",result.getId(),timeSheetEntry.getTimesheetId());
+            assertEquals("Wrong dates for timesheet entries",weekStart.plusDays(i),timeSheetEntries.get(i).getDate());
         }
 
     }
@@ -90,24 +93,15 @@ public class TimeSheetIT {
         contract.setValue(90000d);
         contract.setStartDate(new DateTime().minusDays(2));
         contract.setEndDate(new DateTime().plusMonths(6));
-        contract.addJob(new Job());
+        contract = contractRepository.save(contract);
+        contract.addJob(createJob(contract));
         return contractRepository.save(contract);
     }
 
-    private Customer getCustomer(){
-        Customer customer = new Customer();
-        customer.addEmail(getEmail());
-        customer.setFirstName("Jonathan");
-        customer.setLastName("Bein");
-        customer.setName("Z2m4");
-        return customerRepository.save(customer);
+    private Job getJob() {
+        return new Job();
     }
 
-    private Email getEmail() {
-        Email contactEmail = new Email();
-        contactEmail.setEmail("jonathan@z2m4.net");
-        return contactEmail;
-    }
 
     private Employee getEmployee(){
         Employee employee = new Employee();
@@ -125,24 +119,25 @@ public class TimeSheetIT {
 
     private Timesheet getTimesheet(Job contract){
         Timesheet timeSheet = new Timesheet();
-        timeSheet.getTimeSheetEntries().addAll(getWeekOfTimeSheetEntries(contract, timeSheet));
+        getWeekOfTimeSheetEntries(contract, timeSheet);
         return timeSheet;
     }
 
-    private List<TimeSheetEntry> getWeekOfTimeSheetEntries(Job contract, Timesheet timeSheet) {
-        List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
+    private List<TimesheetEntry> getWeekOfTimeSheetEntries(Job job, Timesheet timeSheet) {
+        List<TimesheetEntry> timeSheetEntries = new ArrayList<>();
         for(int i=0;i<7;i++) {
-            TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
+            TimesheetEntry timeSheetEntry = new TimesheetEntry();
             timeSheetEntry.setHours(0);
-            timeSheetEntry.setDate(new DateTime().plusDays(i));
-            timeSheetEntries.add(timeSheetEntry);
+            timeSheetEntry.setDate(new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).plusDays(i).withTimeAtStartOfDay());
+            timeSheetEntryRepository.save(timeSheetEntry);
+            timeSheet.addTimesheetEntry(timeSheetEntry);
+            job.addTimesheetEntry(timeSheetEntry);
         }
         return timeSheetEntries;
     }
 
-    private Job createJob(){
+    private Job createJob(Contract contract){
         Job job = new Job();
-        Contract contract = new Contract();
         contract.addJob(job);
         contractRepository.save(contract);
         return job;

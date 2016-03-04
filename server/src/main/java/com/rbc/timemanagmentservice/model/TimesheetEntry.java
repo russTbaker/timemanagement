@@ -1,7 +1,9 @@
 package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateDeserializer;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -14,8 +16,9 @@ import javax.persistence.*;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-public class TimeSheetEntry {
-    public TimeSheetEntry() {
+@Table(name = "TIMESHEET_ENTRY")
+public class TimesheetEntry {
+    public TimesheetEntry() {
     }
     @Transient
     private DateTimeFormatter FMT = DateTimeFormat.forPattern("EEE MMM d, yyyy");
@@ -24,20 +27,27 @@ public class TimeSheetEntry {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-
-    @Column(name = "TIMESHEET_ID")
-    private Integer timesheetId;
-
     @Transient
     private Integer jobId;
+
+    @ManyToOne
+    @JsonIgnore
+    private Timesheet timesheet;
 
     @ManyToOne
     @JsonIgnore
     private Job job;
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
+    @JsonDeserialize(using = JodaTimeDateDeserializer.class)
     private DateTime date;
     private Integer hours;
+
+    @Transient
+    private Integer timesheetId;
+    public Integer getTimesheetId(){
+        return timesheet.getId();
+    }
 
 
 
@@ -49,16 +59,18 @@ public class TimeSheetEntry {
     public void setId(Integer id) {
         this.id = id;
     }
-    public Integer getTimesheetId() {
-        return timesheetId;
+
+
+    public Timesheet getTimesheet() {
+        return timesheet;
     }
 
-    public void setTimesheetId(Integer timesheetId) {
-        this.timesheetId = timesheetId;
+    public void setTimesheet(Timesheet timesheet) {
+        this.timesheet = timesheet;
     }
 
     public Integer getJobId() {
-        return jobId;
+        return job != null ? job.getId(): jobId;
     }
 
     public void setJobId(Integer job) {
@@ -101,23 +113,17 @@ public class TimeSheetEntry {
 
     @Override
     public boolean equals(Object o) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
         if (this == o) return true;
-        if (!(o instanceof TimeSheetEntry)) return false;
+        if (!(o instanceof TimesheetEntry)) return false;
 
-        TimeSheetEntry that = (TimeSheetEntry) o;
+        TimesheetEntry that = (TimesheetEntry) o;
 
-        if (timesheetId != null ? !timesheetId.equals(that.timesheetId) : that.timesheetId != null) return false;
-        if (jobId != null ? !jobId.equals(that.jobId) : that.jobId != null) return false;
-        return date != null ? fmt.print(date).equals(fmt.print(that.date)) : that.date == null;
+        return date != null ? date.withTimeAtStartOfDay().equals(that.date.withTimeAtStartOfDay()) : that.date == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = timesheetId != null ? timesheetId.hashCode() : 0;
-        result = 31 * result + (jobId != null ? jobId.hashCode() : 0);
-        result = 31 * result + (date != null ? date.hashCode() : 0);
-        return result;
+        return date != null ? date.hashCode() : 0;
     }
 }

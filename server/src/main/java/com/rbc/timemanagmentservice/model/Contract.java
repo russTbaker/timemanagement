@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.rbc.timemanagmentservice.model.serializer.JodaTimeDateSerializer;
 import org.joda.time.DateTime;
-import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.ArrayList;

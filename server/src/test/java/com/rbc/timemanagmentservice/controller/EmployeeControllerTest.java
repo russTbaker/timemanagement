@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import com.rbc.timemanagmentservice.model.Timesheet;
+import com.rbc.timemanagmentservice.model.TimesheetEntry;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
@@ -17,7 +17,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -42,6 +41,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @Profile({"default", "test"})
 public class EmployeeControllerTest extends UserControllerTests<Employee> {
 
+    private static int counter =0;
+
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -65,14 +66,14 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
 
     //-- Timesheet Entries
     @Test
-    public void whenPuttingTimeSheetEntry_expectEntryAdded() throws Exception {
+    public void whenPuttingTimesheetEntry_expectEntryAdded() throws Exception {
         // Assemble
         final Timesheet timeSheet = ((Employee) user).getTimesheets().get(0);
-        TimeSheetEntry firstTimeSheetEntry = timeSheet.getTimeSheetEntries().get(0);
-        firstTimeSheetEntry.setHours(12);
+        TimesheetEntry firstTimesheetEntry = timeSheet.getTimeSheetEntries().get(0);
+        firstTimesheetEntry.setHours(12);
         final String url = ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + timeSheet.getId()
-                + "/timesheetentries/" + firstTimeSheetEntry.getId();
-        String timesheetEntryJson = json(firstTimeSheetEntry);
+                + "/timesheetentries/" + firstTimesheetEntry.getId();
+        String timesheetEntryJson = json(firstTimesheetEntry);
 
         // Act/Assert
         mockMvc.perform(put(url)
@@ -81,31 +82,28 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("location", "http://localhost/hydrated/employees/" + user.getId()
-                        + "/timesheets/" + timeSheet.getId() + "/timesheetentries/" + firstTimeSheetEntry.getId()));
+                        + "/timesheets/" + timeSheet.getId() + "/timesheetentries/" + firstTimesheetEntry.getId()));
 
     }
 
     @Test
-    public void whenPuttingTimeSheetEntries_expectEntriesAdded() throws Exception {
+    public void AwhenPuttingTimeSheetEntries_expectEntriesAdded() throws Exception {
         // Assemble
         user = startupUtility.init();
         final Timesheet timeSheet = ((Employee) user).getTimesheets().get(0);
-        TimeSheetEntry firstTimeSheetEntry = timeSheet.getTimeSheetEntries().get(0);
-        firstTimeSheetEntry.setHours(12);
+        TimesheetEntry firstTimesheetEntry = timeSheet.getTimeSheetEntries().get(0);
+        firstTimesheetEntry.setHours(12);
         final String url = ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + timeSheet.getId()
                 + "/timesheetentries";
-        final int[] i = {1};
         timeSheet.getTimeSheetEntries()
                 .stream()
                 .forEach(
                         timeSheetEntry -> {
                             timeSheetEntry.setJobId(user.getContracts().get(0).getJobs().get(0).getId());
-                        timeSheetEntry.setId(i[0]++);
                         }
                 );
 
         String timesheetEntriesJson = new ObjectMapper().writeValueAsString(timeSheet.getTimeSheetEntries());//json(timeSheet.getTimeSheetEntries().get(0));
-
         // Act/Assert
         mockMvc.perform(put(url)
                 .contentType(contentType)
@@ -142,8 +140,6 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
         assertTrue("Job not part of jbs",jobs.contains(job));
 
     }
-
-    //--------- Timesheets
 
 
     @Test

@@ -2,8 +2,6 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Customer;
-import com.rbc.timemanagmentservice.service.CustomerService;
-import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -18,11 +16,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 /**

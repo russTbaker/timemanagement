@@ -20,6 +20,6 @@ public class JodaTimeDateSerializer extends JsonSerializer<DateTime> {
 
     @Override
     public void serialize(DateTime value, JsonGenerator gen, SerializerProvider arg2)throws IOException, JsonProcessingException {
-        gen.writeString(formatter.print(value));
+        gen.writeString(formatter.print(value.withTimeAtStartOfDay()));
     }
 }

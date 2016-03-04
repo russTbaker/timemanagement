@@ -26,11 +26,11 @@ public class EmployeeService extends UserService<Employee> {
     private final EmployeeRepository employeeRepository;
     private final ContractRepository contractRepository;
     private final TimesheetRepository timesheetRepository;
-    private final TimeSheetEntryRepository timeSheetEntryRepository;
+    private final TimesheetEntryRepository timeSheetEntryRepository;
 
     @Autowired
     public EmployeeService(UserRepository userRepository, JobRepository jobRepository,
-                           ContractRepository contractRepository, EmployeeRepository employeeRepository, TimesheetRepository timesheetRepository, TimeSheetEntryRepository timeSheetEntryRepository) {
+                           ContractRepository contractRepository, EmployeeRepository employeeRepository, TimesheetRepository timesheetRepository, TimesheetEntryRepository timeSheetEntryRepository) {
         super(userRepository, contractRepository);
         this.userRepository = userRepository;
         this.jobRepository = jobRepository;
@@ -59,64 +59,60 @@ public class EmployeeService extends UserService<Employee> {
         Employee employee = (Employee) userRepository.findOne(employeeId);
         final Job job = jobRepository.findOne(jobId);
         final Timesheet timeSheet = new Timesheet();
-        final List<TimeSheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
+        final List<TimesheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
         final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
         for (int i = 0; i < DAYS_PER_WEEK; i++) {
-            final TimeSheetEntry timeSheetEntry = new TimeSheetEntry();
+            final TimesheetEntry timeSheetEntry = new TimesheetEntry();
             timeSheetEntry.setDate(weekStart.plusDays(i));
             timeSheetEntryList.add(timeSheetEntry);
+            timeSheetEntryRepository.save(timeSheetEntry);
+            timeSheet.addTimesheetEntry(timeSheetEntry);
         }
         timeSheet.setStartDate(getFirstDayOfWeek());
         timeSheet.setEndDate(getLastDayOfWeek());
-        timeSheet.getTimeSheetEntries().addAll(timeSheetEntryList);
-        timeSheet.setBilled(false);
 
-        employee.addTimeSheet(timeSheet);
+        timeSheet.setBilled(false);
+        employee.addTimeSheet(timesheetRepository.save(timeSheet));
         userRepository.save(employee);
         Timesheet latestTimeSheet = getLatestTimeSheet(employeeId);
         latestTimeSheet.getTimeSheetEntries().stream().forEach(tse -> {
-            tse.setTimesheetId(latestTimeSheet.getId());
-            job.addTimeSheetEntry(tse);
+            job.addTimesheetEntry(tse);
         });
         jobRepository.save(job);
     }
 
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addTimeSheetEntry(Integer employeeId, Integer timeSheetId, TimeSheetEntry timeSheetEntry,
+    public void addTimesheetEntry(Integer employeeId, Integer timeSheetId, TimesheetEntry timeSheetEntry,
                                   Integer timeSheetEntryId) {
         final Employee employee = (Employee) userRepository.findOne(employeeId);
         final Timesheet timeSheet = employee.getTimesheets()
                 .stream()
                 .filter(timeSheet1 -> timeSheet1.getId().equals(timeSheetId))
                 .findFirst().get();
-        final TimeSheetEntry existingTimeSheet = timeSheet
+        final TimesheetEntry existingTimesheetEntry = timeSheet
                 .getTimeSheetEntries()
                 .stream()
                 .filter(timeSheetEntry1 -> timeSheetEntry1.getId().equals(timeSheetEntryId))
                 .findFirst().get();
-        BeanUtils.copyProperties(timeSheetEntry, existingTimeSheet, "id");
+        BeanUtils.copyProperties(timeSheetEntry, existingTimesheetEntry, "id");
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addTimeSheetEntries(List<TimeSheetEntry> timeSheetEntries, Integer employeeId, Integer timesheetId) {
-        final Timesheet timesheet = timesheetRepository.findOne(timesheetId);
+    public void addTimeSheetEntries(List<TimesheetEntry> newTimeSheetEntries, Integer employeeId, Integer timesheetId) {
         final Employee employee = employeeRepository.findOne(employeeId);
-        timesheet.getTimeSheetEntries().clear();
-        timesheet.getTimeSheetEntries().addAll(timeSheetEntries);
-        // Add to Jobs
-        timeSheetEntries
+        final Timesheet employeeTimesheet = employee.getTimesheets()
                 .stream()
-                .forEach(timeSheetEntry -> {
-                    timeSheetEntryRepository.save(timeSheetEntry);
-                    final Job job = jobRepository.findOne(timeSheetEntry.getJobId());
-                    job.addTimeSheetEntry(timeSheetEntry);
-                });
-        final Timesheet savedTimesheet = timesheetRepository.save(timesheet);
-
-        employee.getTimesheets().remove(savedTimesheet);
-        employee.getTimesheets().add(savedTimesheet);
-        employeeRepository.save(employee);
+                .filter(timesheet -> timesheet.getId().equals(timesheetId))
+                .findFirst()
+                .get();
+        for(TimesheetEntry newTimesheetEntry :newTimeSheetEntries){
+            for(TimesheetEntry existingTimesheetEntry: employeeTimesheet.getTimeSheetEntries()){
+                if(existingTimesheetEntry.equals(newTimesheetEntry)){
+                    BeanUtils.copyProperties(newTimesheetEntry, existingTimesheetEntry, "id","timesheet","job");
+                }
+            }
+        }
     }
 
     @Transactional(readOnly = true)

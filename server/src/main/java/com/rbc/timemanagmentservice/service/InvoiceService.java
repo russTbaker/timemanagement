@@ -2,13 +2,11 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.Invoice;
 import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.TimeSheetEntry;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.InvoiceRepository;
 import com.rbc.timemanagmentservice.persistence.JobRepository;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;

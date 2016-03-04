@@ -64,12 +64,13 @@ public class StartupUtility {
                 jobId,customerContract.getId()).getId());
         employeeService.createTimeSheet(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
 
-        final Employee user = employeeService.getUser(employee.getId());
-        user.getTimesheets()
-        .stream()
-        .findFirst()
-        .get().getTimeSheetEntries().stream().forEach(timeSheetEntry -> { timeSheetEntry.setJobId(job.getId());});
-        return employeeService.updateUser(user);
+//        final Employee user = employeeService.getUser(employee.getId());
+//        user.getTimesheets()
+//        .stream()
+//        .findFirst()
+//        .get().getTimeSheetEntries().stream().forEach(timeSheetEntry -> { timeSheetEntry.setJobId(job.getId());});
+//        return employeeService.updateUser(user);
+        return employeeService.getUser(employee.getId());
     }
 
 
@@ -85,7 +86,7 @@ public class StartupUtility {
         contract.setTerms(Contract.Terms.net15);
         contract.setValue(87999D);
         contract.setName("HDS Social Innovation");
-        contract.setDescription("Second Phase of original contract");
+        contract.setDescription("HDS Social Innovation - Second Phase");
         contract = contractService.saveContract(contract);
         customerService.addContractToUser(customer.getId(),contract.getId());
         return contract;

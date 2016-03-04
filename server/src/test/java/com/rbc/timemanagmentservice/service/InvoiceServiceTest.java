@@ -2,7 +2,6 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.JobRepository;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
@@ -118,14 +116,14 @@ public class InvoiceServiceTest {
         Employee employee = startupUtility.init();
         Timesheet timesheet = employee.getTimesheets().get(0);
         final int hours = 20;
-        final List<TimeSheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
+        final List<TimesheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
         timeSheetEntries
                 .stream()
                 .forEach(timeSheetEntry1 -> {
                     timeSheetEntry1.setHours(hours);
                 });
         employeeService.addTimeSheetEntries(new ArrayList<>(timeSheetEntries)  , employee.getId(), timesheet.getId());
-        Job job = jobService.findJob(timeSheetEntries.get(0).getJobId());
+        Job job = jobService.findJob(timeSheetEntries.get(0).getJob().getId());
 
         // Act
         final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();

@@ -11,6 +11,11 @@
                 <td>{{timesheet.endDate}}</td>
             </tr>
         </table>
+    <span class="input-group-btn">
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickCreateTimesheet(employee._links.self.href)">Create New Timesheet
+            </button>
+            </span>
 
     <td class="table-bordered">
         <form class="form-group" role="form" ng-submit="updateTimesheet(timesheetEntries)">
@@ -19,9 +24,10 @@
                     <td>
                         <table class="table">
                             <tr>
-                                <td><select name="jobSelect" id="jobSelect" ng-model="jobId" ng-change="changeJob(jobId)">
+                                <td><select name="jobSelect" id="jobSelect" ng-model="jobId"
+                                            ng-change="changeJob(jobId)">
                                     <option value="" selected> ---- Select Job ----</option>
-                                    <option ng-repeat="option in jobs" value="{{option.jobId}}" >
+                                    <option ng-repeat="option in jobs" value="{{option.jobId}}">
                                         {{option.job.name}}
                                     </option>
                                 </select></td>
@@ -38,27 +44,28 @@
                     <td>
                         <table class="table">
                             <tr>
-                                <td>&nbsp;</td>
+                                <td colspan="2">&nbsp;</td>
                             </tr>
                             <tr>
                                 <td ng-repeat="timesheetEntry in timesheetEntries">{{timesheetEntry.date | date:'EEE MMM-dd-yyyy'}}
                                 </td>
-                            </tr>
+                                <td>&nbsp;
                             <tr>
                                 <td ng-repeat="timesheetEntry in timesheetEntries"><input type="text"
                                                                                           class="form-control"
                                                                                           ng-model="timesheetEntry.hours"
                                                                                           placeholder="{{timesheetEntry.hours}}"/>
                                 </td>
+                                <td>
+                                    <button class="btn btn-default" type="submit" title="Add">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                    </button>
+                                </td>
                             </tr>
                         </table>
                     </td>
                 </tr>
             </table>
-                            <span class="input-group-btn">
-            <button class="btn btn-default" type="submit" title="Add">
-                <span class="glyphicon glyphicon-plus"></span>
-            </button>
-            </span>
+
         </form>
 </div>

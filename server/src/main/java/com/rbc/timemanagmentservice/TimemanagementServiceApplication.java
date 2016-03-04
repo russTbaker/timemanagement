@@ -1,5 +1,9 @@
 package com.rbc.timemanagmentservice;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.datatype.joda.JodaMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -17,6 +21,7 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +81,8 @@ public class TimemanagementServiceApplication {
     public CommandLineRunner demo(StartupUtility startupUtility) {
         return (args) -> {
             if(environment.getActiveProfiles().length != 0 && Arrays.asList(environment.getActiveProfiles()).contains("demo")){
-                startupUtility.init();
+                Employee employee = startupUtility.init();
+                LOG.debug("Found employee: " + employee.getId());
             }
         };
     }
@@ -156,6 +162,19 @@ public class TimemanagementServiceApplication {
         velocityContext.put("math", new MathTool());
         return velocityContext;
     }
+
+    @Bean
+    public JacksonJaxbJsonProvider jacksonJaxbJsonProvider(){
+        JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+        provider.setMapper(new JodaMapper());
+        return provider;
+    }
+//    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
+//        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+//        builder.serializationInclusion(JsonInclude.Include.NON_NULL);
+//        builder.
+//        return builder;
+//    }
 
 
 

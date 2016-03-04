@@ -17,16 +17,16 @@ import java.util.List;
 @Table(name = "TIMESHEET")
 public class Timesheet {
     public Timesheet() {
+        timeSheetEntries = new ArrayList<>();
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)//, mappedBy = "timeSheet")
-    @JoinColumn(name = "TIMESHEET_ID", referencedColumnName = "id")
+    @OneToMany(mappedBy = "timesheet",fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<TimeSheetEntry> timeSheetEntries = new ArrayList<>();
+    private List<TimesheetEntry> timeSheetEntries;
 
     private Boolean billed;
 
@@ -54,7 +54,29 @@ public class Timesheet {
         this.employee = employee;
     }
 
-    public List<TimeSheetEntry> getTimeSheetEntries() {
+    public void addTimesheetEntry(final TimesheetEntry timeSheetEntry){
+//        if(timeSheetEntries == null){
+//            timeSheetEntries =  new ArrayList<>();
+//        }
+//        if(!timeSheetEntries.contains(timeSheetEntry)){
+//            timeSheetEntries.add(timeSheetEntry);
+//        } else {
+//            timeSheetEntries.remove(timeSheetEntry);
+//            timeSheetEntries.add(timeSheetEntry);
+//        }
+        if (!getTimeSheetEntries().contains(timeSheetEntry)) {
+            getTimeSheetEntries().add(timeSheetEntry);
+//            if (timeSheetEntry.getTimesheet() != null) {
+//                timeSheetEntry.getTimesheet().getTimeSheetEntries().remove(timeSheetEntry);
+//            }
+        } else {
+            getTimeSheetEntries().remove(timeSheetEntry);
+            getTimeSheetEntries().add(timeSheetEntry);
+        }
+        timeSheetEntry.setTimesheet(this);
+    }
+
+    public List<TimesheetEntry> getTimeSheetEntries() {
         return timeSheetEntries;
     }
 

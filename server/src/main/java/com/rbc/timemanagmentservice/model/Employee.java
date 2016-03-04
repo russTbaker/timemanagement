@@ -15,8 +15,7 @@ public class Employee extends User{
     private String username;
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL
-    )
+    @OneToMany(cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Timesheet> timesheets = new ArrayList<>();
 

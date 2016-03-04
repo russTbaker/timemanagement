@@ -1,6 +1,9 @@
 package com.rbc.timemanagmentservice.controller;
 
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Address;
+import com.rbc.timemanagmentservice.model.Email;
+import com.rbc.timemanagmentservice.model.Phone;
+import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Optional;
 
