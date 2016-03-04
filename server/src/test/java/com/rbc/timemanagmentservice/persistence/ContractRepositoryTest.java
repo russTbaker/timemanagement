@@ -60,10 +60,8 @@ public class ContractRepositoryTest {
 
     private Customer getCustomer() {
         Customer customer = new Customer();
-        customer.setName("TEST");
         customer.setLastName("CUSTOMER");
-        customer.setName("Z2M4");
-        customer.setContactName(CONTACT_NAME);
+        customer.setDba("Z2M4");
         customer.setRoles(User.Roles.customer);
         return userRepository.save(customer);
     }

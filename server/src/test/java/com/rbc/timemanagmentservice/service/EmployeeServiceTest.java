@@ -150,14 +150,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         assertTrue("Wrong timesheet", timesheet.equals(result));
         for(TimesheetEntry timeSheetEntry:result.getTimeSheetEntries()){
             assertNotNull("No Id",timeSheetEntry.getId());
-            assertNull("Hours populated",timeSheetEntry.getHours());
+            assertEquals("Hours populated",0,timeSheetEntry.getHours(),0.0);
             assertNotNull("No date",timeSheetEntry.getDate());
-//            assertEquals("No timesheet",result.getId(),timeSheetEntry.getTimesheetId());
         }
-
     }
 
+    @Test(expected = org.springframework.dao.InvalidDataAccessApiUsageException.class)
+    public void whenCallingGetNewTimesheetWithExistingCurrentTimesheet_expectIllegalArgumentException() throws Exception {
+        // Assemble
+        Employee employee = employeeService.createUser(startupUtility.getEmployee());
+        ContractTestUtil.JobCreator jobCreator = contractTestUtil.getJobCreator().invoke();
 
+        // Act
+        employeeService.createTimeSheet(employee.getId(),jobCreator.getJobCreated().getId());
+        employeeService.createTimeSheet(employee.getId(),jobCreator.getJobCreated().getId());
+
+    }
 
     @Test(expected = NotFoundException.class)
     public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {

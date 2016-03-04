@@ -26,23 +26,13 @@ public class CustomerRepositoryTest {
         assertNotNull("No Customer saved", getCustomer());
     }
 
-    @Test
-    public void whenFindingCustomerByContactName_expectCustomerFound() throws Exception {
-        // Assemble
-        getCustomer();
-
-        // Assert
-        assertNotNull("Customer not found", customerRepository.findByContactName(CONTACT_NAME));
-    }
 
     //---- Private Methods
 
     private Customer getCustomer() {
         Customer customer = new Customer();
-        customer.setName("TEST");
         customer.setLastName("CUSTOMER");
-        customer.setName("Z2M4");
-        customer.setContactName(CONTACT_NAME);
+        customer.setDba("Z2M4");
         return customerRepository.save(customer);
     }
 }

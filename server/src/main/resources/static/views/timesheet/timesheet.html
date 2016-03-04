@@ -12,9 +12,13 @@
             </tr>
         </table>
     <span class="input-group-btn">
-            <button class="btn btn-primary" type="button"
-                    ng-click="onClickCreateTimesheet(employee._links.self.href)">Create New Timesheet
-            </button>
+        <select name="jobSelect1" id="jobSelect1" ng-model="jobId"
+                ng-change="onClickCreateTimesheet(jobId)">
+            <option value="" selected> ---- Select Job ----</option>
+            <option ng-repeat="option in jobs" value="{{option.jobId}}">
+                {{option.job.name}}
+            </option>
+        </select>
             </span>
 
     <td class="table-bordered">

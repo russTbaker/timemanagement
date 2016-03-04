@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -37,23 +38,23 @@ public class TimeManagementUserDetailsService implements UserDetailsService{
         if (!user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
                     " ", " ", true, true, true, true,
-                    getAuthorities());
+                    getAuthorities(user.get().getRoles()));
         }
 
         return new org.springframework.security.core.userdetails.User(
                 user.get().getUsername(), user.get().getPassword(), true, true, true,
-                true, getAuthorities());
+                true, getAuthorities(user.get().getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities() {
-        return getGrantedAuthorities();
+    private Collection<? extends GrantedAuthority> getAuthorities(User.Roles roles) {
+        return getGrantedAuthorities(roles);
     }
 
 
 
-    private List<GrantedAuthority> getGrantedAuthorities() {
+    private List<GrantedAuthority> getGrantedAuthorities(User.Roles roles) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + roles.name().toUpperCase()));
         return authorities;
     }
 }

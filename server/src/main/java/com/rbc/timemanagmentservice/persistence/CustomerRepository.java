@@ -13,7 +13,6 @@ import java.util.List;
  */
 @RepositoryRestResource
 @CrossOrigin(origins = "http://localhost:8888")
-public interface CustomerRepository extends PagingAndSortingRepository<Customer,Integer> {
+public interface CustomerRepository extends PagingAndSortingRepository<Customer, Integer> {
 
-    List<Customer> findByContactName(@Param("contactName") String contactName);
 }

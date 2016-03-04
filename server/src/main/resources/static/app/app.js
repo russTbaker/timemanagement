@@ -1,5 +1,14 @@
 'use strict';
 
+function postCustomer($http, customer, $scope, SpringDataRestAdapter) {
+    var httpPromise = $http.post('api/customers', customer, 'Content-Type:application/json+hal').success(
+        function (response) {
+            $scope.response = angular.toJson(response, true);
+        });
+    SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+        console.log("Customer Added!");
+    });
+}
 var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetimepicker', 'ngResource', 'ngRoute', 'hljs', 'spring-data-rest'])
     .config(['$routeProvider', function ($routeProvider) {
         $routeProvider.when('/', {
@@ -15,6 +24,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             })
             .when('/addEmployeePhone/:employeeId', {
                 templateUrl: 'views/employee/addEmployeePhone.html'
+            })
+            .when('/customer', {
+                templateUrl: 'views/customer/customer.html'
             })
             .when('/contract', {
                 templateUrl: 'views/contract/contract.html'
@@ -343,6 +355,8 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 function (response) {
                     console.log("Added job to contract!");
                 }));
+            loadContracts();
+            $route.reload();
         };
 
 
@@ -354,6 +368,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 function (response) {
                     console.log("Added job to contract!");
                 }));
+            loadEmployees();
+            loadJobs();
+            $route.reload();
         };
 
         $scope.editJob = function () {
@@ -489,23 +506,27 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 }
             };
 
-        $scope.onClickCreateTimesheet = function (employeeHref) {
-            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
-            console.log("EmployeeId " + employeeId);
-        }
+        // TODO: This is hardcoded
+            $scope.onClickCreateTimesheet = function (jobId) {
+                SpringDataRestAdapter.process($http.put('/hydrated/employees/1/timesheets/' + jobId).success(
+                    function (response) {
+                        $scope.response = angular.toJson(response, true);
+                    })).then(function (processedResponse) {
+                    console.log("Timesheet created.")
+                });
+            }
 
-
-
+        // TODO: This is hardcoded
             $scope.updateTimesheet = function (timesheetEntries) {
-                console.log("Trying to update timesheet entries" + '/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId);
-                SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + timesheetEntries[0].timesheetId + "/timesheetentries", timesheetEntries,
+                console.log("Trying to update timesheet entries" + '/hydrated/employees/1/timesheets/' + timesheetEntries[0].timesheetId);
+                SpringDataRestAdapter.process($http.put('/hydrated/employees/1/timesheets/' + timesheetEntries[0].timesheetId + "/timesheetentries", timesheetEntries,
                     'Content-Type:application/json+hal').success(
                     function (response) {
                         $scope.response = angular.toJson(response, true);
                     })).then(function (processedResponse) {
                     console.log("Timesheet updated.")
                 });
-
+                loadTimesheets();
                 $route.reload();
             };
 
@@ -532,7 +553,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             }
 
             function getJobsForEmployee() {
-                SpringDataRestAdapter.process($http.get('/hydrated/employees/2/jobs').success(function (response) {
+                SpringDataRestAdapter.process($http.get('/hydrated/employees/1/jobs').success(function (response) {
                     var response2 =
                         $scope.response = angular.toJson(response, true);
                 })).then(function (processedResponse) {
@@ -541,4 +562,34 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 });
             }
         }
-    );
+    )
+    .controller('AddEmployeeController', function($scope, $http, SpringDataRestAdapter,$location){
+
+        $scope.addEmployee =function(employee){
+            var httpPromise = $http.post('api/employees', employee, 'Content-Type:application/json+hal').success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                });
+            SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+                console.log("Employee Added!");
+            });
+            $location.path('/employee');
+        }
+    })
+    .controller('CustomerController', function($scope, $http, SpringDataRestAdapter, $route){
+        loadCustomers();
+        function loadCustomers() {
+            SpringDataRestAdapter.process($http.get('/api/customers').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                $scope.customers = processedResponse._embeddedItems;
+                $scope.processedResponse = processedResponse;
+            });
+        }
+
+        $scope.addCustomer = function(customer){
+            postCustomer($http, customer, $scope, SpringDataRestAdapter);
+            loadCustomers();
+            $route.reload();
+        };
+    });

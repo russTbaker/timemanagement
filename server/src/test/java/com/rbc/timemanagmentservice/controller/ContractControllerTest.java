@@ -89,6 +89,7 @@ public class ContractControllerTest extends ControllerTests {
     public void whenUpdatingContract_expectContractUpdated() throws Exception {
         // Assemble
         Contract contract = contractTestUtil.getContract();
+        startupUtility.init();
 
         // Act
         mockMvc.perform(put(ROOT_URI + contract.getId())

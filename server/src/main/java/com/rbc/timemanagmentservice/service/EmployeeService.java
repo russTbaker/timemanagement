@@ -4,6 +4,7 @@ import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.persistence.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.Interval;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -55,23 +56,19 @@ public class EmployeeService extends UserService<Employee> {
     //--------- Timesheeets
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createTimeSheet(final Integer employeeId, final Integer jobId) {
+    public Timesheet createTimeSheet(final Integer employeeId, final Integer jobId) {
+        final DateTime now = new DateTime();
         Employee employee = (Employee) userRepository.findOne(employeeId);
+        employee.getTimesheets()
+                .stream()
+                .forEach(timesheet -> {
+                    Interval interval = new Interval(timesheet.getStartDate(), timesheet.getEndDate());
+                    if (interval.contains(now)) {
+                        throw new IllegalArgumentException("Timesheet already exists");
+                    }
+                });
         final Job job = jobRepository.findOne(jobId);
-        final Timesheet timeSheet = new Timesheet();
-        final List<TimesheetEntry> timeSheetEntryList = new ArrayList<>(DAYS_PER_WEEK);
-        final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
-        for (int i = 0; i < DAYS_PER_WEEK; i++) {
-            final TimesheetEntry timeSheetEntry = new TimesheetEntry();
-            timeSheetEntry.setDate(weekStart.plusDays(i));
-            timeSheetEntryList.add(timeSheetEntry);
-            timeSheetEntryRepository.save(timeSheetEntry);
-            timeSheet.addTimesheetEntry(timeSheetEntry);
-        }
-        timeSheet.setStartDate(getFirstDayOfWeek());
-        timeSheet.setEndDate(getLastDayOfWeek());
-
-        timeSheet.setBilled(false);
+        final Timesheet timeSheet = getTimesheet();
         employee.addTimeSheet(timesheetRepository.save(timeSheet));
         userRepository.save(employee);
         Timesheet latestTimeSheet = getLatestTimeSheet(employeeId);
@@ -79,6 +76,7 @@ public class EmployeeService extends UserService<Employee> {
             job.addTimesheetEntry(tse);
         });
         jobRepository.save(job);
+        return timeSheet;
     }
 
 
@@ -106,10 +104,10 @@ public class EmployeeService extends UserService<Employee> {
                 .filter(timesheet -> timesheet.getId().equals(timesheetId))
                 .findFirst()
                 .get();
-        for(TimesheetEntry newTimesheetEntry :newTimeSheetEntries){
-            for(TimesheetEntry existingTimesheetEntry: employeeTimesheet.getTimeSheetEntries()){
-                if(existingTimesheetEntry.equals(newTimesheetEntry)){
-                    BeanUtils.copyProperties(newTimesheetEntry, existingTimesheetEntry, "id","timesheet","job");
+        for (TimesheetEntry newTimesheetEntry : newTimeSheetEntries) {
+            for (TimesheetEntry existingTimesheetEntry : employeeTimesheet.getTimeSheetEntries()) {
+                if (existingTimesheetEntry.equals(newTimesheetEntry)) {
+                    BeanUtils.copyProperties(newTimesheetEntry, existingTimesheetEntry, "id", "timesheet", "job");
                 }
             }
         }
@@ -139,6 +137,23 @@ public class EmployeeService extends UserService<Employee> {
                 .flatMap(contract -> contract.getJobs().stream())
                 .forEach(job -> retVal.add(job));
         return retVal;
+    }
+
+    //---------- Private Methods
+    private Timesheet getTimesheet() {
+        final Timesheet timeSheet = new Timesheet();
+        final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+        for (int i = 0; i < DAYS_PER_WEEK; i++) {
+            final TimesheetEntry timeSheetEntry = new TimesheetEntry();
+            timeSheetEntry.setDate(weekStart.plusDays(i));
+            timeSheetEntry.setHours(0);
+            timeSheetEntryRepository.save(timeSheetEntry);
+            timeSheet.addTimesheetEntry(timeSheetEntry);
+        }
+        timeSheet.setStartDate(getFirstDayOfWeek());
+        timeSheet.setEndDate(getLastDayOfWeek());
+        timeSheet.setBilled(false);
+        return timeSheet;
     }
 
 }

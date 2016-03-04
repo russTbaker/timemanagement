@@ -13,7 +13,7 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy=InheritanceType.JOINED)
 @DiscriminatorColumn(name="USER_TYPE")
 @ObjectTypeConverter(
         name = "roleEnumFromStringConversion",

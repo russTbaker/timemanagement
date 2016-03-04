@@ -2,6 +2,7 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
+import com.rbc.timemanagmentservice.model.Timesheet;
 import com.rbc.timemanagmentservice.model.TimesheetEntry;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,12 @@ public class EmployeeController extends UserController<Employee>{
 
 
     //------------- Timesheet
+    @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{jobId}")
+    public ResponseEntity<?> createNewEmployeeTimesheet(@PathVariable("employeeId") Integer employeeId,
+                                                        @PathVariable("jobId") Integer jobId){
+        Timesheet timesheet = employeeService.createTimeSheet(employeeId,jobId);
+        return new ResponseEntity<>(null,getHttpHeadersForEntity(()->timesheet.getId(),"timesheets"),HttpStatus.OK);
+    }
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{timesheetId}/timesheetentries/{timesheetEntryId}",
             consumes = "application/hal+json")

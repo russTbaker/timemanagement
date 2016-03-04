@@ -10,7 +10,8 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@DiscriminatorValue(value = "EMPLOYEE")
+@Table(name = "EMPLOYEE")
+@PrimaryKeyJoinColumn(name = "EMPLOYEE_ID")
 public class Employee extends User{
     private String username;
     private String password;

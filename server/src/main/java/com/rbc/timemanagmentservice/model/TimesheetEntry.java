@@ -16,7 +16,7 @@ import javax.persistence.*;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@Table(name = "TIMESHEET_ENTRY")
+@Table(name = "TIMESHEET_ENTRY", uniqueConstraints = @UniqueConstraint(columnNames = {"job_id","date"}))
 public class TimesheetEntry {
     public TimesheetEntry() {
     }
@@ -48,9 +48,6 @@ public class TimesheetEntry {
     public Integer getTimesheetId(){
         return timesheet.getId();
     }
-
-
-
 
     public Integer getId() {
         return id;

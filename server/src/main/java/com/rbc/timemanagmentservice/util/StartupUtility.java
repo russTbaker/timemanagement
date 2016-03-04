@@ -36,7 +36,7 @@ public class StartupUtility {
     public  Employee init(){
         // Set up business relationship
         customer = customerService.createUser(getCustomer());
-        customer.addEmail(getEmail(customer.getName()));
+        customer.addEmail(getEmail(customer.getDba()));
         final Address address = getAddress();
         customer.addAddress(address);
         final Phone phone = getPhone();
@@ -63,13 +63,6 @@ public class StartupUtility {
         employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(
                 jobId,customerContract.getId()).getId());
         employeeService.createTimeSheet(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
-
-//        final Employee user = employeeService.getUser(employee.getId());
-//        user.getTimesheets()
-//        .stream()
-//        .findFirst()
-//        .get().getTimeSheetEntries().stream().forEach(timeSheetEntry -> { timeSheetEntry.setJobId(job.getId());});
-//        return employeeService.updateUser(user);
         return employeeService.getUser(employee.getId());
     }
 
@@ -101,18 +94,16 @@ public class StartupUtility {
         employee.setUsername("admin");
         employee.setPassword("password");
         employee.setDba("RussBaker");
-        employee.setRoles(User.Roles.employee);
+        employee.setRoles(User.Roles.administrator);
         return employee;
     }
 
 
     public  Customer getCustomer() {
         Customer customer = new Customer();
-        customer.setName("TEST");
         customer.setFirstName("Jonathan");
         customer.setLastName("Bein");
         customer.setDba("Z2M4");
-        customer.setContactName(CONTACT_NAME);
         customer.setRoles(User.Roles.customer);
         return customer;
     }

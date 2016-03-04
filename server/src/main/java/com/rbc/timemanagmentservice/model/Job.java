@@ -8,6 +8,7 @@ import java.util.List;
  * Created by russbaker on 2/24/16.
  */
 @Entity
+@Table(name = "JOB")
 public class Job implements EntityMarkerInterface{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

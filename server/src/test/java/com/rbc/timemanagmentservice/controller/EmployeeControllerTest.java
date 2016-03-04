@@ -2,12 +2,10 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.Timesheet;
-import com.rbc.timemanagmentservice.model.TimesheetEntry;
+import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
+import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +54,9 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
     @Autowired
     private EmployeeService employeeService;
 
+    @Autowired
+    private ContractTestUtil contractTestUtil;
+
 
     @Before
     public void setup() throws Exception {
@@ -63,6 +64,22 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
         user = startupUtility.init();
     }
 
+    @Test
+    public void whenRequestingNewEmployeeTimesheet_expectTimesheetReturned() throws Exception {
+        // Assemble
+        ((Employee)user).getTimesheets().clear();
+        employeeService.updateUser((Employee) user);
+
+        // Act
+        mockMvc.perform(put(ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + ((Employee) user).getJobs().get(0).getId())
+        .session(createMockHttpSessionForPutPost()))
+                .andExpect(status().isOk());
+
+        // Assert
+        user = employeeService.getUser(user.getId());
+        assertFalse("No timesheet created",CollectionUtils.isEmpty(((Employee)user).getTimesheets()));
+
+    }
 
     //-- Timesheet Entries
     @Test

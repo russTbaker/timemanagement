@@ -70,11 +70,9 @@ public class CustomerServiceTest extends UserServiceTest<Customer>{
 
     public Customer createUser() {
         Customer customer = new Customer();
-        customer.setName("TEST");
         customer.setFirstName("Jonathan");
         customer.setLastName("Bein");
-        customer.setName("Z2M4");
-        customer.setContactName("Jon");
+        customer.setDba("Z2M4");
         customer.setRoles(User.Roles.customer);
         return customerService.createUser(customer);
     }
