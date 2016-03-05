@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.NotFoundException;
+import java.util.List;
 
 /**
  * Created by russbaker on 2/21/16.
@@ -88,7 +89,10 @@ public class ContractService {
     public void removeJobFromContract(final Integer contractId, final Integer jobId) {
         final Job job = jobRepository.findOne(jobId);
         final Contract contract = removeJobFromContract(contractId, job);
-        removeJobFromEmployee(job);
+
+        job.getEmployees()
+        .stream()
+                .forEach(employee -> removeJobFromEmployee(job, employee.getId()));
         contractRepository.save(contract);
     }
 
@@ -111,10 +115,10 @@ public class ContractService {
         return contract;
     }
 
-    private void removeJobFromEmployee(final Job job) {
-        final Employee employee1 = job.getEmployee();
+    private void removeJobFromEmployee(final Job job, Integer employeeId) {
+        final List<Employee> employee1 = job.getEmployees();
         if(employee1 != null){
-            ((Employee) userRepository.findOne(employee1.getId())).removeJob(job);
+            ((Employee) userRepository.findOne(employeeId)).removeJob(job);
         }
     }
 }

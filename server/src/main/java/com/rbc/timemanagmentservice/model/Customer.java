@@ -42,18 +42,12 @@ public class Customer extends User{
 
     @Override
     public boolean equals(Object o) {
-        super.equals(o);
-        if (this == o) return true;
-        if (!(o instanceof Customer)) return false;
-
-        Customer customer = (Customer) o;
-
-        return invoices != null ? invoices.equals(customer.invoices) : customer.invoices == null;
+        return super.equals(o);
 
     }
 
     @Override
     public int hashCode() {
-        return invoices != null ? invoices.hashCode() : 0;
+        return super.hashCode();
     }
 }

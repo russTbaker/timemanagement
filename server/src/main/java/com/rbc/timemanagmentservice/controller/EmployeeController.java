@@ -2,8 +2,7 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
-import com.rbc.timemanagmentservice.model.Timesheet;
-import com.rbc.timemanagmentservice.model.TimesheetEntry;
+import com.rbc.timemanagmentservice.model.TimeEntry;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -43,29 +42,16 @@ public class EmployeeController extends UserController<Employee>{
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{jobId}")
     public ResponseEntity<?> createNewEmployeeTimesheet(@PathVariable("employeeId") Integer employeeId,
                                                         @PathVariable("jobId") Integer jobId){
-        Timesheet timesheet = employeeService.createTimeSheet(employeeId,jobId);
-        return new ResponseEntity<>(null,getHttpHeadersForEntity(()->timesheet.getId(),"timesheets"),HttpStatus.OK);
+        List<TimeEntry> timeEntries = employeeService.getTimeEntriesForEmployeeJobs(employeeId,jobId);
+        return new ResponseEntity<>(null,getHttpHeadersForEntity(()->employeeId,"timeentries"),HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{timesheetId}/timesheetentries/{timesheetEntryId}",
-            consumes = "application/hal+json")
-    public ResponseEntity<?> addTimesheet(@PathVariable("employeeId") Integer employeeId,
-                                          @PathVariable("timesheetId") Integer timesheetId,
-                                          @PathVariable("timesheetEntryId") Integer timesheetEntryId,
-                                          @RequestBody TimesheetEntry input) {
-        employeeService.addTimesheetEntry(employeeId, timesheetId, input, timesheetEntryId);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(ServletUriComponentsBuilder
-                .fromCurrentRequest().build().toUri());
-
-        return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
-    }
 
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{timesheetId}/timesheetentries")
     public ResponseEntity<?> updateTimesheet(@PathVariable("employeeId") Integer employeeId,
                                              @PathVariable("timesheetId") Integer timesheetId,
-                                             @RequestBody List<TimesheetEntry> timesheetEntries){
-        employeeService.addTimeSheetEntries(timesheetEntries,employeeId,timesheetId);
+                                             @RequestBody List<TimeEntry> timesheetEntries){
+        employeeService.addTimeSheetEntries(timesheetEntries, timesheetId);
         return new ResponseEntity<>(null, getHttpHeadersForEntity(() -> timesheetId,"timesheets"),HttpStatus.ACCEPTED);
     }
 
@@ -105,7 +91,6 @@ public class EmployeeController extends UserController<Employee>{
     List<JobsResource> jobToResource(Job... jobs) {
         List<JobsResource> resources = new ArrayList<>(jobs.length);
         for (Job job : jobs) {
-
             resources.add(new JobsResource(job));
         }
         return resources;

@@ -2,9 +2,13 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.persistence.TimesheetRepository;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +17,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
 
-import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +47,6 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Autowired
     private JobService jobService;
 
-    @Autowired
-    private TimesheetRepository timesheetRepository;
 
 
     @Before
@@ -90,8 +91,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     public void whenAddingJobToEmployee_expectContractAdded() throws Exception {
         // Assemble
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
-        Contract contract = contractService.saveContract(new Contract());
-        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
+        Job job = createPersistentJob();
 
         // Act
         employeeService.addEmployeeToJob(employee.getId(), job.getId());
@@ -106,8 +106,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     public void whenAddingDetatchedJobToEmployee_expectContractAded() throws Exception {
         // Assemble
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
-        Contract contract = contractService.saveContract(new Contract());
-        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
+        Job job = createPersistentJob();
 
         // Act
         employeeService.addEmployeeToJob(employee.getId(), job.getId());
@@ -137,103 +136,76 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 //------------ Timesheets
 
     @Test
-    public void whenRequestingEmployeesTimeSheets_expectTimeSheetsReturned() throws Exception {
+    public void whenRequestingEmployeesTimeEntriess_expectTimeEntriesReturned() throws Exception {
         // Assemble
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
-        Timesheet timesheet = getTimeSheet(employee);
 
         // Act
-        Timesheet result = employeeService.getLatestTimeSheet(employee.getId());
+        List<TimeEntry> employeeTimeEntries = getTimeEntries(employee);
+        employee = employeeService.getUser(employee.getId());
 
         // Assert
-        assertNotNull("No timesheets returned", result);
-        assertTrue("Wrong timesheet", timesheet.equals(result));
-        for(TimesheetEntry timeSheetEntry:result.getTimeSheetEntries()){
+        assertNotNull("No timesheets returned", employee);
+        // TODO: Fix
+        for(TimeEntry timeSheetEntry:employeeTimeEntries){
             assertNotNull("No Id",timeSheetEntry.getId());
             assertEquals("Hours populated",0,timeSheetEntry.getHours(),0.0);
             assertNotNull("No date",timeSheetEntry.getDate());
         }
     }
 
-    @Test(expected = org.springframework.dao.InvalidDataAccessApiUsageException.class)
-    public void whenCallingGetNewTimesheetWithExistingCurrentTimesheet_expectIllegalArgumentException() throws Exception {
+    @Test
+    public void whenGettingEmployeeLatestTimeEntries_expectLatestReturned() throws Exception {
+        DateTimeFormatter dateTimeFormatter  = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Assemble
+//        Job job = createPersistentJob();
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
-        ContractTestUtil.JobCreator jobCreator = contractTestUtil.getJobCreator().invoke();
+        getTimeEntries(employee);
+        employee = employeeService.getUser(employee.getId());
 
         // Act
-        employeeService.createTimeSheet(employee.getId(),jobCreator.getJobCreated().getId());
-        employeeService.createTimeSheet(employee.getId(),jobCreator.getJobCreated().getId());
+        List<TimeEntry> results = employeeService.getLatestTimeEntriesForEmployeeJobs(employee.getId(),employee.getJobs().get(0).getId());
+        assertFalse("Results are empty",CollectionUtils.isEmpty(results));
+        assertEquals("Wrong number of time entries",7,results.size());
+        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+        Interval interval = new Interval(weekStart,weekStart.plusDays(7));
+        for(TimeEntry timeEntry:results){
+            assertTrue("Wrong date for time entry " + dateTimeFormatter.print(timeEntry.getDate()),interval.contains(timeEntry.getDate()));
+        }
 
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void whenNoTimeSheetsFound_expectNotFoundExcption() throws Exception {
-        // Act
-        employeeService.getLatestTimeSheet(0);
-    }
-
-    @Test
-    public void whenAddingTimeSheetToEmployee_expectTimesheetAdded() throws Exception {
-        // Assemble
-        Employee employee = createUser();
-        getTimeSheet(employee);
-
-        // Assert
-        Timesheet timesheet = employeeService.getUser(employee.getId()).getTimesheets().get(0);
-        assertNotNull("No timesheet created", timesheet);
-        assertNotNull("No timesheet persisted", timesheet.getId());
-        List<TimesheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
-        assertEquals("Wrong number of timesheet entries", 7, timeSheetEntries.size());
-        assertFalse("No Contract associated with employee's timesheet", CollectionUtils.isEmpty(timeSheetEntries));
     }
 
     @Test
-    public void whenUpdatingTimeEntry_expectTimeEntryUpdated() throws Exception {
+    public void whenUpdatingTimeEntries_expectEntriesUpdated() throws Exception {
         // Assemble
-        Employee employee = createUser();
-        Timesheet timesheet = getTimeSheet(employee);
-        TimesheetEntry timeSheetEntry = timesheet.getTimeSheetEntries().get(0);
-        timeSheetEntry.setHours(HOURS);
+        Employee employee = startupUtility.init();
+        final List<TimeEntry> timeEntries = employee.getJobs().get(0).getTimeEntries();
+        TimeEntry timeEntry = timeEntries.get(0);
+        final int updatedHours = 20;
+        timeEntry.setHours(updatedHours);
 
         // Act
-        employeeService.addTimesheetEntry(employee.getId(), timesheet.getId(), timeSheetEntry, timeSheetEntry.getId());
+        employeeService.addTimeSheetEntries(new ArrayList<>(timeEntries)  , employee.getJobs().get(0).getId());
 
         // Assert
         Employee result = employeeService.getUser(employee.getId());
-        assertEquals("Hours not updated", HOURS, result.getTimesheets().get(0).getTimeSheetEntries().get(0).getHours(), 0);
-
-    }
-
-    @Test
-    public void whenUpdatingTimeSheetEntries_expectEntriesUpdated() throws Exception {
-        // Assemble
-        Employee employee = startupUtility.init();
-        Timesheet timesheet = employee.getTimesheets().get(0);
-        final List<TimesheetEntry> timeSheetEntries = timesheet.getTimeSheetEntries();
-        TimesheetEntry timeSheetEntry = timeSheetEntries.get(0);
-        timeSheetEntry.setHours(20);
-
-        // Act
-        employeeService.addTimeSheetEntries(new ArrayList<>(timeSheetEntries)  , employee.getId(), timesheet.getId());
-
-        // Assert
-        employee = employeeService.getUser(employee.getId());
-        final List<TimesheetEntry> timeEntryResults = employee.getTimesheets().get(0).getTimeSheetEntries();
+        final List<TimeEntry> timeEntryResults = result.getJobs().get(0).getTimeEntries();
         assertEquals("Wrong number of timesheet entries",7,timeEntryResults.size());
-        assertTrue("Wrong timesheet updated.", timeEntryResults.contains(timeSheetEntry));
-        for(TimesheetEntry tse: employee.getTimesheets().get(0).getTimeSheetEntries()){
+        assertEquals("Wrong hours",updatedHours,timeEntryResults
+                .stream()
+                .filter(te -> te.getDate().equals(timeEntry.getDate()))
+                .findFirst()
+                .get().getHours(),0.0);
 
-        }
 
         // Make sure the job also has the updated entries
-        final List<TimesheetEntry> jobTimesheetEntries = jobService.findJob(employee.getJobs().get(0).getId()).getTimeSheetEntries();
+        final List<TimeEntry> jobTimesheetEntries = jobService.findJob(employee.getJobs().get(0).getId()).getTimeEntries();
         assertEquals("Wrong number of job timesheet entries",7,jobTimesheetEntries.size());
-        assertTrue("Job doesn't have updates", jobTimesheetEntries.containsAll(timeSheetEntries));
+        assertTrue("Job doesn't have updates", jobTimesheetEntries.containsAll(timeEntries));
 
-        final List<TimesheetEntry> timesheetTimesheetEntries = timesheetRepository.findOne(timesheet.getId()).getTimeSheetEntries();
-        assertEquals("Wrong number of job timesheet entries",7,timesheetTimesheetEntries.size());
-        assertTrue("Job doesn't have updates", timesheetTimesheetEntries.containsAll(timeSheetEntries));
+//        final List<TimeEntry> timesheetTimesheetEntries = timesheetRepository.findOne(timesheet.getId()).getTimeEntries();
+//        assertEquals("Wrong number of job timesheet entries",7,timesheetTimesheetEntries.size());
+//        assertTrue("Job doesn't have updates", timesheetTimesheetEntries.containsAll(timeEntries));
 
     }
 //----------- Contracts
@@ -257,7 +229,6 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
     private void assertInitialEmployeeCorrect(Employee employee) {
         assertTrue("Jobs associated with employee", CollectionUtils.isEmpty(employee.getJobs()));
-        assertTrue("TimeSheets should be empty", CollectionUtils.isEmpty(employee.getTimesheets()));
     }
 
     public Employee createUser() {
@@ -271,12 +242,14 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         return employeeService.createUser(employee);
     }
 
-    private Timesheet getTimeSheet(Employee employee) {
-        Contract contract = contractService.saveContract(new Contract());
+    private List<TimeEntry> getTimeEntries(Employee employee) {
+        Job job = createPersistentJob();
+        return employeeService.getTimeEntriesForEmployeeJobs(employee.getId(), job.getId());
+    }
 
-        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
-        employeeService.createTimeSheet(employee.getId(), job.getId());
-        return employeeService.getUser(employee.getId()).getTimesheets().get(0);
+    private Job createPersistentJob() {
+        Contract contract = contractService.saveContract(new Contract());
+        return contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
     }
 
 }

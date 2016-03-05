@@ -70,7 +70,7 @@ public class InvoiceService {
     public Double sumJobForTimePeriod(Integer jobId, DateTime startTime, DateTime endTime) {
         final Interval interval = new Interval(startTime,endTime);
         final Job job = jobRepository.findOne(jobId);
-        return job.getTimeSheetEntries()
+        return job.getTimeEntries()
                 .stream()
                 .filter(timeSheetEntry -> (interval.contains(timeSheetEntry.getDate())))
                 .mapToDouble(value -> value.getHours()*job.getRate())

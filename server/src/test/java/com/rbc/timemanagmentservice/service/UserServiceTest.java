@@ -24,7 +24,6 @@ import static junit.framework.TestCase.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
-@Transactional
 @SuppressWarnings("unchecked")
 public abstract class UserServiceTest<U extends User> {
     protected U user;
@@ -196,8 +195,8 @@ public abstract class UserServiceTest<U extends User> {
         Address address = startupUtility.getAddress();
 
         // Act
-        userService.addAddressToUser(user.getId(),address);
-        return (U) user;
+        assertNotNull("Address not added.",userService.addAddressToUser(user.getId(),address));
+        return  userService.getUser(user.getId());
     }
 
     protected U addPhoneToUser() {
@@ -206,7 +205,7 @@ public abstract class UserServiceTest<U extends User> {
 
         // Act
         userService.addPhoneToUser(user.getId(),phone);
-        return (U) user;
+        return  userService.getUser(user.getId());
     }
 
     protected U addEmailToUser() {
@@ -215,7 +214,7 @@ public abstract class UserServiceTest<U extends User> {
 
         // Act
         userService.addEmailToUser(user.getId(),email);
-        return (U) user;
+        return  userService.getUser(user.getId());
     }
 
 }

@@ -16,11 +16,8 @@ public class Employee extends User{
     private String username;
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Timesheet> timesheets = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "employees",fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 
@@ -29,9 +26,6 @@ public class Employee extends User{
     }
 
 
-    public List<Timesheet> getTimesheets() {
-        return timesheets;
-    }
 
     public List<Job> getJobs() {
         return jobs;
@@ -54,22 +48,12 @@ public class Employee extends User{
     }
 
 
-    @JsonIgnore
-    public void addTimeSheet(Timesheet timeSheet) {
-        if (!this.timesheets.contains(timeSheet)) {
-            this.timesheets.add(timeSheet);
-            timeSheet.setEmployee(this);
-        } else {
-            this.timesheets.remove(timeSheet);
-            this.timesheets.add(timeSheet);
-        }
-    }
 
     @JsonIgnore
     public void addJob(Job job) {
         if (!this.jobs.contains(job)) {
             this.jobs.add(job);
-            job.setEmployee(this);
+            job.getEmployees().add(this);
         } else {
             this.jobs.remove(job);
             this.jobs.add(job);
@@ -78,6 +62,18 @@ public class Employee extends User{
 
     public void removeJob(Job job){
         this.jobs.remove(job);
-        job.setEmployee(null);
+        job.getEmployees().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        return result;
     }
 }

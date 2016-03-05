@@ -11,6 +11,8 @@ that in a very simple and lightweight manner.
 ### Structure
 This project uses [Spring Boot](http://spring.io) as the container and back end to create a [Level 3 Maturity Model](http://martinfowler.com/articles/richardsonMaturityModel.html) using 
 [HATEOAS](https://spring.io/understanding/HATEOAS) which displays/edits this information using [AngularJs](https://angularjs.org/) and [angular-spring-data-rest](https://github.com/guylabs/angular-spring-data-rest)
+#### Entity Relationship Diagram
+![Entity Relationship Diagram](EntityRelationshipDiagram.png)
 
 
 # TODO

@@ -20,27 +20,29 @@ public class Job implements EntityMarkerInterface{
 
     private Double rate;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne//(cascade = CascadeType.ALL)
     private Contract contract;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Employee employee;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "EMPLOYEE_JOB", joinColumns = @JoinColumn(name="EMPLOYEE_ID"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"))
+    private List<Employee> employees = new ArrayList<>();
 
-    @OneToMany(mappedBy = "job", fetch = FetchType.EAGER)
-    private List<TimesheetEntry> timeSheetEntries = new ArrayList<>();
 
-    public void addTimesheetEntry(TimesheetEntry timeSheetEntry) {
-        if (!this.timeSheetEntries.contains(timeSheetEntry)) {
-            this.timeSheetEntries.add(timeSheetEntry);
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "job", fetch = FetchType.EAGER)
+    private List<TimeEntry> timeEntries = new ArrayList<>();
+
+    public void addTimeEntry(TimeEntry timeSheetEntry) {
+        if (!this.timeEntries.contains(timeSheetEntry)) {
+            this.timeEntries.add(timeSheetEntry);
         } else {
-            this.timeSheetEntries.remove(timeSheetEntry);
-            this.timeSheetEntries.add(timeSheetEntry);
+            this.timeEntries.remove(timeSheetEntry);
+            this.timeEntries.add(timeSheetEntry);
         }
         timeSheetEntry.setJob(this);
     }
 
-    public List<TimesheetEntry> getTimeSheetEntries() {
-        return timeSheetEntries;
+    public List<TimeEntry> getTimeEntries() {
+        return timeEntries;
     }
 
     public Integer getId() {
@@ -84,13 +86,11 @@ public class Job implements EntityMarkerInterface{
         this.contract = contract;
     }
 
-    public Employee getEmployee() {
-        return employee;
+    public List<Employee> getEmployees() {
+        return employees;
     }
 
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
+
 
     @Override
     public boolean equals(Object o) {

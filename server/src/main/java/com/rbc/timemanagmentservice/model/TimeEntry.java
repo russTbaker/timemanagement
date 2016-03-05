@@ -17,8 +17,8 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "TIMESHEET_ENTRY", uniqueConstraints = @UniqueConstraint(columnNames = {"job_id","date"}))
-public class TimesheetEntry {
-    public TimesheetEntry() {
+public class TimeEntry {
+    public TimeEntry() {
     }
     @Transient
     private DateTimeFormatter FMT = DateTimeFormat.forPattern("EEE MMM d, yyyy");
@@ -32,22 +32,15 @@ public class TimesheetEntry {
 
     @ManyToOne
     @JsonIgnore
-    private Timesheet timesheet;
-
-    @ManyToOne
-    @JsonIgnore
     private Job job;
 
     @JsonSerialize(using = JodaTimeDateSerializer.class)
     @JsonDeserialize(using = JodaTimeDateDeserializer.class)
     private DateTime date;
     private Integer hours;
+    private Boolean billed;
 
-    @Transient
-    private Integer timesheetId;
-    public Integer getTimesheetId(){
-        return timesheet.getId();
-    }
+
 
     public Integer getId() {
         return id;
@@ -55,15 +48,6 @@ public class TimesheetEntry {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-
-    public Timesheet getTimesheet() {
-        return timesheet;
-    }
-
-    public void setTimesheet(Timesheet timesheet) {
-        this.timesheet = timesheet;
     }
 
     public Integer getJobId() {
@@ -101,6 +85,13 @@ public class TimesheetEntry {
     public String getEntryDate(){
         return FMT.print(date);
     }
+    public Boolean getBilled() {
+        return billed;
+    }
+
+    public void setBilled(Boolean billed) {
+        this.billed = billed;
+    }
 
     @RestResource(exported = false)
     @JsonIgnore
@@ -111,9 +102,9 @@ public class TimesheetEntry {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TimesheetEntry)) return false;
+        if (!(o instanceof TimeEntry)) return false;
 
-        TimesheetEntry that = (TimesheetEntry) o;
+        TimeEntry that = (TimeEntry) o;
 
         return date != null ? date.withTimeAtStartOfDay().equals(that.date.withTimeAtStartOfDay()) : that.date == null;
 

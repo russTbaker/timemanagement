@@ -62,7 +62,7 @@ public class StartupUtility {
         final Integer jobId = contractService.createJob(job).getId();
         employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(
                 jobId,customerContract.getId()).getId());
-        employeeService.createTimeSheet(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
+        employeeService.getTimeEntriesForEmployeeJobs(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
         return employeeService.getUser(employee.getId());
     }
 
