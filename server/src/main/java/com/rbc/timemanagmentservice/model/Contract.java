@@ -56,7 +56,7 @@ public class Contract implements EntityMarkerInterface{
     @Enumerated(value = EnumType.STRING)
     private Terms terms;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "contract")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "contract", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 

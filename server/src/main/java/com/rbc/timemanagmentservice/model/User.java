@@ -17,7 +17,7 @@ import java.util.List;
 @DiscriminatorColumn(name="USER_TYPE")
 @ObjectTypeConverter(
         name = "roleEnumFromStringConversion",
-        objectType = User.Roles.class,
+        objectType = Roles.Role.class,
         dataType = String.class,
         conversionValues = {
                 @ConversionValue(objectValue = "administrator", dataValue = "administrator"),
@@ -43,21 +43,16 @@ public abstract class User {
         }
     }
 
-    public enum Roles {
-        administrator,
-        employee,
-        customer,
-        guest
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "USER_ID")
     protected Integer id;
 
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "USER_ID"),
+    inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    protected List<Roles> roles = new ArrayList<>();
 
-    @Enumerated(value = EnumType.STRING)
-    private Roles roles;
     private String firstName;
     private String lastName;
     private String dba;
@@ -75,11 +70,11 @@ public abstract class User {
         this.id = id;
     }
 
-    public Roles getRoles() {
+    public List<Roles> getRoles() {
         return roles;
     }
 
-    public void setRoles(Roles roles) {
+    public void setRoles(List<Roles> roles) {
         this.roles = roles;
     }
 

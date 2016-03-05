@@ -3,7 +3,7 @@ package com.rbc.timemanagmentservice.persistence;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Customer;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.Roles;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +62,9 @@ public class ContractRepositoryTest {
         Customer customer = new Customer();
         customer.setLastName("CUSTOMER");
         customer.setDba("Z2M4");
-        customer.setRoles(User.Roles.customer);
+        Roles customerRole = new Roles();
+        customerRole.setRole(Roles.Role.customer);
+        customer.getRoles().add(customerRole);
         return userRepository.save(customer);
     }
 

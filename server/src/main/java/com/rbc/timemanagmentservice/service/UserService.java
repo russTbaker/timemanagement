@@ -64,6 +64,23 @@ public class UserService<U extends User> {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteUser(Integer userId) {
+        final  U user = (U) userRepository.findOne(userId);
+        user.getEmails()
+                .stream()
+                .forEach(email -> email.setUser(null));
+
+        user.getAddress()
+                .stream()
+                .forEach(address -> address.setUser(null));
+
+        user.getPhones()
+                .stream()
+                .forEach(phone -> phone.setUser(null));
+
+        user.getContracts()
+                .stream()
+                .forEach(contract -> contract.getUsers().remove(user));
+
         userRepository.delete(userId);
     }
 
@@ -86,6 +103,8 @@ public class UserService<U extends User> {
     public void removeAddressFromUser(final Integer userId, final Integer addressId) {
         final U user = (U) userRepository.findOne(userId);
         final List<Address> addresses = user.getAddress();
+        addresses.stream()
+                .forEach(address1 -> address1.setUser(null));
         addresses.remove(addresses.stream()
                 .filter(address -> address.getId().equals(addressId))
                 .findFirst()
@@ -111,10 +130,14 @@ public class UserService<U extends User> {
     public void removePhoneFromUser(final Integer userId, final Integer phoneId) {
         final U user = (U) userRepository.findOne(userId);
         final List<Phone> phones = user.getPhones();
-        phones.remove(phones.stream()
+        phones.stream()
                 .filter(phone -> phone.getId().equals(phoneId))
-                .findFirst()
-                .get());
+                .forEach(phone1 -> phone1.setUser(null));
+        user.getPhones().remove(user.getPhones()
+        .stream()
+        .filter(phone -> phone.getId().equals(phoneId))
+        .findFirst()
+        .get());
         userRepository.save(user);
     }
 
@@ -136,10 +159,14 @@ public class UserService<U extends User> {
     public void removeEmailFromUser(final Integer userId, final Integer emailId) {
         final U user = (U) userRepository.findOne(userId);
         final List<Email> emails = user.getEmails();
-        emails.remove(emails.stream()
+        emails.stream()
                 .filter(email -> email.getId().equals(emailId))
-                .findFirst()
-                .get());
+                .forEach(email1 -> email1.setUser(null));
+        user.getEmails().remove(user.getEmails()
+        .stream()
+        .filter(email -> email.getId().equals(emailId))
+        .findFirst()
+        .get());
         userRepository.save(user);
     }
 

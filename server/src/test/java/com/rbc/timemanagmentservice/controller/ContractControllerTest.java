@@ -64,6 +64,7 @@ public class ContractControllerTest extends ControllerTests {
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
+        startupUtility.init();
     }
 
     @Test
@@ -89,7 +90,6 @@ public class ContractControllerTest extends ControllerTests {
     public void whenUpdatingContract_expectContractUpdated() throws Exception {
         // Assemble
         Contract contract = contractTestUtil.getContract();
-        startupUtility.init();
 
         // Act
         mockMvc.perform(put(ROOT_URI + contract.getId())

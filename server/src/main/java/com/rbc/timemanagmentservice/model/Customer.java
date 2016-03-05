@@ -16,7 +16,9 @@ import java.util.List;
 public class Customer extends User{
     public Customer() {
         super();
-        this.setRoles(Roles.customer);
+        Roles roles = new Roles();
+        roles.setRole(Roles.Role.customer);
+        this.roles.add(roles);
     }
 
 

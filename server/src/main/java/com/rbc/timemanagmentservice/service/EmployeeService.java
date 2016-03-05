@@ -40,6 +40,20 @@ public class EmployeeService extends UserService<Employee> {
         this.timeSheetEntryRepository = timeSheetEntryRepository;
     }
 
+    @Transactional(readOnly = true)
+    public Employee findByUsername(final String username){
+        return employeeRepository.findByUsername(username).get();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteUser(final Integer employeeId){
+        final Employee employee = employeeRepository.findOne(employeeId);
+        employee.getJobs()
+                .stream()
+                .forEach(job -> job.getEmployees().remove(employee));
+        super.deleteUser(employeeId);
+    }
+
 
     //------------- Job
 
@@ -87,7 +101,7 @@ public class EmployeeService extends UserService<Employee> {
         for (TimeEntry newTimesheetEntry : newTimeSheetEntries) {
             for (TimeEntry existingTimesheetEntry : job.getTimeEntries()) {
                 if (existingTimesheetEntry.equals(newTimesheetEntry)) {
-                    BeanUtils.copyProperties(newTimesheetEntry, existingTimesheetEntry, "id");
+                    BeanUtils.copyProperties(newTimesheetEntry, existingTimesheetEntry, "id","job");
                 }
             }
         }
@@ -102,6 +116,7 @@ public class EmployeeService extends UserService<Employee> {
             throw new NotFoundException("Cannot find employee with id: " + employeeId);
         }
         final List<Contract> employeeContracts = contractRepository.findByUsersDba(employee.getDba());
+
         List<Job> retVal = new ArrayList<>();
         employeeContracts
                 .parallelStream()

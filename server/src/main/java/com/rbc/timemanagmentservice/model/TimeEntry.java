@@ -16,7 +16,7 @@ import javax.persistence.*;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@Table(name = "TIMESHEET_ENTRY", uniqueConstraints = @UniqueConstraint(columnNames = {"job_id","date"}))
+@Table(name = "TIME_ENTRY", uniqueConstraints = @UniqueConstraint(columnNames = {"job_id","date"}))
 public class TimeEntry {
     public TimeEntry() {
     }

@@ -1,7 +1,7 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.Roles;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -37,7 +37,7 @@ public class TimeManagementUserDetailsService implements UserDetailsService{
         Optional<Employee> user = employeeRepository.findByUsername(username);
         if (!user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
-                    " ", " ", true, true, true, true,
+                    user.get().getUsername(),  user.get().getPassword(), true, true, true, true,
                     getAuthorities(user.get().getRoles()));
         }
 
@@ -46,15 +46,15 @@ public class TimeManagementUserDetailsService implements UserDetailsService{
                 true, getAuthorities(user.get().getRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(User.Roles roles) {
+    private Collection<? extends GrantedAuthority> getAuthorities(List<Roles> roles) {
         return getGrantedAuthorities(roles);
     }
 
 
 
-    private List<GrantedAuthority> getGrantedAuthorities(User.Roles roles) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + roles.name().toUpperCase()));
+    private List<SimpleGrantedAuthority> getGrantedAuthorities(List<Roles> roles) {
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        roles.stream().forEach(role ->authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole().name().toUpperCase())));
         return authorities;
     }
 }

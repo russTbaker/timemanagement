@@ -6,6 +6,7 @@ import com.rbc.timemanagmentservice.model.Email;
 import com.rbc.timemanagmentservice.model.Phone;
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,11 @@ public abstract class UserServiceTest<U extends User> {
 
     public void setUp(){
         user = createUser();
+    }
+
+    @After
+    public void tearDown(){
+//        userService.deleteUser(user.getId());
     }
 
     // Create
@@ -96,7 +102,7 @@ public abstract class UserServiceTest<U extends User> {
     @Test(expected = NotFoundException.class)
     public void whenDeletingUser_expectUserDeleted() throws Exception {
 
-        // Act
+//        // Act
         userService.deleteUser(user.getId());
 
         // Assert
@@ -184,14 +190,13 @@ public abstract class UserServiceTest<U extends User> {
         userService.removeEmailFromUser(user.getId(),user.getEmails().get(0).getId());
 
         // Assert
-        assertTrue("Email not removed",CollectionUtils.isEmpty(userService.getUser(user.getId()).getPhones()));
+        assertTrue("Email not removed",CollectionUtils.isEmpty(userService.getUser(user.getId()).getEmails()));
 
     }
 
 
     protected U addAddressToUser() {
         // Assemble
-        User user = createUser();
         Address address = startupUtility.getAddress();
 
         // Act
@@ -200,7 +205,6 @@ public abstract class UserServiceTest<U extends User> {
     }
 
     protected U addPhoneToUser() {
-        User user = createUser();
         Phone phone = startupUtility.getPhone();
 
         // Act
@@ -209,7 +213,7 @@ public abstract class UserServiceTest<U extends User> {
     }
 
     protected U addEmailToUser() {
-        User user = createUser();
+        final List<U> allUsers = userService.findAll(null, null);
         Email email = startupUtility.getEmail("username");
 
         // Act

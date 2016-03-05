@@ -20,7 +20,7 @@ public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter{
     @Override
     protected void configure(HttpSecurity http) throws Exception{
         http.csrf().disable().authorizeRequests()
-                .antMatchers("/**").permitAll()
+//                .antMatchers("/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -38,7 +38,7 @@ public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter{
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
 
         auth.inMemoryAuthentication()
-                .withUser("admin").password("admin").roles("USER");
+                .withUser("admin").password("password").roles("USER").and();
     }
 
     @Bean

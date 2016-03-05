@@ -10,7 +10,7 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@Table(name = "EMPLOYEE")
+@Table(name = "EMPLOYEE",  uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 @PrimaryKeyJoinColumn(name = "EMPLOYEE_ID")
 public class Employee extends User{
     private String username;

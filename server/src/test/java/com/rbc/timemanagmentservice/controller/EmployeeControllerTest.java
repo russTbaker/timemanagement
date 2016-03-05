@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.service.ContractService;
@@ -81,54 +82,34 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
     }
 
     //-- Timesheet Entries
-//    @Test
-//    public void whenPuttingTimesheetEntry_expectEntryAdded() throws Exception {
-//        // Assemble
-//        final Timesheet timeSheet = ((Employee) user).getTimesheets().get(0);
-//        TimeEntry firstTimesheetEntry = timeSheet.getTimeEntries().get(0);
-//        firstTimesheetEntry.setHours(12);
-//        final String url = ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + timeSheet.getId()
-//                + "/timesheetentries/" + firstTimesheetEntry.getId();
-//        String timesheetEntryJson = json(firstTimesheetEntry);
-//
-//        // Act/Assert
-//        mockMvc.perform(put(url)
-//                .contentType(contentType)
-//                .content(timesheetEntryJson))
-//                .andDo(print())
-//                .andExpect(status().isCreated())
-//                .andExpect(header().string("location", "http://localhost/hydrated/employees/" + user.getId()
-//                        + "/timesheets/" + timeSheet.getId() + "/timesheetentries/" + firstTimesheetEntry.getId()));
-//
-//    }
 
-//    @Test
-//    public void AwhenPuttingTimeSheetEntries_expectEntriesAdded() throws Exception {
-//        // Assemble
+    @Test
+    public void AwhenPuttingTimeSheetEntries_expectEntriesAdded() throws Exception {
+        // Assemble
 //        user = startupUtility.init();
-//        final Timesheet timeSheet = ((Employee) user).getTimesheets().get(0);
-//        TimeEntry firstTimesheetEntry = timeSheet.getTimeEntries().get(0);
-//        firstTimesheetEntry.setHours(12);
-//        final String url = ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + timeSheet.getId()
-//                + "/timesheetentries";
-//        timeSheet.getTimeEntries()
-//                .stream()
-//                .forEach(
-//                        timeSheetEntry -> {
-//                            timeSheetEntry.setJobId(user.getContracts().get(0).getJobs().get(0).getId());
-//                        }
-//                );
-//
-//        String timesheetEntriesJson = new ObjectMapper().writeValueAsString(timeSheet.getTimeEntries());//json(timeSheet.getTimeEntries().get(0));
-//        // Act/Assert
-//        mockMvc.perform(put(url)
-//                .contentType(contentType)
-//                .content(timesheetEntriesJson))
-//                .andDo(print())
-//                .andExpect(status().isAccepted())
-//                .andExpect(header().string("location", "http://localhost/api/timesheets/"+timeSheet.getId() ));
-//
-//    }
+        final Job job = ((Employee) user).getJobs().get(0);
+        TimeEntry firstTimesheetEntry = job.getTimeEntries().get(0);
+        firstTimesheetEntry.setHours(12);
+        final String url = ROOT_URI_EMPLOYEES +  "/timesheets/" + job.getId()
+                + "/timesheetentries";
+        job.getTimeEntries()
+                .stream()
+                .forEach(
+                        timeSheetEntry -> {
+                            timeSheetEntry.setJobId(user.getContracts().get(0).getJobs().get(0).getId());
+                        }
+                );
+
+        String timesheetEntriesJson = new ObjectMapper().writeValueAsString(job.getTimeEntries());
+        // Act/Assert
+        mockMvc.perform(put(url)
+                .contentType(contentType)
+                .content(timesheetEntriesJson))
+                .andDo(print())
+                .andExpect(status().isAccepted())
+                .andExpect(header().string("location", "http://localhost/api/timesheets/"+job.getId() ));
+
+    }
     //----------- Jobs
 
 
@@ -161,16 +142,18 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
     @Test
     public void whenGettingAvaialbeJobs_expectJobsReturned() throws Exception {
         // Assemble
-        Employee employee = startupUtility.init();
+//        Employee employee = startupUtility.init();
+        Employee employee = employeeService.getUser(user.getId());
 
-        mockMvc.perform(get(ROOT_URI_EMPLOYEES + employee.getId() + "/jobs"))
+        mockMvc.perform(get(ROOT_URI_EMPLOYEES +  "/jobs")
+        .session(createMockHttpSessionForPutPost()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$._embedded.jobsResources[0].job.name", is("BT")))
                 .andExpect(jsonPath("$._embedded.jobsResources[0].job.description", is("Second Phase")))
                 .andExpect(jsonPath("$._embedded.jobsResources[0].job.rate", is(87.5)))
                 .andExpect(jsonPath("$._embedded.jobsResources[0]._links.self.href", containsString("/jobs")))
-                .andExpect(jsonPath("$._links.self.href", containsString("http://localhost/hydrated/employees/"+employee.getId()+"/jobs")))
+                .andExpect(jsonPath("$._embedded.jobsResources[0]._links.self.href", containsString("/api/jobs/" + employee.getJobs().get(0).getId())))
         .andDo(print());
 
 

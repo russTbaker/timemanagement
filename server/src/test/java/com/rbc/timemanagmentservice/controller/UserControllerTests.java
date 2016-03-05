@@ -109,7 +109,8 @@ public class UserControllerTests<U extends User> extends ControllerTests{
         final Email email = user.getEmails().get(0);
 
         // Act
-        this.mockMvc.perform(delete(ROOT_URI_EMPLOYEES + user.getId() + "/emails/" + email.getId()))
+        this.mockMvc.perform(delete(ROOT_URI_EMPLOYEES + user.getId() + "/emails/" + email.getId())
+                .session(createMockHttpSessionForPutPost()))
                 .andExpect(status().isOk());
 
         // Assert
@@ -161,7 +162,8 @@ public class UserControllerTests<U extends User> extends ControllerTests{
         user = userService.getUser(user.getId());
 
         this.mockMvc.perform(
-                delete(UserControllerTests.ROOT_URI_EMPLOYEES + user.getId() + "/address/" + user.getAddress().get(0).getId()))
+                delete(UserControllerTests.ROOT_URI_EMPLOYEES + user.getId() + "/address/" + user.getAddress().get(0).getId())
+                        .session(createMockHttpSessionForPutPost()))
                 .andDo(print())
                 .andExpect(status().isOk());
 
@@ -217,7 +219,8 @@ public class UserControllerTests<U extends User> extends ControllerTests{
         user = userService.getUser(user.getId());
 
         // Act
-        this.mockMvc.perform(delete(ROOT_URI_EMPLOYEES + user.getId() + "/phones/" +user.getPhones().get(0).getId()))
+        this.mockMvc.perform(delete(ROOT_URI_EMPLOYEES + user.getId() + "/phones/" +user.getPhones().get(0).getId())
+                .session(createMockHttpSessionForPutPost()))
         .andExpect(status().isOk());
 
         // Assert
@@ -230,11 +233,11 @@ public class UserControllerTests<U extends User> extends ControllerTests{
     @Test
     public void whenAddingContractsToUsers_expectContractsAdded() throws Exception {
         // Assemble
-        contractTestUtil.getJobCreator().invoke();
         Contract contract = contractTestUtil.getContract();
 
         // Act
         mockMvc.perform(put(ROOT_URI_EMPLOYEES + user.getId() + "/contracts/" + contract.getId())
+                .session(createMockHttpSessionForPutPost())
         ).andExpect(status().isAccepted());
 
         //Assert

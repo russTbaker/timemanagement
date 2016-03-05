@@ -3,12 +3,12 @@ package com.rbc.timemanagmentservice.service;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
-import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +17,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
 
+import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,10 +41,6 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Autowired
     private ContractTestUtil contractTestUtil;
 
-
-    @Autowired
-    private StartupUtility startupUtility;
-
     @Autowired
     private JobService jobService;
 
@@ -55,10 +52,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         super.setUp();
     }
 
+    @After
+    public void tearDown(){
+        super.tearDown();
+       try {
+           if (employeeService.getUser(user.getId()) != null) {
+               employeeService.deleteUser(user.getId());
+           }
+       }catch (NotFoundException e){
+           // Don't care
+       }
+    }
+
     @Test
     public void whenCreatingNewEmployee_expectNoContractsOrTimeSheetsAssociated() throws Exception {
         // Act
-        Employee employee = employeeService.createUser(startupUtility.getEmployee());
+        Employee employee = user;//employeeService.createUser(startupUtility.getEmployee());
 
         // Assert
         assertNotNull("Employee is null", employee);
@@ -70,12 +79,11 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenAddingUsernameAndPasswordToExistingEmployee_expectAdded() throws Exception {
         // Assemble
-        Employee employee = createUser();
-        employee.setUsername("otherUsername");
-        employee.setPassword("otherPassword");
+        user.setUsername("otherUsername");
+        user.setPassword("otherPassword");
 
         // Act
-        Employee result = employeeService.updateUser(employee);
+        Employee result = employeeService.updateUser(user);
 
         // Assert
         Employee updated = employeeService.getUser(result.getId());
@@ -90,44 +98,27 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenAddingJobToEmployee_expectContractAdded() throws Exception {
         // Assemble
-        Employee employee = employeeService.createUser(startupUtility.getEmployee());
         Job job = createPersistentJob();
 
         // Act
-        employeeService.addEmployeeToJob(employee.getId(), job.getId());
+        employeeService.addEmployeeToJob(user.getId(), job.getId());
 
         // Assert
-        Employee result = employeeService.getUser(employee.getId());
+        Employee result = employeeService.getUser(user.getId());
         final List<Job> jobs = result.getJobs();
         assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
     }
 
-    @Test
-    public void whenAddingDetatchedJobToEmployee_expectContractAded() throws Exception {
-        // Assemble
-        Employee employee = employeeService.createUser(startupUtility.getEmployee());
-        Job job = createPersistentJob();
-
-        // Act
-        employeeService.addEmployeeToJob(employee.getId(), job.getId());
-
-        // Assert
-        Employee result = employeeService.getUser(employee.getId());
-        final List<Job> jobs = result.getJobs();
-        assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
-
-    }
 
     @Test
     public void whenGettingEmployeesAvailableJobs_expectJobsReturned() throws Exception {
         // Assemble
-        Employee employee = employeeService.createUser(startupUtility.getEmployee());
         Contract contract = contractService.saveContract(new Contract());
-        employeeService.addContractToUser(employee.getId(),contract.getId());
+        employeeService.addContractToUser(user.getId(),contract.getId());
         Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
 
         // Act
-        List<Job> result = employeeService.getEmployeesAvailableJobs(employee.getId());
+        List<Job> result = employeeService.getEmployeesAvailableJobs(user.getId());
 
         // Assert
         assertFalse("No jobs returned",CollectionUtils.isEmpty(result));
@@ -138,14 +129,13 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenRequestingEmployeesTimeEntriess_expectTimeEntriesReturned() throws Exception {
         // Assemble
-        Employee employee = employeeService.createUser(startupUtility.getEmployee());
 
         // Act
-        List<TimeEntry> employeeTimeEntries = getTimeEntries(employee);
-        employee = employeeService.getUser(employee.getId());
+        List<TimeEntry> employeeTimeEntries = getTimeEntries(user);
+        user = employeeService.getUser(user.getId());
 
         // Assert
-        assertNotNull("No timesheets returned", employee);
+        assertNotNull("No timesheets returned", user);
         // TODO: Fix
         for(TimeEntry timeSheetEntry:employeeTimeEntries){
             assertNotNull("No Id",timeSheetEntry.getId());
@@ -158,13 +148,11 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     public void whenGettingEmployeeLatestTimeEntries_expectLatestReturned() throws Exception {
         DateTimeFormatter dateTimeFormatter  = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Assemble
-//        Job job = createPersistentJob();
-        Employee employee = employeeService.createUser(startupUtility.getEmployee());
-        getTimeEntries(employee);
-        employee = employeeService.getUser(employee.getId());
+        getTimeEntries(user);
+        user = employeeService.getUser(user.getId());
 
         // Act
-        List<TimeEntry> results = employeeService.getLatestTimeEntriesForEmployeeJobs(employee.getId(),employee.getJobs().get(0).getId());
+        List<TimeEntry> results = employeeService.getLatestTimeEntriesForEmployeeJobs(user.getId(),user.getJobs().get(0).getId());
         assertFalse("Results are empty",CollectionUtils.isEmpty(results));
         assertEquals("Wrong number of time entries",7,results.size());
         DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
@@ -178,17 +166,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenUpdatingTimeEntries_expectEntriesUpdated() throws Exception {
         // Assemble
-        Employee employee = startupUtility.init();
-        final List<TimeEntry> timeEntries = employee.getJobs().get(0).getTimeEntries();
+        List<TimeEntry> timeEntries = getTimeEntries(user);
+        user = employeeService.getUser(user.getId());
         TimeEntry timeEntry = timeEntries.get(0);
         final int updatedHours = 20;
         timeEntry.setHours(updatedHours);
+        List<DateTime> expectedTimes = new ArrayList<>();
+        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+        for(int i=0;i<7;i++){
+            expectedTimes.add(weekStart.plusDays(i));
+        }
 
         // Act
-        employeeService.addTimeSheetEntries(new ArrayList<>(timeEntries)  , employee.getJobs().get(0).getId());
+        employeeService.addTimeSheetEntries(new ArrayList<>(timeEntries)  , timeEntries.get(0).getJob().getId());
 
         // Assert
-        Employee result = employeeService.getUser(employee.getId());
+        Employee result = employeeService.getUser(user.getId());
         final List<TimeEntry> timeEntryResults = result.getJobs().get(0).getTimeEntries();
         assertEquals("Wrong number of timesheet entries",7,timeEntryResults.size());
         assertEquals("Wrong hours",updatedHours,timeEntryResults
@@ -199,13 +192,12 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
 
 
         // Make sure the job also has the updated entries
-        final List<TimeEntry> jobTimesheetEntries = jobService.findJob(employee.getJobs().get(0).getId()).getTimeEntries();
-        assertEquals("Wrong number of job timesheet entries",7,jobTimesheetEntries.size());
+        final List<TimeEntry> jobTimesheetEntries = jobService.findJob(user.getJobs().get(0).getId()).getTimeEntries();
+        assertEquals("Wrong number of job time entries",7,jobTimesheetEntries.size());
         assertTrue("Job doesn't have updates", jobTimesheetEntries.containsAll(timeEntries));
-
-//        final List<TimeEntry> timesheetTimesheetEntries = timesheetRepository.findOne(timesheet.getId()).getTimeEntries();
-//        assertEquals("Wrong number of job timesheet entries",7,timesheetTimesheetEntries.size());
-//        assertTrue("Job doesn't have updates", timesheetTimesheetEntries.containsAll(timeEntries));
+        timeEntryResults
+                .stream()
+                .forEach(timeEntry1 -> assertTrue("Time entry not in collection",expectedTimes.contains(timeEntry1.getDate())));
 
     }
 //----------- Contracts
@@ -213,7 +205,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenGettingEmployeesContracts_expectNoneFound() throws Exception {
         // Assemble
-        Employee employee = createUser();
+        Employee employee = user;//createUser();
         contractTestUtil.getJobCreator().invoke();
         Contract contract = contractTestUtil.getContract();
         employeeService.addContractToUser(employee.getId(),contract.getId());
@@ -235,9 +227,11 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         Employee employee = new Employee();
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
-        employee.setUsername("username");
+        employee.setUsername("username"+System.currentTimeMillis());
         employee.setPassword("password");
-        employee.setRoles(User.Roles.employee);
+        Roles employeeRole = new Roles();
+        employeeRole.setRole(Roles.Role.employee);
+        employee.getRoles().add(employeeRole);
         employee.setDba("Russ Baker");
         return employeeService.createUser(employee);
     }

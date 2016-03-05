@@ -80,7 +80,9 @@ public class EmployeeRepositoryTest {
         employee.setUsername("admin");
         employee.setPassword("password");
         employee.addEmail(new Email());
-        employee.setRoles(User.Roles.employee);
+        Roles employeeRole = new Roles();
+        employeeRole.setRole(Roles.Role.employee);
+        employee.getRoles().add(employeeRole);
 
         // Act
         return employeeRepository.save(employee);

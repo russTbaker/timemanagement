@@ -3,9 +3,8 @@ package com.rbc.timemanagmentservice.service;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Customer;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.Roles;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
-import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +30,6 @@ public class CustomerServiceTest extends UserServiceTest<Customer>{
 
     @Autowired
     private ContractRepository contractRepository;
-
-    @Autowired
-    private StartupUtility startupUtility;
 
     @Before
     public void setUp() {
@@ -73,7 +69,9 @@ public class CustomerServiceTest extends UserServiceTest<Customer>{
         customer.setFirstName("Jonathan");
         customer.setLastName("Bein");
         customer.setDba("Z2M4");
-        customer.setRoles(User.Roles.customer);
+        Roles customerRole = new Roles();
+        customerRole.setRole(Roles.Role.customer);
+        customer.getRoles().add(customerRole);
         return customerService.createUser(customer);
     }
 

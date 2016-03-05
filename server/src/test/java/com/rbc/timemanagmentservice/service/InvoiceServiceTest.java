@@ -26,7 +26,6 @@ import static junit.framework.TestCase.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
-
 public class InvoiceServiceTest {
 
     @Autowired

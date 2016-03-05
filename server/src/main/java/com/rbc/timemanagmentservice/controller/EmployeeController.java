@@ -8,17 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 
 /**
@@ -40,34 +41,33 @@ public class EmployeeController extends UserController<Employee>{
 
     //------------- Timesheet
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{jobId}")
-    public ResponseEntity<?> createNewEmployeeTimesheet(@PathVariable("employeeId") Integer employeeId,
-                                                        @PathVariable("jobId") Integer jobId){
+    public ResponseEntity<?> createNewEmployeeTimesheet(@PathVariable("jobId") Integer jobId){
+        final Integer employeeId = getCurrentEmployee().getId();
         List<TimeEntry> timeEntries = employeeService.getTimeEntriesForEmployeeJobs(employeeId,jobId);
         return new ResponseEntity<>(null,getHttpHeadersForEntity(()->employeeId,"timeentries"),HttpStatus.OK);
     }
 
 
-    @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{timesheetId}/timesheetentries")
-    public ResponseEntity<?> updateTimesheet(@PathVariable("employeeId") Integer employeeId,
-                                             @PathVariable("timesheetId") Integer timesheetId,
+    @RequestMapping(method = RequestMethod.PUT, path = "/timesheets/{jobId}/timesheetentries")
+    public ResponseEntity<?> updateTimesheet(@PathVariable("jobId") Integer jobId,
                                              @RequestBody List<TimeEntry> timesheetEntries){
-        employeeService.addTimeSheetEntries(timesheetEntries, timesheetId);
-        return new ResponseEntity<>(null, getHttpHeadersForEntity(() -> timesheetId,"timesheets"),HttpStatus.ACCEPTED);
+        employeeService.addTimeSheetEntries(timesheetEntries, jobId);
+        return new ResponseEntity<>(null, getHttpHeadersForEntity(() -> jobId,"timesheets"),HttpStatus.ACCEPTED);
     }
 
     @RequestMapping(path = "/{employeeId}/jobs/{jobId}", method = RequestMethod.POST)
-    public ResponseEntity<?> addJobToEmployee(@PathVariable("employeeId") Integer employeeId,
-                                              @PathVariable("jobId") Integer jobId) {
+    public ResponseEntity<?> addJobToEmployee(@PathVariable("jobId") Integer jobId) {
+        final Integer employeeId = getCurrentEmployee().getId();
         employeeService.addEmployeeToJob(employeeId,jobId);
         return new ResponseEntity<>(null,getHttpHeadersForEntity(()->jobId,"jobs"),HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(path = "/{employeeId}/jobs", produces = "application/hal+json")
-    public Resources<JobsResource> getEmployeeJobs(@PathVariable("employeeId") Integer employeeId){
+    @RequestMapping(path = "/jobs", produces = "application/hal+json")
+    public Resources<JobsResource> getEmployeeJobs(){
+        final Integer employeeId = getCurrentEmployee().getId();
         final List<Job> employeesAvailableJobs = employeeService.getEmployeesAvailableJobs(employeeId);
         List<JobsResource> jobsResources = jobToResource(employeesAvailableJobs.toArray(new Job[employeesAvailableJobs.size()]));
-        final Link link = linkTo(methodOn(EmployeeController.class).getEmployeeJobs(employeeId)).withSelfRel();
-        return new Resources<>(jobsResources,link);
+        return new Resources<>(jobsResources);
     }
 
     class JobsResource extends ResourceSupport {
@@ -75,7 +75,12 @@ public class EmployeeController extends UserController<Employee>{
 
         public JobsResource(Job job) {
             this.job = job;
-            this.add(linkTo(methodOn(EmployeeController.class).getEmployeeJobs(job.getId())).withSelfRel());
+            this.add(new Link("/employees/jobs/"+job.getId(),"self"));
+        }
+
+        public JobsResource(Job job, Link link){
+            this.job = job;
+            this.add(link);
         }
 
         public Job getJob(){
@@ -85,15 +90,28 @@ public class EmployeeController extends UserController<Employee>{
         public Integer getJobId(){
             return job.getId();
         }
+
+        public List<TimeEntry> getTimeEntries(){
+            return job.getTimeEntries();
+        }
     }
 
     @SuppressWarnings("unchecked")
     List<JobsResource> jobToResource(Job... jobs) {
         List<JobsResource> resources = new ArrayList<>(jobs.length);
         for (Job job : jobs) {
-            resources.add(new JobsResource(job));
+            Link link = new Link(ServletUriComponentsBuilder
+                    .fromCurrentContextPath().path("/api/jobs/{id}")
+                    .buildAndExpand(job.getId()).toUri().getPath());
+            resources.add(new JobsResource(job,link));
         }
         return resources;
+    }
+
+    private Employee getCurrentEmployee(){
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final String username = auth.getName();
+        return employeeService.findByUsername(username);
     }
 
 }

@@ -34,6 +34,7 @@
 		"angular-route": "~1.4.8",
 		"angular-highlightjs": "~0.5.1",
 		"angular-spring-data-rest": "0.4.4",
-		"highlightjs": "9.1.0"
+		"highlightjs": "9.1.0",
+		"hashmap":"2.0.3"
 	}
 }

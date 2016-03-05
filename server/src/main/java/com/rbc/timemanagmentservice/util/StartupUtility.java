@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+
 /**
  * Created by russbaker on 2/12/16.
  */
@@ -94,7 +96,12 @@ public class StartupUtility {
         employee.setUsername("admin");
         employee.setPassword("password");
         employee.setDba("RussBaker");
-        employee.setRoles(User.Roles.administrator);
+        Roles adminRole = new Roles();
+        adminRole.setRole(Roles.Role.administrator);
+
+        Roles employeeRole = new Roles();
+        employeeRole.setRole(Roles.Role.employee);
+        employee.getRoles().addAll(Arrays.asList(adminRole,employeeRole));
         return employee;
     }
 
@@ -104,7 +111,9 @@ public class StartupUtility {
         customer.setFirstName("Jonathan");
         customer.setLastName("Bein");
         customer.setDba("Z2M4");
-        customer.setRoles(User.Roles.customer);
+        Roles customerRole = new Roles();
+        customerRole.setRole(Roles.Role.customer);
+        customer.getRoles().add(customerRole);
         return customer;
     }
 
