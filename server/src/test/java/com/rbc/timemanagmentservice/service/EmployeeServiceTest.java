@@ -98,7 +98,11 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenAddingJobToEmployee_expectContractAdded() throws Exception {
         // Assemble
-        Job job = createPersistentJob();
+        Contract firstContract = getContract();
+        Contract secondContract = getContract();
+        Job job = createPersistentJob(firstContract);
+        employeeService.addContractToUser(user.getId(),firstContract.getId());
+
 
         // Act
         employeeService.addEmployeeToJob(user.getId(), job.getId());
@@ -106,23 +110,29 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         // Assert
         Employee result = employeeService.getUser(user.getId());
         final List<Job> jobs = result.getJobs();
+        assertEquals("Wrong number of jobs",1,jobs.size());
         assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
+
+        // Verify Job/Employee relationship
+        Job jobResult = jobService.findJob(job.getId());
+        assertEquals("wrong number of employees",1,jobResult.getEmployees().size());
     }
 
 
     @Test
     public void whenGettingEmployeesAvailableJobs_expectJobsReturned() throws Exception {
         // Assemble
-        Contract contract = contractService.saveContract(new Contract());
-        employeeService.addContractToUser(user.getId(),contract.getId());
+        Contract contract = getContract();
         Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
+        employeeService.addContractToUser(user.getId(),contract.getId());
+        employeeService.addEmployeeToJob(user.getId(),job.getId());
 
         // Act
-        List<Job> result = employeeService.getEmployeesAvailableJobs(user.getId());
+        List<Job> result = employeeService.getEmployeeJobs(user.getId());
 
         // Assert
         assertFalse("No jobs returned",CollectionUtils.isEmpty(result));
-        assertTrue("Wrong job",result.contains(job));
+        assertEquals("Wrong job size",1,result.size());
     }
 //------------ Timesheets
 
@@ -131,7 +141,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         // Assemble
 
         // Act
-        List<TimeEntry> employeeTimeEntries = getTimeEntries(user);
+        List<TimeEntry> employeeTimeEntries = getTimeEntries(user, getContract());
         user = employeeService.getUser(user.getId());
 
         // Assert
@@ -148,7 +158,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     public void whenGettingEmployeeLatestTimeEntries_expectLatestReturned() throws Exception {
         DateTimeFormatter dateTimeFormatter  = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Assemble
-        getTimeEntries(user);
+        getTimeEntries(user, getContract());
         user = employeeService.getUser(user.getId());
 
         // Act
@@ -166,7 +176,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     @Test
     public void whenUpdatingTimeEntries_expectEntriesUpdated() throws Exception {
         // Assemble
-        List<TimeEntry> timeEntries = getTimeEntries(user);
+        List<TimeEntry> timeEntries = getTimeEntries(user, getContract());
         user = employeeService.getUser(user.getId());
         TimeEntry timeEntry = timeEntries.get(0);
         final int updatedHours = 20;
@@ -236,14 +246,18 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         return employeeService.createUser(employee);
     }
 
-    private List<TimeEntry> getTimeEntries(Employee employee) {
-        Job job = createPersistentJob();
+    private List<TimeEntry> getTimeEntries(Employee employee, Contract contract) {
+        Job job = createPersistentJob(contract);
         return employeeService.getTimeEntriesForEmployeeJobs(employee.getId(), job.getId());
     }
 
-    private Job createPersistentJob() {
-        Contract contract = contractService.saveContract(new Contract());
+    private Job createPersistentJob(Contract contract) {
+//        Contract contract = getContract();
         return contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
+    }
+
+    private Contract getContract() {
+        return contractService.saveContract(new Contract());
     }
 
 }

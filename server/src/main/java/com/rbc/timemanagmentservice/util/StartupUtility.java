@@ -33,39 +33,64 @@ public class StartupUtility {
         this.contractService = contractService;
     }
 
-    public static final String CONTACT_NAME = "Jonathan Bein";
+    public static final String DBA = "Z2M4";
 
     public  Employee init(){
         // Set up business relationship
-        customer = customerService.createUser(getCustomer());
+        customer = customerService.createUser(getCustomer("Jonathan", "Bein", DBA));
         customer.addEmail(getEmail(customer.getDba()));
-        final Address address = getAddress();
-        customer.addAddress(address);
-        final Phone phone = getPhone();
-        customer.addPhone(phone);
+        customer.addAddress(getAddress());
+        customer.addPhone(getPhone());
         customer = customerService.updateUser(customer);
 
+        Customer rbc = customerService.createUser(getCustomer("Russ","Baker","Russ Baker"));
+        rbc.addEmail(getEmail(rbc.getFirstName()));
+        rbc.addAddress(getAddress());
+        rbc.addPhone(getPhone());
+        rbc = customerService.updateUser(rbc);
 
-        Contract customerContract = getContractForCustomer(customer);
-        final Job job = getJob();
+
+        // CONTRACTS
+        // Associate the customer with the contract
+        Contract z2M4Contract = getContractForCustomer(customer,"HDS Social Innovation" ,"HDS Social Innovation - Second Phase" );
+        Contract rbcContract = getContractForCustomer(rbc,"GA" , "General Overhead");
 
 
-        // Set up employee with job
-        Employee employee = employeeService.createUser(getEmployee());
-        employee.addEmail(getEmail(employee.getUsername()));
-        employee.addAddress(getAddress());
-        employee.addPhone(getPhone());
-        employee = employeeService.updateUser(employee);
+        // JOB
+        Job softwareEngineering = getJob("BT");
+        Job gA = getJob("GA");
+
+        Integer softwareEngineeringJobId = contractService.createJob(softwareEngineering).getId();
+        Integer gaJobId = contractService.createJob(gA).getId();
+        softwareEngineering = contractService.addJobToContract(softwareEngineeringJobId, z2M4Contract.getId());
+        gA = contractService.addJobToContract(gaJobId,rbcContract.getId());
+
+
+
+
+
+        // EMPLOYEE
+        // Set up employee with softwareEngineering
+        Employee russ = employeeService.createUser(getEmployee());
+        russ.addEmail(getEmail(russ.getUsername()));
+        russ.addAddress(getAddress());
+        russ.addPhone(getPhone());
+        russ = employeeService.updateUser(russ);
 
         // Add the employee to the contract
-        employeeService.addContractToUser(employee.getId(),customerContract.getId());
+        employeeService.addContractToUser(russ.getId(),z2M4Contract.getId());
+        employeeService.addContractToUser(russ.getId(),rbcContract.getId());
 
-        // Now add the employee to the job
-        final Integer jobId = contractService.createJob(job).getId();
-        employeeService.addEmployeeToJob(employee.getId(), contractService.addJobToContract(
-                jobId,customerContract.getId()).getId());
-        employeeService.getTimeEntriesForEmployeeJobs(employee.getId(),employeeService.getUser(employee.getId()).getJobs().get(0).getId());
-        return employeeService.getUser(employee.getId());
+        // Now add the employee jobs
+        employeeService.addEmployeeToJob(russ.getId(),
+                softwareEngineeringJobId);
+        employeeService.addEmployeeToJob(russ.getId(),gaJobId);
+
+        // Set up some time entries for each job
+        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),softwareEngineeringJobId);
+        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),gaJobId);
+
+        return employeeService.getUser(russ.getId());
     }
 
 
@@ -74,14 +99,14 @@ public class StartupUtility {
         return this.customer;
     }
 
-    public  Contract getContractForCustomer(User customer) {
+    public  Contract getContractForCustomer(User customer, String contractName, String contractDescription) {
         Contract contract = new Contract();
         contract.setStartDate(new DateTime());
         contract.setEndDate(new DateTime().plusMonths(6));
         contract.setTerms(Contract.Terms.net15);
         contract.setValue(87999D);
-        contract.setName("HDS Social Innovation");
-        contract.setDescription("HDS Social Innovation - Second Phase");
+        contract.setName(contractName);
+        contract.setDescription(contractDescription);
         contract = contractService.saveContract(contract);
         customerService.addContractToUser(customer.getId(),contract.getId());
         return contract;
@@ -106,11 +131,11 @@ public class StartupUtility {
     }
 
 
-    public  Customer getCustomer() {
+    public  Customer getCustomer(String firstName, String lastName, String dba) {
         Customer customer = new Customer();
-        customer.setFirstName("Jonathan");
-        customer.setLastName("Bein");
-        customer.setDba("Z2M4");
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setDba(dba);
         Roles customerRole = new Roles();
         customerRole.setRole(Roles.Role.customer);
         customer.getRoles().add(customerRole);
@@ -139,10 +164,10 @@ public class StartupUtility {
         return phone;
     }
 
-    public Job getJob() {
+    public Job getJob(String name) {
         final Job job = new Job();
         job.setRate(RATE);
-        job.setName("BT");
+        job.setName(name);
         job.setDescription("Second Phase");
         return job;
     }

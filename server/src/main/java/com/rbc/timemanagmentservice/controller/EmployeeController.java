@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -56,8 +55,9 @@ public class EmployeeController extends UserController<Employee>{
     }
 
     @RequestMapping(path = "/{employeeId}/jobs/{jobId}", method = RequestMethod.POST)
-    public ResponseEntity<?> addJobToEmployee(@PathVariable("jobId") Integer jobId) {
-        final Integer employeeId = getCurrentEmployee().getId();
+    public ResponseEntity<?> addJobToEmployee(@PathVariable("employeeId") Integer employeeId,
+                                              @PathVariable("jobId") Integer jobId) {
+//        final Integer employeeId = getCurrentEmployee().getId();
         employeeService.addEmployeeToJob(employeeId,jobId);
         return new ResponseEntity<>(null,getHttpHeadersForEntity(()->jobId,"jobs"),HttpStatus.ACCEPTED);
     }
@@ -65,7 +65,7 @@ public class EmployeeController extends UserController<Employee>{
     @RequestMapping(path = "/jobs", produces = "application/hal+json")
     public Resources<JobsResource> getEmployeeJobs(){
         final Integer employeeId = getCurrentEmployee().getId();
-        final List<Job> employeesAvailableJobs = employeeService.getEmployeesAvailableJobs(employeeId);
+        final List<Job> employeesAvailableJobs = employeeService.getEmployeeJobs(employeeId);
         List<JobsResource> jobsResources = jobToResource(employeesAvailableJobs.toArray(new Job[employeesAvailableJobs.size()]));
         return new Resources<>(jobsResources);
     }

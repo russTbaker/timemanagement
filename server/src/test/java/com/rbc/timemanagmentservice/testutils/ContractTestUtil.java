@@ -56,7 +56,7 @@ public class ContractTestUtil {
 
         public JobCreator invoke() {
             contract = getContract();
-            Customer customer = customerService.createUser(startupUtility.getCustomer());
+            Customer customer = customerService.createUser(startupUtility.getCustomer("Ronald","McDonald" ,"McDonalds"));
             final Employee employee1 = startupUtility.getEmployee();
             employee1.setUsername(employee1.getUsername() + System.currentTimeMillis());
             Employee employee = employeeService.createUser(employee1);

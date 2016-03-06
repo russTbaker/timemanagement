@@ -97,7 +97,7 @@ public class ContractServiceTest {
     public void whenDeletingContract_expectContractDeleted() throws Exception {
         // Assemble
         Contract contract = contractTestUtil.getContract();
-        Customer customer = customerService.createUser(startupUtility.getCustomer());
+        Customer customer = customerService.createUser(startupUtility.getCustomer("Ronald","McDonald" ,"McDonalds"));
         Employee employee = employeeService.createUser(startupUtility.getEmployee());
         customerService.addContractToUser(customer.getId(), contract.getId());
         employeeService.addContractToUser(employee.getId(), contract.getId());

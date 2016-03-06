@@ -58,15 +58,24 @@ public class EmployeeService extends UserService<Employee> {
     //------------- Job
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addEmployeeToJob(final Integer employeeId, Integer jobId) {
+    public void addEmployeeToJob(final Integer employeeId, final Integer jobId) {
         final Employee employee = employeeRepository.findOne(employeeId);
         final Job job = jobRepository.findOne(jobId);
         employee.addJob(job);
         employeeRepository.save(employee);
     }
 
+    @Transactional(readOnly = true)
+    public List<Job> getEmployeeJobs(final Integer employeeId) {
+        final Employee employee = employeeRepository.findOne(employeeId);
+        if (employee == null) {
+            throw new NotFoundException("Cannot find employee with id: " + employeeId);
+        }
+        return employee.getJobs();
+    }
 
-    //--------- Timeentries
+
+    //--------- Time entries
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<TimeEntry> getTimeEntriesForEmployeeJobs(final Integer employeeId, final Integer jobId) {
@@ -105,24 +114,6 @@ public class EmployeeService extends UserService<Employee> {
                 }
             }
         }
-    }
-
-
-
-    @Transactional(readOnly = true)
-    public List<Job> getEmployeesAvailableJobs(Integer employeeId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        if (employee == null) {
-            throw new NotFoundException("Cannot find employee with id: " + employeeId);
-        }
-        final List<Contract> employeeContracts = contractRepository.findByUsersDba(employee.getDba());
-
-        List<Job> retVal = new ArrayList<>();
-        employeeContracts
-                .parallelStream()
-                .flatMap(contract -> contract.getJobs().stream())
-                .forEach(job -> retVal.add(job));
-        return retVal;
     }
 
     //---------- Private Methods

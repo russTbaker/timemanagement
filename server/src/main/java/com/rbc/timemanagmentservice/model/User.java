@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
@@ -36,7 +37,9 @@ public abstract class User {
     public void addContract(Contract contract){
         if(!this.contracts.contains(contract)){
             this.contracts.add(contract);
-            contract.getUsers().add(this);
+            if(!contract.getUsers().contains(this)){
+                contract.getUsers().add(this);
+            }
         } else {
             this.contracts.remove(contract);
             this.contracts.add(contract);
@@ -51,6 +54,7 @@ public abstract class User {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "USER_ID"),
     inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     protected List<Roles> roles = new ArrayList<>();
 
     private String firstName;

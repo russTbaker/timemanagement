@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -18,11 +19,15 @@ public class Employee extends User{
 
 
     @ManyToMany(mappedBy = "employees",fetch = FetchType.EAGER)
-    @JsonIgnore
+//    @JsonIgnore
+//    @RestResource(exported = false)
     private List<Job> jobs = new ArrayList<>();
 
     public Employee() {
         super();
+        final Roles roles = new Roles();
+        roles.setRole(Roles.Role.employee);
+        this.roles.add(roles);
     }
 
 
@@ -53,11 +58,14 @@ public class Employee extends User{
     public void addJob(Job job) {
         if (!this.jobs.contains(job)) {
             this.jobs.add(job);
-            job.getEmployees().add(this);
+            if(!job.getEmployees().contains(this)){
+                job.getEmployees().add(this);
+            }
         } else {
             this.jobs.remove(job);
             this.jobs.add(job);
         }
+
     }
 
     public void removeJob(Job job){

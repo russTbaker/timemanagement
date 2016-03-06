@@ -18,7 +18,7 @@
                     <td>{{employee.dba}}</td>
                     <td>{{employee.firstName}}</td>
                     <td>{{employee.lastName}}</td>
-                    <td>{{employee.roles}}</td>
+                    <td>{{employee.roles.roles}}</td>
                     <td><button class="pull-right btn btn-danger" type="button" title="Delete"
                                                 ng-click="deleteEmployee(employee)">
                         <span class="glyphicon glyphicon-trash"></span>
@@ -141,7 +141,7 @@
                 </table>
             </div>
         </div>
-
+        <a href="#/addEmployee">Add Employee</a>
 
     </div>
     <hr/>

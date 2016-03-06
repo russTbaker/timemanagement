@@ -170,14 +170,7 @@ public class UserService<U extends User> {
         userRepository.save(user);
     }
 
-
-    protected DateTime getLastDayOfWeek() {
-        return new DateTime().withDayOfWeek(DateTimeConstants.SUNDAY);
-    }
-
-    protected DateTime getFirstDayOfWeek() {
-        return new DateTime().withDayOfWeek(DateTimeConstants.MONDAY);
-    }
+    //--------- Contracts
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void addContractToUser(Integer customerId, Integer contractId) {

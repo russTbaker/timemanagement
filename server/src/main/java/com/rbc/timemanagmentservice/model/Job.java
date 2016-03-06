@@ -1,5 +1,8 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.rest.core.annotation.RestResource;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +23,13 @@ public class Job implements EntityMarkerInterface{
 
     private Double rate;
 
-    @ManyToOne//(cascade = CascadeType.ALL)
+    @ManyToOne
     private Contract contract;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "EMPLOYEE_JOB", joinColumns = @JoinColumn(name="EMPLOYEE_ID"), inverseJoinColumns = @JoinColumn(name = "JOB_ID"))
+    @JsonIgnore
+    @RestResource(exported = false)
     private List<Employee> employees = new ArrayList<>();
 
 
