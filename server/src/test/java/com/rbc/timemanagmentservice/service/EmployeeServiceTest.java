@@ -252,7 +252,6 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     }
 
     private Job createPersistentJob(Contract contract) {
-//        Contract contract = getContract();
         return contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
     }
 

@@ -1,9 +1,6 @@
 package com.rbc.timemanagmentservice.model;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +19,7 @@ public class Customer extends User{
     }
 
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Invoice> invoices = new ArrayList<>();
 
 

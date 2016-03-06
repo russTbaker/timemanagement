@@ -32,9 +32,17 @@ public class Contract implements EntityMarkerInterface{
     }
 
     public enum Terms{
-        net15,
-        net30,
-        net45
+        net15(15),
+        net30(30),
+        net45(35);
+        private Integer term;
+        Terms(Integer term){
+            this.term = term;
+        }
+
+        public Integer getTerm() {
+            return term;
+        }
     }
 
     @Id
@@ -60,7 +68,7 @@ public class Contract implements EntityMarkerInterface{
     @JsonIgnore
     private List<Job> jobs = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "contracts")
+    @ManyToMany(mappedBy = "contracts", fetch = FetchType.EAGER)
     private List<User> users = new ArrayList<>();
 
 

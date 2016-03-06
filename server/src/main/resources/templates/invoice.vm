@@ -73,13 +73,13 @@
                     <th><strong>RATE</strong></th>
                     <th><strong>AMOUNT</strong></th>
                 </tr>
-                #foreach( $timesheetentry in $job.timeSheetEntries)
+                #foreach( $timeentry in $job.timeEntries)
                     <tr class="mine">
                         <td align="center">$job.name</td>
-                        <td align="center">$timesheetentry.entryDate</td>
-                        <td align="center">$timesheetentry.hours</td>
-                        <td align="center">$timesheetentry.job.rate</td>
-                        <td align="center">$timesheetentry.amount</td>
+                        <td align="center">$timeentry.entryDate</td>
+                        <td align="center">$timeentry.hours</td>
+                        <td align="center">$$timeentry.job.rate</td>
+                        <td align="center">$$timeentry.amount</td>
                     </tr>
                 #end
             #end

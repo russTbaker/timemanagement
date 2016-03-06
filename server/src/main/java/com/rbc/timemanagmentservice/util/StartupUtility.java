@@ -4,6 +4,7 @@ import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
+import com.rbc.timemanagmentservice.service.JobService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ import java.util.Arrays;
  * Created by russbaker on 2/12/16.
  */
 @Component
-@Transactional
 public class StartupUtility {
 
 
@@ -23,14 +23,16 @@ public class StartupUtility {
     private final EmployeeService employeeService;
     private final CustomerService customerService;
     private final ContractService contractService;
+    private final JobService jobService;
     private Customer customer;
 
 
     @Autowired
-    public StartupUtility(EmployeeService employeeService, CustomerService customerService, ContractService contractService) {
+    public StartupUtility(EmployeeService employeeService, CustomerService customerService, ContractService contractService, JobService jobService) {
         this.employeeService = employeeService;
         this.customerService = customerService;
         this.contractService = contractService;
+        this.jobService = jobService;
     }
 
     public static final String DBA = "Z2M4";
@@ -43,30 +45,17 @@ public class StartupUtility {
         customer.addPhone(getPhone());
         customer = customerService.updateUser(customer);
 
-        Customer rbc = customerService.createUser(getCustomer("Russ","Baker","Russ Baker"));
-        rbc.addEmail(getEmail(rbc.getFirstName()));
-        rbc.addAddress(getAddress());
-        rbc.addPhone(getPhone());
-        rbc = customerService.updateUser(rbc);
+//        Customer rbc = customerService.createUser(getCustomer("Russ","Baker","Russ Baker"));
+//        rbc.addEmail(getEmail(rbc.getFirstName()));
+//        rbc.addAddress(getAddress());
+//        rbc.addPhone(getPhone());
+//        rbc = customerService.updateUser(rbc);
 
 
         // CONTRACTS
         // Associate the customer with the contract
         Contract z2M4Contract = getContractForCustomer(customer,"HDS Social Innovation" ,"HDS Social Innovation - Second Phase" );
-        Contract rbcContract = getContractForCustomer(rbc,"GA" , "General Overhead");
-
-
-        // JOB
-        Job softwareEngineering = getJob("BT");
-        Job gA = getJob("GA");
-
-        Integer softwareEngineeringJobId = contractService.createJob(softwareEngineering).getId();
-        Integer gaJobId = contractService.createJob(gA).getId();
-        softwareEngineering = contractService.addJobToContract(softwareEngineeringJobId, z2M4Contract.getId());
-        gA = contractService.addJobToContract(gaJobId,rbcContract.getId());
-
-
-
+//        Contract rbcContract = getContractForCustomer(rbc,"GA" , "General Overhead");
 
 
         // EMPLOYEE
@@ -77,19 +66,29 @@ public class StartupUtility {
         russ.addPhone(getPhone());
         russ = employeeService.updateUser(russ);
 
+        // JOB
+        Job softwareEngineering = getJob("BT");
+//        Job gA = getJob("GA");
+
+        Integer softwareEngineeringJobId = contractService.createJob(softwareEngineering).getId();
+//        Integer gaJobId = contractService.createJob(gA).getId();
+        contractService.addJobToContract(softwareEngineeringJobId, z2M4Contract.getId());
+//        contractService.addJobToContract(gaJobId,rbcContract.getId());
+
+
+
         // Add the employee to the contract
         employeeService.addContractToUser(russ.getId(),z2M4Contract.getId());
-        employeeService.addContractToUser(russ.getId(),rbcContract.getId());
+//        employeeService.addContractToUser(russ.getId(),rbcContract.getId());
 
         // Now add the employee jobs
-        employeeService.addEmployeeToJob(russ.getId(),
-                softwareEngineeringJobId);
-        employeeService.addEmployeeToJob(russ.getId(),gaJobId);
+//        employeeService.addEmployeeToJob(russ.getId(),softwareEngineeringJobId);
+//        employeeService.addEmployeeToJob(russ.getId(),gaJobId);
 
         // Set up some time entries for each job
         employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),softwareEngineeringJobId);
-        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),gaJobId);
-
+//        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),gaJobId);
+Job test = jobService.findJob(softwareEngineeringJobId);
         return employeeService.getUser(russ.getId());
     }
 

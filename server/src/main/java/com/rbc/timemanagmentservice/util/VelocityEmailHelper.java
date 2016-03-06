@@ -20,7 +20,7 @@ import java.util.Map;
 @Component
 public class VelocityEmailHelper {
     private static final Logger logger = LoggerFactory.getLogger(VelocityEmailHelper.class);
-    private String TEMPLATES_INVOICE_VM = "templates/invoice.vm";
+//    private String TEMPLATES_INVOICE_VM = "templates/invoice.vm";
 
     private final VelocityEngine velocityEngine;
     private final JavaMailSender mailSender;
@@ -43,19 +43,17 @@ public class VelocityEmailHelper {
      */
     public void send(final SimpleMailMessage msg,
                      final Map<String, Object> hTemplateVariables, String template) {
-        MimeMessagePreparator preparator = new MimeMessagePreparator() {
-            public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-                message.setTo(msg.getTo());
-                message.setFrom(msg.getFrom());
-                message.setSubject(msg.getSubject());
+        MimeMessagePreparator preparator = mimeMessage -> {
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+            message.setTo(msg.getTo());
+            message.setFrom(msg.getFrom());
+            message.setSubject(msg.getSubject());
 
-                String body = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, TEMPLATES_INVOICE_VM, "UTF-8", hTemplateVariables);
+            String body = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, template, "UTF-8", hTemplateVariables);
 
-                logger.info("body={}", body);
+            logger.info("body={}", body);
 
-                message.setText(body, true);
-            }
+            message.setText(body, true);
         };
 
         mailSender.send(preparator);

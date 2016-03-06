@@ -11,7 +11,7 @@
                     </option>
                 </select>
             </td>
-            <td ng-if="jobs.length>0" ng-repeat="timesheetEntry in jobs[0].timeEntries"><strong>{{timesheetEntry.date  | date:'EEE MMM-dd-yyyy'}}</strong></td>
+            <td ng-if="jobs.length>0" ng-repeat="timesheetEntry in jobs[0].timeEntries"><strong>{{timesheetEntry.date  | date:'EEE MMM dd, yyyy'}}</strong></td>
         </tr>
     </table>
     <form class="form-group" role="form" ng-submit="updateTimesheet(jobs)">
@@ -40,8 +40,6 @@
                             <td colspan="2">&nbsp;</td>
                         </tr>
                         <tr>
-                            <!--<td ng-repeat="timesheetEntry in job.timeEntries">{{timesheetEntry.date | date:'EEE MMM-dd-yyyy'}}-->
-                            <!--</td>-->
                             <td>&nbsp;
                         <tr>
                             <td ng-repeat="timesheetEntry in job.timeEntries"><input type="hidden"
@@ -63,8 +61,6 @@
                     </button>
                 </td>
             </tr>
-
-
         </table>
     </form>
 
