@@ -1,37 +1,32 @@
 <div class="container" ng-controller="TimesheetController">
-    <h1>Timesheets</h1>
-    <table class="table">
-        <th><strong>Billed</strong></th>
-        <th><strong>Start Date</strong></th>
-        <th><strong>End Date</strong></th>
-        <tr ng-repeat="timesheet in timesheets">
-            <td>{{timesheet.billed}}</td>
-            <td>{{timesheet.startDate}}</td>
-            <td>{{timesheet.endDate}}</td>
+    <h1>Time Entry</h1>
+    <table class="table" cellpadding="2" cellspacing="2">
+        <tr>
+            <td>
+                <select name="jobSelect1" id="jobSelect1" ng-model="jobId"
+                        ng-change="onClickCreateTimesheet(jobId)">
+                    <option value="" selected> ---- Select Job ----</option>
+                    <option ng-repeat="option in jobs" value="{{option.jobId}}">
+                        {{option.job.name}}
+                    </option>
+                </select>
+            </td>
+            <td ng-if="jobs.length>0" ng-repeat="timesheetEntry in jobs[0].timeEntries"><strong>{{timesheetEntry.date  | date:'EEE MMM-dd-yyyy'}}</strong></td>
         </tr>
     </table>
-    <span class="input-group-btn">
-        <select name="jobSelect1" id="jobSelect1" ng-model="jobId"
-                ng-change="onClickCreateTimesheet(jobId)">
-            <option value="" selected> ---- Select Job ----</option>
-            <option ng-repeat="option in jobs" value="{{option.jobId}}">
-                {{option.job.name}}
-            </option>
-        </select>
-            </span>
-
     <form class="form-group" role="form" ng-submit="updateTimesheet(jobs)">
-        <table class="table" width="20%">
+        <table class="table">
             <tr ng-repeat="job in jobs">
-                <td>
-                    <table class="table">
+                <td ng-if="job.timeEntries.length>0" width="15%">
+
+                    <table>
                         <tr>
                             <th>
                                 Job Name: <i>{{job.job.name}}</i>
                             </th>
                         </tr>
                         <tr>
-                            <td><strong>Date</strong></td>
+                            <td>&nbsp;</td>
                         </tr>
                         <tr>
                             <td><strong>Hours</strong></td>
@@ -39,14 +34,14 @@
 
                     </table>
                 </td>
-                <td>
-                    <table class="table">
+                <td ng-if="job.timeEntries.length>0">
+                    <table>
                         <tr>
                             <td colspan="2">&nbsp;</td>
                         </tr>
                         <tr>
-                            <td ng-repeat="timesheetEntry in job.timeEntries">{{timesheetEntry.date | date:'EEE MMM-dd-yyyy'}}
-                            </td>
+                            <!--<td ng-repeat="timesheetEntry in job.timeEntries">{{timesheetEntry.date | date:'EEE MMM-dd-yyyy'}}-->
+                            <!--</td>-->
                             <td>&nbsp;
                         <tr>
                             <td ng-repeat="timesheetEntry in job.timeEntries"><input type="hidden"
