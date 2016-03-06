@@ -19,11 +19,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             .when('/addEmployee', {
                 templateUrl: 'views/employee/addEmployee.html'
             })
-            .when('/addEmployeeAddress/:employeeId', {
-                templateUrl: 'views/employee/addEmployeeAddress.html'
+            .when('/editUser/:userId', {
+                templateUrl: 'views/employee/editUser.html'
             })
             .when('/addEmployeePhone/:employeeId', {
-                templateUrl: 'views/employee/addEmployeePhone.html'
+                templateUrl: 'views/employee/addPhone.html'
             })
             .when('/customer', {
                 templateUrl: 'views/customer/customer.html'
@@ -51,7 +51,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $location.path(path);
         };
     })
-    .controller('addEmployeeAddressController', function ($scope, $http, SpringDataRestAdapter) {
+    .controller('addEmployeeAddressController', function ($scope, $http, SpringDataRestAdapter,$route) {
         if (employee.address != null) {
             var httpPromise = $http.post(employee._links.address.href, employee.address, 'Content-Type:application/json+hal').success(
                 function (response) {
@@ -60,7 +60,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
                 alert("Address Added!");
             });
-            $location.path('/employee');
+            $route.reload();
         }
     })
     .controller('EmployeesController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
@@ -75,17 +75,12 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             'customer',
             'guest'];
 
-        $scope.goToAddAddress = function (employee) {
-            var href = employee._links.self.href;
-            var employeeId = href.substr(href.lastIndexOf("/") + 1, href.length);
-            $location.path('addEmployeeAddress/' + employeeId);
+        $scope.goToEditUser = function (user) {
+            var href = user._links.self.href;
+            var userId = href.substr(href.lastIndexOf("/") + 1, href.length);
+            $location.path('editUser/' + userId);
         };
 
-        $scope.goToAddPhone = function (employee) {
-            var href = employee._links.self.href;
-            var employeeId = href.substr(href.lastIndexOf("/") + 1, href.length);
-            $location.path('addEmployeePhone/' + employeeId);
-        };
 
         var httpPromise = $http.get('/api/employees').success(function (response) {
             $scope.response = angular.toJson(response, true);
@@ -212,20 +207,23 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         }
 
     })
-    .controller('EditEmployeeAddressController', function ($scope, $routeParams, $http, SpringDataRestAdapter) {
-        var employeeId = $routeParams.employeeId;
-        var httpPromise = $http.get('/api/employees/' + employeeId).success(function (response) {
+    .controller('EditUserController', function ($scope, $routeParams, $http, SpringDataRestAdapter) {
+        $scope.emailTypes =[  'billing',
+            'business',
+            'both'];
+        var userId = $routeParams.userId;
+        var httpPromise = $http.get('/api/users/' + userId).success(function (response) {
             $scope.response = angular.toJson(response, true);
         });
 
         SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
-            //$scope.employee = processedResponse._embeddedItems;
             $scope.processedResponse = angular.toJson(processedResponse, true);
             $scope.employee = processedResponse
+
         });
 
-        $scope.addEmployeeAddress = function (employee) {
-            var httpPromiseTimesheet = $http.post('/hydrated/employees/' + employeeId + '/address', employee.address,
+        $scope.addAddress = function (employee) {
+            var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/address', employee.address,
                 'Content-Type:application/json+hal').success(
                 function (response) {
                     $scope.response = angular.toJson(response, true);
@@ -235,24 +233,23 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 $scope.employee = processedResponse
                 console.log("Address Added!");
             });
-
         };
 
-    })
-    .controller('EditEmployeePhoneController', function ($scope, $http, SpringDataRestAdapter, $routeParams) {
-        var employeeId = $routeParams.employeeId;
-        var httpPromise = $http.get('/api/employees/' + employeeId).success(function (response) {
-            $scope.response = angular.toJson(response, true);
-        });
+        $scope.addEmail = function (employee) {
+            var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/emails', employee.email,
+                'Content-Type:application/json+hal').success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                });
+            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+                $scope.processedResponse = angular.toJson(processedResponse, true);
+                $scope.employee = processedResponse
+                console.log("Email Added!");
+            });
+        };
 
-        SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
-            //$scope.employee = processedResponse._embeddedItems;
-            $scope.processedResponse = angular.toJson(processedResponse, true);
-            $scope.employee = processedResponse
-        });
-
-        $scope.addEmployeePhone = function (employee) {
-            var httpPromise = $http.post('/hydrated/employees/' + employeeId + '/phones', employee.phone,
+        $scope.addPhone = function (employee) {
+            var httpPromise = $http.post('/hydrated/employees/' + userId + '/phones', employee.phone,
                 'Content-Type:application/json+hal').success(
                 function (response) {
                     $scope.response = angular.toJson(response, true);

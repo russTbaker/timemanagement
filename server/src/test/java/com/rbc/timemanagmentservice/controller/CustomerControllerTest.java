@@ -2,7 +2,9 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Customer;
+import com.rbc.timemanagmentservice.service.CustomerService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,20 @@ public class CustomerControllerTest extends UserControllerTests<Customer> {
     @Resource
     private FilterChainProxy springSecurityFilterChain;
 
+    @Autowired
+    private CustomerService customerService;
+
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).addFilter(this.springSecurityFilterChain).build();
         startupUtility.init();
         user = startupUtility.getCustomerObject();
+    }
+
+    @After
+    public void tearDown(){
+        if(user != null){
+            customerService.deleteUser(user.getId());
+        }
     }
 }

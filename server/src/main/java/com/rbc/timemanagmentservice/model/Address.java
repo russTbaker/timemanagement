@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 
@@ -15,7 +16,7 @@ public class Address implements EntityMarkerInterface{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-//    @RestResource(exported = false)
+    @RestResource(rel = "owner")
     private User user;
 
     private String street1;

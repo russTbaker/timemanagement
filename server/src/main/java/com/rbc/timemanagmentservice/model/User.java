@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
 import org.joda.time.DateTime;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -29,9 +30,22 @@ import java.util.List;
 public abstract class User {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_CONTRACT",
-    joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "USER_ID"))
+    joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "id"))
     @JsonIgnore
     protected List<Contract> contracts = new ArrayList<>();
+
+    @OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
+//    @JsonIgnore
+    @RestResource(rel = "userAddress")
+    private List<Address> address = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Email> emails = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Phone> phones = new ArrayList<>();
 
     @JsonIgnore
     public void addContract(Contract contract){
@@ -48,13 +62,14 @@ public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "USER_ID")
+//    @Column(name = "USER_ID")
     protected Integer id;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "USER_ID"),
-    inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "id"),
+        inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    @RestResource(rel = "roles")
     protected List<Roles> roles = new ArrayList<>();
 
     private String firstName;
@@ -106,17 +121,7 @@ public abstract class User {
         this.dba = dba;
     }
 
-    @OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<Address> address = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<Email> emails = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
-    private List<Phone> phones = new ArrayList<>();
 
 
 

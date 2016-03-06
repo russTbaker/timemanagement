@@ -7,6 +7,7 @@ import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,14 +55,19 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
     @Autowired
     private EmployeeService employeeService;
 
-    @Autowired
-    private ContractTestUtil contractTestUtil;
 
 
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
         user = startupUtility.init();
+    }
+
+    @After
+    public void tearDown(){
+        if(user != null){
+            employeeService.deleteUser(user.getId());
+        }
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.datatype.joda.JodaMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.service.EmployeeService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -29,6 +30,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -36,8 +38,10 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 @SpringBootApplication
@@ -47,8 +51,8 @@ public class TimemanagementServiceApplication {
     @Autowired
     private Environment environment;
 
-    @Autowired
-    private PlatformTransactionManager transactionManager;
+//    @Autowired
+//    private EmployeeService employeeService;
 
     public static void main(String[] args) {
         SpringApplication.run(TimemanagementServiceApplication.class, args);
@@ -81,11 +85,22 @@ public class TimemanagementServiceApplication {
 
     @Bean
     @Transactional(propagation = Propagation.REQUIRED)
-    public CommandLineRunner demo(StartupUtility startupUtility) {
+    public CommandLineRunner demo(StartupUtility startupUtility, EmployeeService employeeService) {
         return (args) -> {
-            if(environment.getActiveProfiles().length != 0 && Arrays.asList(environment.getActiveProfiles()).contains("demo")){
+            List<String> profiles = Arrays.asList(environment.getActiveProfiles());
+            if(environment.getActiveProfiles().length != 0 && profiles.contains("demo") ){
                 Employee employee = startupUtility.init();
                 LOG.debug("Found employee: " + employee.getId());
+            } else if(profiles.contains("runtime")) {
+                try{
+                    employeeService.findAll(null,null);
+                }catch (NotFoundException e){
+                    Employee employee = new Employee();
+                    employee.setDba("Administrator");
+                    employee.setUsername("admin");
+                    employee.setPassword("password");
+                    employeeService.createUser(employee);
+                }
             }
         };
     }

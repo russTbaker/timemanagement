@@ -3,10 +3,14 @@ package com.rbc.timemanagmentservice.controller;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Job;
+import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.service.ContractService;
+import com.rbc.timemanagmentservice.service.EmployeeService;
+import com.rbc.timemanagmentservice.service.UserService;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,12 +63,25 @@ public class ContractControllerTest extends ControllerTests {
     @Autowired
     private ContractService contractService;
 
+
+    @Autowired
+    private EmployeeService userService;
     private MockMvc mockMvc;
+
+    private User user;
 
     @Before
     public void setup() throws Exception {
         this.mockMvc = webAppContextSetup(webApplicationContext).build();
-        startupUtility.init();
+        user =startupUtility.init();
+        System.err.print("bla");
+    }
+
+    @After
+    public void tearDown(){
+        if(user != null){
+            userService.deleteUser(user.getId());
+        }
     }
 
     @Test

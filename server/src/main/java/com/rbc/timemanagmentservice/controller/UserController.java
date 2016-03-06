@@ -92,7 +92,7 @@ public class UserController<U extends User> extends BaseController{
     }
 
     //-------- Email
-    @RequestMapping(value = "/{userId}/emails", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{userId}/emails", method = RequestMethod.POST)
     public ResponseEntity<?> addEmail(@PathVariable(value = "userId") Integer userId,
                                       @RequestBody Email email){
         email.setId(userService.addEmailToUser(userId,email).getId());

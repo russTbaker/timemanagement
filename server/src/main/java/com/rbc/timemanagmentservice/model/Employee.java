@@ -15,12 +15,12 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "EMPLOYEE_ID")
 public class Employee extends User{
     private String username;
+
+    @JsonIgnore
     private String password;
 
 
     @ManyToMany(mappedBy = "employees",fetch = FetchType.EAGER)
-//    @JsonIgnore
-//    @RestResource(exported = false)
     private List<Job> jobs = new ArrayList<>();
 
     public Employee() {

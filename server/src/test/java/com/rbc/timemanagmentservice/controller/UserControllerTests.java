@@ -67,7 +67,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
         email.setEmailType(Email.EmailTypes.both);
 
         // Act
-        this.mockMvc.perform(put(ROOT_URI_EMPLOYEES + user.getId() + "/emails/", email)
+        this.mockMvc.perform(post(ROOT_URI_EMPLOYEES + user.getId() + "/emails/", email)
                 .session(createMockHttpSessionForPutPost())
                 .contentType(contentType)
                 .content(json(email)))

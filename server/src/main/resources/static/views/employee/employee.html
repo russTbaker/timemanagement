@@ -3,7 +3,7 @@
         <h1>Employees</h1>
     </div>
     <div class="alert alert-info" role="alert" ng-hide="employees && employees.length > 0">
-        There are no items yet. <a href="#/addEmployee">Add Employee</a>
+        There are no items yet.
     </div>
 
     <div class="form-group" ng-repeat="employee in employees">
@@ -42,6 +42,10 @@
                     ng-click="onClickNavigateToEmails(employee._links.emails.href)">Show
                 Emails
             </button>
+            <strong>Add Address <button class="pull-right btn btn-link" type="button" title="Add Address"
+                                        ng-click="goToEditUser(employee)">
+                <span class="glyphicon glyphicon-edit"></span>
+            </button></strong>
         </div>
 
         <div uib-collapse="!isAddressCollapsed">
@@ -53,10 +57,7 @@
                 <th><strong>State</strong></th>
                 <th><strong>Zip Code</strong></th>
                 <th><strong>Delete Address</strong></th>
-                <th><strong>Add Address <button class="pull-right btn btn-link" type="button" title="Add Address"
-                                                ng-click="goToAddAddress(employee)">
-                    <span class="glyphicon glyphicon-edit"></span>
-                </button></strong></th>
+                <th>&nbsp;</th>
                 <tr ng-repeat="address in addresses">
                     <td>&nbsp;</td>
                     <td>{{address.street1}}</td>
@@ -141,8 +142,8 @@
                 </table>
             </div>
         </div>
-        <a href="#/addEmployee">Add Employee</a>
 
     </div>
+    <div class="container"><a href="#/addEmployee">Add Employee</a></div>
     <hr/>
 </div>
