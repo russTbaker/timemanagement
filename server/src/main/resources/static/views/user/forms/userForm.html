@@ -4,25 +4,19 @@
         <th><strong>First Name</strong></th>
         <th><strong>Last Name</strong></th>
         <th><strong>Role</strong></th>
-        <th><strong>Delete Employee</strong></th>
         <tr>
-            <td><input type="text" class="form-control" ng-model="employee.dba"
-                       placeholder="Street 1"/></td>
-            <td><input type="text" class="form-control" ng-model="employee.firstName"
-                       placeholder="Street 1"/></td>
-            <td><input type="text" class="form-control" ng-model="employee.lastName"
-                       placeholder="Street 1"/></td>
+            <td><input type="text" class="form-control" ng-model="user.dba"
+                       placeholder="{{user.dba}}"/></td>
+            <td><input type="text" class="form-control" ng-model="user.firstName"
+                       placeholder="{{user.firstName}}"/></td>
+            <td><input type="text" class="form-control" ng-model="user.lastName"
+                       placeholder="{{user.lastName}}"/></td>
 
             <td>
-                <div ng-repeat="role in roles"><strong>{{role.role}}</strong></br></div>
-
-            </td>
-            </td>
-            <td>
-                <button class="pull-right btn btn-danger" type="button" title="Delete"
-                        ng-click="deleteEmployee(employee)">
-                    <span class="glyphicon glyphicon-trash"></span>
-                </button>
+            <td><select name="repeatSelect1" id="repeatSelect1" ng-model="user.role">
+                <option value=""> ---- Select Role ----</option>
+                <option ng-repeat="option in roles" value="{{option}}">{{option}}</option>
+            </select></td>
             </td>
         </tr>
     </table>

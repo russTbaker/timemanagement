@@ -2,25 +2,25 @@
     <div class="page-header">
         <h1>Employees</h1>
     </div>
-    <div class="alert alert-info" role="alert" ng-hide="employees && employees.length > 0">
+    <div class="alert alert-info" role="alert" ng-hide="users && users.length > 0">
         There are no items yet.
     </div>
 
-    <div class="form-group" ng-repeat="employee in employees">
+    <div class="form-group" ng-repeat="user in users">
         <div class="col-xs-9">
             <div id="Employee" class="container" ng-include="'views/user/user.html'"></div>
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToTimeSheets(employee._links.timesheets.href)">Show Timesheets
+                    ng-click="onClickNavigateToTimeSheets(user._links.timesheets.href)">Show Timesheets
             </button>
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToAddresses(employee._links.address.href)">Show Addresses
+                    ng-click="onClickNavigateToAddresses(user._links.address.href)">Show Addresses
             </button>
 
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToPhones(employee._links.phones.href)">Show Phones
+                    ng-click="onClickNavigateToPhones(user._links.phones.href)">Show Phones
             </button>
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToEmails(employee._links.emails.href)">Show Emails
+                    ng-click="onClickNavigateToEmails(user._links.emails.href)">Show Emails
             </button>
         </div>
 

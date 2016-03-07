@@ -29,12 +29,17 @@
 	"dependencies": {
 		"angular": "~1.4.8",
 		"angular-bootstrap": "~0.14.3",
-		"angular-ui-bootstrap-datetimepicker":"0.4.0",
+		"angular-ui-bootstrap-datetimepicker":"0.14.4",
 		"angular-resource": "~1.4.8",
 		"angular-route": "~1.4.8",
 		"angular-highlightjs": "~0.5.1",
 		"angular-spring-data-rest": "0.4.4",
 		"highlightjs": "9.1.0",
-		"hashmap":"2.0.3"
+		"jasmine-core":"2.4.1",
+		"angular": "~1.4.0",
+		"angular-route": "~1.4.0",
+		"angular-loader": "~1.4.0",
+		"angular-mocks": "~1.4.0",
+		"html5-boilerplate": "~5.2.0"
 	}
 }

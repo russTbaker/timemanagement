@@ -1,46 +1,42 @@
-<div class="container" ng-controller="CustomerController">
+<div class="container" ng-controller="CustomersController">
     <div class="page-header">
         <h1>Customers</h1>
     </div>
     <div class="alert alert-info" role="alert" ng-hide="customers && customers.length > 0">
         There are no items yet.
     </div>
-    <div class="form-group">
-        <table class="table">
-            <th><strong>Company Name</strong></th>
-            <th><strong>First Name</strong></th>
-            <th><strong>Last Name</strong></th>
-            <tr ng-repeat="customer in customers">
-                <td>{{customer.dba}}</td>
-                <td>{{customer.firstName}}</td>
-                <td>{{customer.lastName}}</td>
-            </tr>
-        </table>
-    </div>
-    <form class="form-horizontal" role="form" ng-submit="addCustomer(customer)">
-        <div class="input-group">
-            <table class="table">
-                <th><strong>Company Name</strong></th>
-                <th><strong>Contact First Name</strong></th>
-                <th><strong>Contact Last Name</strong></th>
-                <th>&nbsp;</th>
-                <tr>
-                    <td><input type="text" class="form-control" ng-model="customer.dba"
-                               placeholder="Enter Company Name"/></td>
-                    <td><input type="text" class="form-control" ng-model="customer.firstName"
-                               placeholder="Enter First Name"/></td>
-                    <td><input type="text" class="form-control" ng-model="customer.lastName"
-                               placeholder="Enter Last Name"/>
-                    </td>
-                    <td>
-                        <button class="btn btn-default" type="submit" title="Add">
-                            <span class="glyphicon glyphicon-plus"></span>
-                        </button>
-                    </td>
 
-                </tr>
-            </table>
+    <div class="form-group" ng-repeat="customer in customers">
+        <div class="col-xs-9">
+            <div id="Customer" class="container" ng-include="'views/user/user.html'"></div>
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToTimeSheets(customer._links.timesheets.href)">Show Timesheets
+            </button>
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToAddresses(customer._links.address.href)">Show Addresses
+            </button>
+
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToPhones(customer._links.phones.href)">Show Phones
+            </button>
+            <button class="btn btn-primary" type="button"
+                    ng-click="onClickNavigateToEmails(customer._links.emails.href)">Show Emails
+            </button>
         </div>
-    </form>
 
+        <div uib-collapse="!isAddressCollapsed">
+            <div id="CustomerAddress" class="container" ng-include="'views/user/address.html'"></div>
+        </div>
+
+        <div uib-collapse="!isPhonesCollapsed">
+            <div id="CustomerPhone" class="container" ng-include="'views/user/phone.html'"></div>
+        </div>
+
+        <div uib-collapse="!isEmailsCollapsed">
+            <div id="CustomerEmail" class="container" ng-include="'views/user/email.html'"></div>
+        </div>
+
+    </div>
+    <div class="container"><a href="#/addCustomer">Add Customer</a></div>
+    <hr/>
 </div>

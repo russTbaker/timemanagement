@@ -1,0 +1,33 @@
+<div class="container" ng-controller="AddEmployeeController">
+    <form class="form-horizontal" role="form" ng-submit="addUser(user)">
+        <div class="input-group">
+            <table class="table">
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Commmon Name</th>
+                <tr>
+                    <td><input type="text" class="form-control" ng-model="employee.firstName"
+                               placeholder="Enter First Name"/></td>
+                    <td><input type="text" class="form-control" ng-model="employee.lastName"
+                               placeholder="Enter Last Name"/>
+                    </td>
+                    <td><input type="text" class="form-control" ng-model="employee.username"
+                               placeholder="Enter username"/>
+                    </td>
+                    <td><input type="password" class="form-control" ng-model="employee.password"
+                               placeholder="Enter password"/></td>
+                    <td><input type="text" class="form-control" ng-model="employee.dba"
+                               placeholder="Enter common name"/>
+                    </td>
+                </tr>
+            </table>
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit" title="Add">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </span>
+        </div>
+    </form>
+</div>
