@@ -8,107 +8,33 @@
 
     <div class="form-group" ng-repeat="employee in employees">
         <div class="col-xs-9">
-            <table class="table">
-                <th><strong>Common Name</strong></th>
-                <th><strong>First Name</strong></th>
-                <th><strong>Last Name</strong></th>
-                <th><strong>Role</strong></th>
-                <th><strong>Delete Employee</strong></th>
-                <tr>
-                    <td>{{employee.dba}}</td>
-                    <td>{{employee.firstName}}</td>
-                    <td>{{employee.lastName}}</td>
-                    <td>{{employee.roles.roles}}</td>
-                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
-                                                ng-click="deleteEmployee(employee)">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button></td>
-                </tr>
-            </table>
+            <div id="Employee" class="container" ng-include="'views/user/user.html'"></div>
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToTimeSheets(employee._links.timesheets.href)">Show
-                Timesheets
+                    ng-click="onClickNavigateToTimeSheets(employee._links.timesheets.href)">Show Timesheets
             </button>
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToAddresses(employee._links.address.href)">Show
-                Addresses
+                    ng-click="onClickNavigateToAddresses(employee._links.address.href)">Show Addresses
             </button>
 
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToPhones(employee._links.phones.href)">Show
-                Phones
+                    ng-click="onClickNavigateToPhones(employee._links.phones.href)">Show Phones
             </button>
             <button class="btn btn-primary" type="button"
-                    ng-click="onClickNavigateToEmails(employee._links.emails.href)">Show
-                Emails
+                    ng-click="onClickNavigateToEmails(employee._links.emails.href)">Show Emails
             </button>
-            <strong>Add Address <button class="pull-right btn btn-link" type="button" title="Add Address"
-                                        ng-click="goToEditUser(employee)">
-                <span class="glyphicon glyphicon-edit"></span>
-            </button></strong>
         </div>
 
         <div uib-collapse="!isAddressCollapsed">
-            <table class="table">
-                <th>&nbsp;</th>
-                <th><strong>Street 1</strong></th>
-                <th><strong>Street 2</strong></th>
-                <th><strong>City</strong></th>
-                <th><strong>State</strong></th>
-                <th><strong>Zip Code</strong></th>
-                <th><strong>Delete Address</strong></th>
-                <th>&nbsp;</th>
-                <tr ng-repeat="address in addresses">
-                    <td>&nbsp;</td>
-                    <td>{{address.street1}}</td>
-                    <td>{{address.street2}}</td>
-                    <td>{{address.city}}</td>
-                    <td>{{address.state}}</td>
-                    <td>{{address.zip}}</td>
-                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
-                                         ng-click="deleteEmployeeAddress(employee,address)">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button></td>
-                    <td>&nbsp;</td>
-                </tr>
-            </table>
+            <div id="EmployeeAddress" class="container" ng-include="'views/user/address.html'"></div>
         </div>
 
         <div uib-collapse="!isPhonesCollapsed">
-            <table class="table">
-                <th><strong>Phone Number</strong></th>
-                <th><strong>Delete Phone</strong></th>
-                <th><strong>Add Phone <button class="pull-right btn btn-link" type="button" title="Add Phone"
-                                                ng-click="goToAddPhone(employee)">
-                    <span class="glyphicon glyphicon-edit"></span>
-                </button></strong></th>
-                <tr ng-repeat="phone in phones">
-                    <td>{{phone.phone}}</td>
-                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
-                                ng-click="deleteEmployeePhone(employee,phone)">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button></td>
-                </tr>
-            </table>
+            <div id="EmployeePhone" class="container" ng-include="'views/user/phone.html'"></div>
         </div>
 
         <div uib-collapse="!isEmailsCollapsed">
-            <table class="table">
-                <th><strong>Email</strong></th>
-                <th><strong>Type</strong></th>
-                <th><strong>Delete Email</strong></th>
-                <tr ng-repeat="email in emails">
-                    <td>{{email.email}}</td>
-                    <td>{{email.emailType}}</td>
-                    <td><button class="pull-right btn btn-danger" type="button" title="Delete"
-                                ng-click="deleteEmployeeEmail(employee,email)">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button></td>
-                </tr>
-            </table>
+            <div id="EmployeeEmail" class="container" ng-include="'views/user/email.html'"></div>
         </div>
-
-
 
         <div uib-collapse="!isTimeSheetCollapsed">
             <table class="table">

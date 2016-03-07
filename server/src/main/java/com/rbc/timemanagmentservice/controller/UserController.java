@@ -49,11 +49,11 @@ public class UserController<U extends User> extends BaseController{
 
     @RequestMapping(value = "/{userId}/address/{addressId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateAddress(@PathVariable(value = "userId") Integer userId,
-                                           @PathVariable(value = "addressId") Integer emailId,
+                                           @PathVariable(value = "addressId") Integer addressId,
                                            @RequestBody Address address) {
         return Optional.of(userService.getUser(userId))
                 .map(employee -> {
-                    address.setId(emailId);
+                    address.setId(addressId);
                     employee.addAddress(address);
                     employee = userService.updateUser(employee);
                     return new ResponseEntity(null, getHttpHeadersForEntity(address, ADDRESSES), HttpStatus.CREATED);

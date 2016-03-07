@@ -1,0 +1,15 @@
+<div class="container">
+    <table class="table">
+        <th><strong>Email</strong></th>
+        <th><strong>Type</strong></th>
+        <th><strong>Delete Email</strong></th>
+        <tr ng-repeat="email in emails">
+            <td>{{email.email}}</td>
+            <td>{{email.emailType}}</td>
+            <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+                        ng-click="deleteEmployeeEmail(employee,email)">
+                <span class="glyphicon glyphicon-trash"></span>
+            </button></td>
+        </tr>
+    </table>
+</div>

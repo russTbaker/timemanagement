@@ -1,0 +1,9 @@
+<div class="container" ng-controller="EditUserController">
+    <div class="page-header">
+        <h1>{{employee.dba}} - Profile</h1>
+    </div>
+    <div id="User" class="container" ng-include="'views/user/editUser.html'"></div>
+    <div id="Address" class="container" ng-include="'views/user/editAddress.html'" ng-repeat="address in address"></div>
+    <div id="Phone" class="container" ng-include="'views/user/editPhone.html'" ng-repeat="phone in phones"></div>
+    <div id="Email" class="container" ng-include="'views/user/editEmail.html'" ng-repeat="email in emails"></div>
+</div>

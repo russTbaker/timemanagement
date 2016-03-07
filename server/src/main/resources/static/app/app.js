@@ -20,9 +20,12 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 templateUrl: 'views/employee/addEmployee.html'
             })
             .when('/editUser/:userId', {
-                templateUrl: 'views/employee/editUser.html'
+                templateUrl: 'views/user/userProfile.html'
             })
-            .when('/addEmployeePhone/:employeeId', {
+            .when('/editEmail/:userId', {
+                templateUrl: 'views/employee/email.html'
+            })
+            .when('/addPhone/:employeeId', {
                 templateUrl: 'views/employee/addPhone.html'
             })
             .when('/customer', {
@@ -34,13 +37,6 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             .when('/timesheet', {
                 templateUrl: 'views/timesheet/timesheet.html'
             })
-            // .when('/samples/automatic-link-fetching', {
-            //    templateUrl: 'partials/samples/automatic-link-fetching.html'
-            //}).when('/samples/add-query-string-parameters', {
-            //    templateUrl: 'partials/samples/add-query-string-parameters.html'
-            //}).when('/samples/show-available-resources', {
-            //    templateUrl: 'partials/samples/show-available-resources.html'
-            //})
             .otherwise({
                 redirectTo: '/'
             });
@@ -118,6 +114,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
 
         $scope.onClickNavigateToAddresses = function (url) {
+            console.log("Requesting :" + url);
             var httpPromise = $http.get(url).success(function (response) {
                 $scope.response = angular.toJson(response, true);
             });
@@ -206,21 +203,75 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $route.reload();
         }
 
+        $scope.onClickNavigateToEdit = function(employee){
+            var employeeHref = employee._links.self.href;
+            var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            console.log("Navigating to :" + "/editUser/"+employeeId);
+            $location.path("/editUser/"+employeeId);
+        }
+
     })
     .controller('EditUserController', function ($scope, $routeParams, $http, SpringDataRestAdapter) {
-        $scope.emailTypes =[  'billing',
+        $scope.emailTypes =['billing',
             'business',
             'both'];
         var userId = $routeParams.userId;
-        var httpPromise = $http.get('/api/users/' + userId).success(function (response) {
+        //var httpPromise = ;
+
+        SpringDataRestAdapter.process($http.get('/api/users/' + userId).success(function (response) {
             $scope.response = angular.toJson(response, true);
-        });
-
-        SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+        })).then(function (processedResponse) {
             $scope.processedResponse = angular.toJson(processedResponse, true);
-            $scope.employee = processedResponse
+            $scope.employee = processedResponse;
 
         });
+
+        SpringDataRestAdapter.process($http.get('/api/users/'+userId+'/roles' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            //$scope.processedResponse = angular.toJson(processedResponse, true);
+            $scope.roles = processedResponse._embeddedItems;
+
+        });
+
+        SpringDataRestAdapter.process($http.get('/api/users/'+userId+'/address' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            //$scope.processedResponse = angular.toJson(processedResponse, true);
+            $scope.address = processedResponse._embeddedItems;
+
+        });
+
+        SpringDataRestAdapter.process($http.get('/api/users/'+userId+'/phones' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            //$scope.processedResponse = angular.toJson(processedResponse, true);
+            $scope.phones = processedResponse._embeddedItems;
+
+        });
+
+        SpringDataRestAdapter.process($http.get('/api/users/'+userId+'/emails' ).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            $scope.emails = processedResponse._embeddedItems;
+
+        });
+
+        $scope.updateAddress = function  (employee, address){
+            var employeeHref = employee._links.self.href;
+            var addressHref = address._links.self.href;
+            var userId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            var addressId = addressHref.substring(addressHref.lastIndexOf('/') + 1, addressHref.length);
+
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/'+userId+'/address/' + addressId,
+            address, 'Content-Type:application/json+hal').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                console.log("Address updated for user.")
+            });
+        };
+
+
 
         $scope.addAddress = function (employee) {
             var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/address', employee.address,
@@ -248,6 +299,20 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             });
         };
 
+        $scope.updateEmail = function  (employee, email){
+            var employeeHref = employee._links.self.href;
+            var emailHref = email._links.self.href;
+            var userId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            var emailId = emailHref.substring(emailHref.lastIndexOf('/') + 1, emailHref.length);
+
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/'+userId+'/emails/' + emailId,
+                email, 'Content-Type:application/json+hal').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                console.log("Email updated for user.")
+            });
+        };
+
         $scope.addPhone = function (employee) {
             var httpPromise = $http.post('/hydrated/employees/' + userId + '/phones', employee.phone,
                 'Content-Type:application/json+hal').success(
@@ -260,6 +325,20 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 console.log("Phone Added!");
             });
 
+        };
+
+        $scope.updatePhone = function  (employee, phone){
+            var employeeHref = employee._links.self.href;
+            var phoneHref = phone._links.self.href;
+            var userId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
+            var phoneId = phoneHref.substring(phoneHref.lastIndexOf('/') + 1, phoneHref.length);
+
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/'+userId+'/phones/' + phoneId,
+                phone, 'Content-Type:application/json+hal').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                console.log("Phone updated for user.")
+            });
         };
     })
     .controller('ContractsController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
@@ -591,7 +670,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
                 console.log("Employee Added!");
             });
-            $location.path('/employee');
+            $location.path('#/employee');
         }
     })
     .controller('CustomerController', function($scope, $http, SpringDataRestAdapter, $route){

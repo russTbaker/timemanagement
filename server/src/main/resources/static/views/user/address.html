@@ -1,0 +1,25 @@
+<div class="container">
+    <table class="table">
+        <th>&nbsp;</th>
+        <th><strong>Street 1</strong></th>
+        <th><strong>Street 2</strong></th>
+        <th><strong>City</strong></th>
+        <th><strong>State</strong></th>
+        <th><strong>Zip Code</strong></th>
+        <th><strong>Delete Address</strong></th>
+        <th>&nbsp;</th>
+        <tr ng-repeat="address in addresses">
+            <td>&nbsp;</td>
+            <td>{{address.street1}}</td>
+            <td>{{address.street2}}</td>
+            <td>{{address.city}}</td>
+            <td>{{address.state}}</td>
+            <td>{{address.zip}}</td>
+            <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+                        ng-click="deleteEmployeeAddress(employee,address)">
+                <span class="glyphicon glyphicon-trash"></span>
+            </button></td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+</div>

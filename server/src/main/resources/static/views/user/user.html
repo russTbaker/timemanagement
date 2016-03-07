@@ -1,0 +1,26 @@
+<div class="container">
+    <table class="table">
+        <th><strong>Common Name</strong></th>
+        <th><strong>First Name</strong></th>
+        <th><strong>Last Name</strong></th>
+        <th><strong>Role</strong></th>
+        <th><strong>Delete Employee</strong></th>
+        <tr>
+            <td>{{employee.dba}}</td>
+            <td>{{employee.firstName}}</td>
+            <td>{{employee.lastName}}</td>
+            <td>{{employee.roles.roles}}</td>
+            <td>
+                <button class="pull-right btn btn-danger" type="button" title="Delete"
+                        ng-click="deleteEmployee(employee)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-default"  title="Edit User" ng-click="onClickNavigateToEdit(employee)">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>

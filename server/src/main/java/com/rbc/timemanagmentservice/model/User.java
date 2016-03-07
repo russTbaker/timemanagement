@@ -35,8 +35,6 @@ public abstract class User {
     protected List<Contract> contracts = new ArrayList<>();
 
     @OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
-//    @JsonIgnore
-    @RestResource(rel = "userAddress")
     private List<Address> address = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)

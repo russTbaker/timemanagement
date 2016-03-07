@@ -1,0 +1,29 @@
+<div class="input-group">
+    <table class="table">
+        <th><strong>Common Name</strong></th>
+        <th><strong>First Name</strong></th>
+        <th><strong>Last Name</strong></th>
+        <th><strong>Role</strong></th>
+        <th><strong>Delete Employee</strong></th>
+        <tr>
+            <td><input type="text" class="form-control" ng-model="employee.dba"
+                       placeholder="Street 1"/></td>
+            <td><input type="text" class="form-control" ng-model="employee.firstName"
+                       placeholder="Street 1"/></td>
+            <td><input type="text" class="form-control" ng-model="employee.lastName"
+                       placeholder="Street 1"/></td>
+
+            <td>
+                <div ng-repeat="role in roles"><strong>{{role.role}}</strong></br></div>
+
+            </td>
+            </td>
+            <td>
+                <button class="pull-right btn btn-danger" type="button" title="Delete"
+                        ng-click="deleteEmployee(employee)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
