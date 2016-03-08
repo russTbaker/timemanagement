@@ -1,5 +1,31 @@
 <div class="container">
-    <form class="form-horizontal" role="form" ng-submit="addAddress(user)">
-        <div id="UserAddress" class="container" ng-include="'views/user/forms/addressForm.html'"></div>
+
+    <form class="form-horizontal" role="form" ng-submit="addAddress(address,userId)">
+        <div class="input-group">
+            <table class="table">
+                <th>Street 1</th>
+                <th>Street 2</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip Code</th>
+                <tr>
+                    <td><input type="text" class="form-control" ng-model="address.street1"
+                               placeholder="{{address.street1}}"/></td>
+                    <td><input type="text" class="form-control" ng-model="address.street2"
+                               placeholder="{{address.street2}}"/></td>
+                    <td><input type="text" class="form-control" ng-model="address.city"
+                               placeholder="{{address.city}}"/></td>
+                    <td><input type="text" class="form-control" ng-model="address.state"
+                               placeholder="{{address.state}}"/></td>
+                    <td><input type="text" class="form-control" ng-model="address.zip"
+                               placeholder="{{address.zip}}"/></td>
+                </tr>
+            </table>
+            <span class="input-group-btn">
+            <button class="btn btn-default" type="submit" title="Add">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            </span>
+        </div>
     </form>
 </div>

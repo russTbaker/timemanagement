@@ -74,7 +74,7 @@
                         </td>
                         <td><select name="repeatSelect1" id="repeatSelect1" ng-model="contract.terms">
                             <option value=""> ---- Select Terms ----</option>
-                            <option ng-repeat="option in terms" value="{{option}}">{{option}}</option>
+                            <option ng-repeat="option in terms" value="{{option.value}}">{{option.name}}</option>
                         </select></td>
                         <td>
                             <button class="btn btn-default" type="submit" title="Add">

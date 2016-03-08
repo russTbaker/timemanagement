@@ -1,5 +1,27 @@
 <div class="container" ng-controller="AddEmployeeController">
     <form class="form-horizontal" role="form" ng-submit="addEmployee(employee)">
-        <div id="User" class="container" ng-include="'views/user/forms/userForm.html'"></div>
+        <div class="input-group">
+            <table class="table">
+                <th><strong>Common Name</strong></th>
+                <th><strong>First Name</strong></th>
+                <th><strong>Last Name</strong></th>
+                <th><strong>Role</strong></th>
+                <tr>
+                    <td><input type="text" class="form-control" ng-model="user.dba"
+                               placeholder="{{user.dba}}"/></td>
+                    <td><input type="text" class="form-control" ng-model="user.firstName"
+                               placeholder="{{user.firstName}}"/></td>
+                    <td><input type="text" class="form-control" ng-model="user.lastName"
+                               placeholder="{{user.lastName}}"/></td>
+
+                    <td>
+                    <td><select name="repeatSelect1" id="repeatSelect1" ng-model="user.role">
+                        <option value=""> ---- Select Role ----</option>
+                        <option ng-repeat="option in roles" value="{{option}}">{{option}}</option>
+                    </select></td>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </form>
 </div>
