@@ -51,36 +51,10 @@ public class TimemanagementServiceApplication {
     @Autowired
     private Environment environment;
 
-//    @Autowired
-//    private EmployeeService employeeService;
-
     public static void main(String[] args) {
         SpringApplication.run(TimemanagementServiceApplication.class, args);
     }
 
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
-
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/customers").allowedOrigins("http://localhost:8888");
-            }
-
-            @Override
-            public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-                configurer.enable();
-            }
-
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-                registry.addInterceptor(webContentInterceptor());
-            }
-        };
-
-
-    }
 
 
     @Bean
@@ -104,10 +78,25 @@ public class TimemanagementServiceApplication {
             }
         };
     }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/**")
+                        .allowedOrigins("http://localhost:9090")
+                        .allowedMethods("POST, PUT, GET, OPTIONS, DELETE");
+
+
+            }
+
+        };
+    }
     // CORS
     @Bean
     FilterRegistrationBean corsFilter(
-            @Value("${tagit.origin:http://localhost:8080}") String origin) {
+            @Value("${tagit.origin:http://localhost:9090}") String origin) {
         return new FilterRegistrationBean(new Filter() {
             public void doFilter(ServletRequest req, ServletResponse res,
                                  FilterChain chain) throws IOException, ServletException {

@@ -16,7 +16,6 @@ import java.util.List;
 public class Employee extends User{
     private String username;
 
-    @JsonIgnore
     private String password;
 
 

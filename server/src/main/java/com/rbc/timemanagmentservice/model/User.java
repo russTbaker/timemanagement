@@ -38,11 +38,9 @@ public abstract class User {
     private List<Address> address = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @JsonIgnore
     private List<Email> emails = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
     private List<Phone> phones = new ArrayList<>();
 
     @JsonIgnore
@@ -60,7 +58,6 @@ public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-//    @Column(name = "USER_ID")
     protected Integer id;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

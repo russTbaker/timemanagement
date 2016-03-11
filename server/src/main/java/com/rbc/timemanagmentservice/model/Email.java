@@ -22,7 +22,7 @@ public class Email implements EntityMarkerInterface{
     @org.hibernate.validator.constraints.Email
     private String email;
 
-    @ManyToOne
+    @ManyToOne//(fetch = FetchType.LAZY)
     @JsonIgnore
     @RestResource(exported = false)
     private User user;

@@ -1,5 +1,5 @@
 <div class="container">
-    <form class="form-horizontal" role="form" ng-submit="addEmail(email,userId)">
+    <form novalidate name="addUserEmailForm" class="form-horizontal" role="form" ng-submit="addEmail(email,userId)">
         <div class="input-group">
             <table class="table" width="100px">
                 <tr>
@@ -7,7 +7,7 @@
                     <th><strong>Email Type</strong></th>
                 </tr>
                 <tr>
-                    <td><input type="text" class="form-control" ng-model="email.email"
+                    <td><input type="email" class="form-control" ng-model="email.email"
                                placeholder="{{email.email}}"/></td>
                     <td>
                     <td><select name="repeatSelect1" id="repeatSelect1" ng-model="email.emailType">

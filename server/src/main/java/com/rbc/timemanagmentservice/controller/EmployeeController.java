@@ -3,6 +3,7 @@ package com.rbc.timemanagmentservice.controller;
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.model.TimeEntry;
+import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -37,6 +38,10 @@ public class EmployeeController extends UserController<Employee>{
         this.employeeService = employeeService;
     }
 
+    @RequestMapping(value = "/{userId}",method = RequestMethod.GET)
+    public User getUser(@PathVariable("userId") Integer userId){
+        return employeeService.getUser(userId);
+    }
 
     //------------- Timesheet
     @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{jobId}")

@@ -1,5 +1,6 @@
 <div class="container">
     <form class="form-horizontal" role="form" ng-submit="addUser(user)">
+        <input type="hidden">
         <div class="input-group">
             <table class="table">
                 <th><strong>Common Name</strong></th>
@@ -17,7 +18,7 @@
                     <td>
                     <td><select name="repeatSelect1" id="repeatSelect1" ng-model="user.role">
                         <option value=""> ---- Select Role ----</option>
-                        <option ng-repeat="option in roles" value="{{option.value}}">{{option.name}}</option>
+                        <option ng-slected="option.value==roles.role" ng-repeat="option in roles" value="{{option.value}}">{{option.name}}</option>
                     </select></td>
                     <td>
                         <button class="btn btn-default" type="submit" title="Add">

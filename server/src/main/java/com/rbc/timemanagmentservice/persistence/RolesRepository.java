@@ -7,6 +7,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 /**
  * Created by russbaker on 3/6/16.
  */
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface RolesRepository extends PagingAndSortingRepository<Roles,Integer>{
 }

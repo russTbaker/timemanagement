@@ -21,7 +21,7 @@ public class Phone implements EntityMarkerInterface{
     private Integer id;
     private String phone;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @RestResource(exported = false)
     private User user;

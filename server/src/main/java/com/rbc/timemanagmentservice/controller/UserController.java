@@ -37,6 +37,7 @@ public class UserController<U extends User> extends BaseController{
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 
+
     //--------- Address
 
     @RequestMapping(value = "/{userId}/address", method = RequestMethod.POST)
@@ -129,13 +130,6 @@ public class UserController<U extends User> extends BaseController{
         HttpHeaders httpHeaders = getHttpHeadersForEntity(() ->  contractId, "contracts");
         return new ResponseEntity(null, httpHeaders, HttpStatus.ACCEPTED);
     }
-
-    //--------- Private Methods
-
-
-
-
-    // TODO: Get Contract for user
 
 
 }

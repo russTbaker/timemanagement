@@ -1,9 +1,9 @@
 'use strict';
 var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetimepicker', 'ngResource', 'ngRoute', 'hljs', 'spring-data-rest'])
-    .config(['$routeProvider', function ($routeProvider) {
+    .config(['$routeProvider', '$httpProvider',function ($routeProvider,$httpProvider) {
         $routeProvider.when('/', {
-            templateUrl: 'main.html'
-        })
+                templateUrl: 'main.html'
+            })
             .when('/employee', {
                 templateUrl: 'views/employee/employee.html'
             })
@@ -37,8 +37,52 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             .otherwise({
                 redirectTo: '/'
             });
+        $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
     }])
-    .controller('NavigationController', function ($scope, $location) {
+    .controller('NavigationController', function ($rootScope, $scope, $http, $location) {
+
+        var authenticate = function(credentials, callback) {
+
+            var headers = credentials ? {authorization : "Basic "
+            + btoa(credentials.username + ":" + credentials.password)
+            } : {};
+
+            $http.get('user', {headers : headers}).success(function(data) {
+                if (data.name) {
+                    $rootScope.authenticated = true;
+                } else {
+                    $rootScope.authenticated = false;
+                }
+                callback && callback();
+            }).error(function() {
+                $rootScope.authenticated = false;
+                callback && callback();
+            });
+
+        };
+
+        $scope.logout = function() {
+            $http.post('logout', {}).success(function() {
+                $rootScope.authenticated = false;
+                $location.path("/");
+            }).error(function(data) {
+                $rootScope.authenticated = false;
+            });
+        };
+
+        authenticate();
+        $scope.credentials = {};
+        $scope.login = function() {
+            authenticate($scope.credentials, function() {
+                if ($rootScope.authenticated) {
+                    $location.path("/");
+                    $scope.error = false;
+                } else {
+                    $location.path("/login");
+                    $scope.error = true;
+                }
+            });
+        };
 
         $scope.navigateTo = function (path) {
             $location.path(path);
@@ -171,9 +215,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 $scope.endDate.opened = true;
             };
 
-            $scope.terms = [{name:'Net 15',value:'net15'},
-                {name:'Net 30',value:'net30'},
-                {name:'Net 45',value:'net45'}];
+            $scope.terms = [{name: 'Net 15', value: 'net15'},
+                {name: 'Net 30', value: 'net30'},
+                {name: 'Net 45', value: 'net45'}];
         }
 
         function refreshPage() {
@@ -279,111 +323,111 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         });
 
 
-            getJobsForEmployee();
+        getJobsForEmployee();
 
-            $scope.changeJob = function (job) {
-                var i = 0
-                for (i = 0; i < $scope.timesheetEntries.length; i++) {
-                    $scope.timesheetEntries[i].jobId = job;
-                }
-            };
+        $scope.changeJob = function (job) {
+            var i = 0
+            for (i = 0; i < $scope.timesheetEntries.length; i++) {
+                $scope.timesheetEntries[i].jobId = job;
+            }
+        };
 
         // TODO: This is hardcoded
-            $scope.onClickCreateTimesheet = function (jobId) {
-                SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + jobId).success(
+        $scope.onClickCreateTimesheet = function (jobId) {
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + jobId).success(
+                function (response) {
+                    $scope.response = angular.toJson(response, true);
+                })).then(function (processedResponse) {
+                console.log("Timesheet created.")
+            });
+        }
+
+        // TODO: This is hardcoded
+        $scope.updateTimesheet = function (jobs) {
+            var i;
+            for (i = 0; i < jobs.length; i++) {
+                var url = '/hydrated/employees/timesheets/' + jobs[i].jobId + '/timesheetentries';
+                console.log("Trying to update timesheet entries" + url);
+                SpringDataRestAdapter.process($http.put(url, jobs[i].timeEntries,
+                    'Content-Type:application/json+hal').success(
                     function (response) {
                         $scope.response = angular.toJson(response, true);
                     })).then(function (processedResponse) {
-                    console.log("Timesheet created.")
+                    console.log("Time Entry updated.")
                 });
             }
+            //loadTimesheets(map);
+            //loadTimesheetEntries();
+            $route.reload();
+        };
 
-        // TODO: This is hardcoded
-            $scope.updateTimesheet = function (jobs) {
-                var i;
-                for(i=0;i<jobs.length;i++) {
-                    var url = '/hydrated/employees/timesheets/' + jobs[i].jobId + '/timesheetentries';
-                    console.log("Trying to update timesheet entries" + url);
-                    SpringDataRestAdapter.process($http.put(url, jobs[i].timeEntries,
-                        'Content-Type:application/json+hal').success(
-                        function (response) {
-                            $scope.response = angular.toJson(response, true);
-                        })).then(function (processedResponse) {
-                        console.log("Time Entry updated.")
-                    });
-                }
-                //loadTimesheets(map);
-                //loadTimesheetEntries();
-                $route.reload();
-            };
+        // Functions
 
-            // Functions
+        function loadTimesheetEntries() {
+            SpringDataRestAdapter.process($http.get('/api/jobs/1/timeEntries').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                $scope.timesheetEntries = processedResponse._embeddedItems;
+                //$scope.timesheetEntries = angular.toJson(processedResponse, true);
+            });
+        }
 
-            function loadTimesheetEntries() {
-                SpringDataRestAdapter.process($http.get('/api/jobs/1/timeEntries').success(function (response) {
-                    $scope.response = angular.toJson(response, true);
-                })).then(function (processedResponse) {
-                    $scope.timesheetEntries = processedResponse._embeddedItems;
-                    //$scope.timesheetEntries = angular.toJson(processedResponse, true);
-                });
-            }
+        function getJobsForEmployee() {
+            SpringDataRestAdapter.process($http.get('/hydrated/employees/jobs').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                $scope.jobs = processedResponse._embeddedItems;
 
-            function getJobsForEmployee() {
-                SpringDataRestAdapter.process($http.get('/hydrated/employees/jobs').success(function (response) {
-                        $scope.response = angular.toJson(response, true);
-                })).then(function (processedResponse) {
-                    $scope.jobs = processedResponse._embeddedItems;
+                //var index;
+                //for(index =0;index<processedResponse._embeddedItems.length;index++){
+                //    console.log(processedResponse._embeddedItems[index].job.name);
+                //}
+                console.log("Got jobs ")
+            });
+        }
 
-                    //var index;
-                    //for(index =0;index<processedResponse._embeddedItems.length;index++){
-                    //    console.log(processedResponse._embeddedItems[index].job.name);
-                    //}
-                    console.log("Got jobs ")
-                });
-            }
+        function getEmployeeId() {
+            var employeeId;
+            SpringDataRestAdapter.process($http.get('/employee').success(function (response) {
+                $scope.response = angular.toJson(response, true);
+            })).then(function (processedResponse) {
+                console.log("Processed response: " + processedResponse.dba);
+                //employeeId = processedResponse.id;
+                $scope.employeeId = processedResponse.id;
+                //console.log("Got jobs ")
+            });
+            return employeeId;
+        }
 
-            function getEmployeeId(){
-                var employeeId;
-                SpringDataRestAdapter.process($http.get('/employee').success(function (response) {
-                    $scope.response = angular.toJson(response, true);
-                })).then(function (processedResponse) {
-                    console.log("Processed response: " + processedResponse.dba);
-                    //employeeId = processedResponse.id;
-                    $scope.employeeId = processedResponse.id;
-                    //console.log("Got jobs ")
-                });
-                return employeeId;
-            }
+        function getEmployeeIdCallback(employeeId) {
 
-            function getEmployeeIdCallback(employeeId){
-
-            }
-        })
-    .controller('AddUserController', function($scope, $http, SpringDataRestAdapter){
+        }
+    })
+    .controller('AddUserController', function ($scope, $http, SpringDataRestAdapter) {
         $scope.roles = [
-            {name: 'administrator', value:'administrators'},
-            {name: 'employee', value:'employees'},
-            {name:'customer', value:'customers'},
-            {name:'guest', value:'guests'}
+            {name: 'administrator', value: 'administrators'},
+            {name: 'employee', value: 'employees'},
+            {name: 'customer', value: 'customers'},
+            {name: 'guest', value: 'guests'}
         ];
 
-        $scope.emailTypes =['billing',
+        $scope.emailTypes = ['billing',
             'business',
             'both'];
 
-        $scope.addUser =function(user){
-            var httpPromise = $http.post('api/'+user.role, user, 'Content-Type:application/json+hal').success(
+        $scope.addUser = function (user) {
+            var httpPromise = $http.post('api/' + user.role, user, 'Content-Type:application/json+hal').success(
                 function (response) {
                     $scope.response = angular.toJson(response, true);
                 });
             SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
                 var userHref = processedResponse._links.self.href;
                 console.log(userHref);
-                $scope.userId=userHref.substring(userHref.lastIndexOf('/') + 1, userHref.length);
+                $scope.userId = userHref.substring(userHref.lastIndexOf('/') + 1, userHref.length);
                 console.log("User Added ");
             });
         };
-        $scope.addAddress = function (address,userId) {
+        $scope.addAddress = function (address, userId) {
             var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/address', address,
                 'Content-Type:application/json+hal').success(
                 function (response) {
@@ -396,7 +440,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             });
         };
 
-        $scope.addEmail = function (email,userId) {
+        $scope.addEmail = function (email, userId) {
             var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/emails', email,
                 'Content-Type:application/json+hal').success(
                 function (response) {
@@ -410,7 +454,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         };
 
 
-        $scope.addPhone = function (phone,userId) {
+        $scope.addPhone = function (phone, userId) {
             var httpPromise = $http.post('/hydrated/employees/' + userId + '/phones', phone,
                 'Content-Type:application/json+hal').success(
                 function (response) {
@@ -426,11 +470,48 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
     })
     .controller('EditUserController', function ($scope, $routeParams, $http, SpringDataRestAdapter) {
-        $scope.emailTypes =['billing',
+        $scope.emailTypes = ['billing',
             'business',
             'both'];
+
+        $scope.roles = ['administrator'
+            ,'employee'
+            ,'customer'
+            ,'guest']
+
         var userId = $routeParams.userId;
         init();
+
+        $scope.checkRole = function (role, user) {
+            if (user != null) {
+                var roles = user.roles;
+                var index;
+                for (index = 0; index < roles.length; index++) {
+                    if (roles[index].role == role) {
+                        return true;
+                    }
+                }
+            }
+        };
+
+        $scope.editUser = function (user) {
+            var userHref = user._links.self.href;
+            var userId = userHref.substring(userHref.lastIndexOf('/') + 1, userHref.length);
+
+            var roles = user.roles;
+            var index;
+            for (index = 0; index < roles.length; index++) {
+                SpringDataRestAdapter.process($http.put('/api/'+ user.roles[0].role + 's/' + userId ,
+                    user, 'Content-Type:application/json+hal').success(function (response) {
+                    $scope.response = angular.toJson(response, true);
+                })).then(function (processedResponse) {
+                    console.log("User updated.")
+                });
+            }
+
+
+
+        };
 
 
         $scope.addAddress = function (employee) {
@@ -446,13 +527,13 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             });
         };
 
-        $scope.updateAddress = function  (employee, address){
+        $scope.updateAddress = function (employee, address) {
             var employeeHref = employee._links.self.href;
             var addressHref = address._links.self.href;
             var userId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
             var addressId = addressHref.substring(addressHref.lastIndexOf('/') + 1, addressHref.length);
 
-            SpringDataRestAdapter.process($http.put('/hydrated/employees/'+userId+'/address/' + addressId,
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/' + userId + '/address/' + addressId,
                 address, 'Content-Type:application/json+hal').success(function (response) {
                 $scope.response = angular.toJson(response, true);
             })).then(function (processedResponse) {
@@ -473,13 +554,13 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             });
         };
 
-        $scope.updateEmail = function  (employee, email){
+        $scope.updateEmail = function (employee, email) {
             var employeeHref = employee._links.self.href;
             var emailHref = email._links.self.href;
             var userId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
             var emailId = emailHref.substring(emailHref.lastIndexOf('/') + 1, emailHref.length);
 
-            SpringDataRestAdapter.process($http.put('/hydrated/employees/'+userId+'/emails/' + emailId,
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/' + userId + '/emails/' + emailId,
                 email, 'Content-Type:application/json+hal').success(function (response) {
                 $scope.response = angular.toJson(response, true);
             })).then(function (processedResponse) {
@@ -501,13 +582,13 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
         };
 
-        $scope.updatePhone = function  (employee, phone){
+        $scope.updatePhone = function (employee, phone) {
             var employeeHref = employee._links.self.href;
             var phoneHref = phone._links.self.href;
             var userId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
             var phoneId = phoneHref.substring(phoneHref.lastIndexOf('/') + 1, phoneHref.length);
 
-            SpringDataRestAdapter.process($http.put('/hydrated/employees/'+userId+'/phones/' + phoneId,
+            SpringDataRestAdapter.process($http.put('/hydrated/employees/' + userId + '/phones/' + phoneId,
                 phone, 'Content-Type:application/json+hal').success(function (response) {
                 $scope.response = angular.toJson(response, true);
             })).then(function (processedResponse) {
@@ -525,12 +606,12 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
             });
 
-            SpringDataRestAdapter.process($http.get(usersUri + '/roles').success(function (response) {
-                $scope.response = angular.toJson(response, true);
-            })).then(function (processedResponse) {
-                $scope.roles = processedResponse._embeddedItems;
-
-            });
+            //SpringDataRestAdapter.process($http.get(usersUri + '/roles').success(function (response) {
+            //    $scope.response = angular.toJson(response, true);
+            //})).then(function (processedResponse) {
+            //    $scope.roles = processedResponse._embeddedItems;
+            //
+            //});
 
             SpringDataRestAdapter.process($http.get(usersUri + '/address').success(function (response) {
                 $scope.response = angular.toJson(response, true);
@@ -697,15 +778,15 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $route.reload();
         };
 
-        $scope.onClickNavigateToEdit = function(employee){
+        $scope.onClickNavigateToEdit = function (employee) {
             var employeeHref = employee._links.self.href;
             var employeeId = employeeHref.substring(employeeHref.lastIndexOf('/') + 1, employeeHref.length);
-            console.log("Navigating to :" + "/editUser/"+employeeId);
-            $location.path("/editUser/"+employeeId);
+            console.log("Navigating to :" + "/editUser/" + employeeId);
+            $location.path("/editUser/" + employeeId);
         }
 
     })
-    .controller('CustomersController', function($scope, $http, SpringDataRestAdapter, $route, $location){
+    .controller('CustomersController', function ($scope, $http, SpringDataRestAdapter, $route, $location) {
         $scope.isAddressCollapsed = false;
         $scope.isAddAddressCollapsed = false;
         $scope.isPhonesCollapsed = false;
@@ -723,7 +804,6 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $scope.users = processedResponse._embeddedItems;
             $scope.processedResponse = angular.toJson(processedResponse, true);
         });
-
 
 
         $scope.goToEditUser = function (user) {
@@ -858,11 +938,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $route.reload();
         };
 
-        $scope.onClickNavigateToEdit = function(customer){
+        $scope.onClickNavigateToEdit = function (customer) {
             var customerHref = customer._links.self.href;
             var customerId = customerHref.substring(customerHref.lastIndexOf('/') + 1, customerHref.length);
-            console.log("Navigating to :" + "/editUser/"+customerId);
-            $location.path("/editUser/"+customerId);
+            console.log("Navigating to :" + "/editUser/" + customerId);
+            $location.path("/editUser/" + customerId);
         }
 
     });

@@ -5,7 +5,9 @@
                 <th><strong>Common Name</strong></th>
                 <th><strong>First Name</strong></th>
                 <th><strong>Last Name</strong></th>
-                <th><strong>Role</strong></th>
+                <th ng-show="checkRole('employee',user)"><strong>Username</strong></th>
+                <th ng-show="checkRole('employee',user)"><strong>Password</strong></th>
+                <!--<th><strong>Role</strong></th>-->
                 <tr>
                     <td><input type="text" class="form-control" ng-model="user.dba"
                                placeholder="{{user.dba}}"/></td>
@@ -14,11 +16,28 @@
                     <td><input type="text" class="form-control" ng-model="user.lastName"
                                placeholder="{{user.lastName}}"/></td>
 
+                    <td ng-show="checkRole('employee',user)"><input type="text" class="form-control" ng-model="user.username"
+                               placeholder="{{user.username}}"/></td>
+
+
+                    <td ng-show="checkRole('employee',user)"><input type="password" class="form-control" ng-model="user.password"
+                                                                    placeholder="{{user.password}}"/></td>
+
                     <td>
-                    <td><select name="repeatSelect1" id="repeatSelect1" ng-model="user.role">
-                        <option value=""> ---- Select Role ----</option>
-                        <option ng-repeat="option in roles" value="{{option.value}}">{{option.name}}</option>
-                    </select></td>
+                        <!--<select name="repeatSelect1" id="repeatSelect1" ng-model="user.role">-->
+                            <!--<option value=""> &#45;&#45;&#45;&#45; Select Role &#45;&#45;&#45;&#45;</option>-->
+                            <!--<option ng-slected="checkRole(option.role,roles)" ng-repeat="option in roles"-->
+                                    <!--value="{{option.role}}">{{option.role}}-->
+                            <!--</option>-->
+                        <!--</select>-->
+                        <!--<select id="rolesSelect" multiple="true" ng-model="user.roles" ng-options="role for role in roles"></select>-->
+                    </td>
+                    <td>
+                    <td>
+                        <button class="btn btn-default" type="submit" title="Add">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </td>
                     </td>
                 </tr>
             </table>
