@@ -21,6 +21,7 @@ import java.util.List;
 import static junit.framework.TestCase.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -68,6 +69,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         // Act
         this.mockMvc.perform(post(ROOT_URI_EMPLOYEES + user.getId() + "/emails/", email)
+                .with(csrf())
                 .session(createMockHttpSessionForPutPost())
                 .contentType(contentType)
                 .content(json(email)))
@@ -88,6 +90,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         this.mockMvc.perform(
                 MockMvcRequestBuilders.put(ROOT_URI_EMPLOYEES + user.getId() + "/emails/" + email.getId())
+                        .with(csrf())
                         .session(createMockHttpSessionForPutPost())
                         .contentType(contentType)
                         .accept(contentType)
@@ -110,6 +113,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         // Act
         this.mockMvc.perform(delete(ROOT_URI_EMPLOYEES + user.getId() + "/emails/" + email.getId())
+                .with(csrf())
                 .session(createMockHttpSessionForPutPost()))
                 .andExpect(status().isOk());
 
@@ -141,6 +145,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         this.mockMvc.perform(
                 put(UserControllerTests.ROOT_URI_EMPLOYEES + user.getId() + "/address/" + address.getId())
+                        .with(csrf())
                         .session(createMockHttpSessionForPutPost())
                         .contentType(contentType)
                         .accept(contentType)
@@ -163,6 +168,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         this.mockMvc.perform(
                 delete(UserControllerTests.ROOT_URI_EMPLOYEES + user.getId() + "/address/" + user.getAddress().get(0).getId())
+                        .with(csrf())
                         .session(createMockHttpSessionForPutPost()))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -182,6 +188,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         // Act
         this.mockMvc.perform(post(ROOT_URI_EMPLOYEES + "/" + user.getId() + "/" + PHONES, phone)
+                .with(csrf())
                 .session(createMockHttpSessionForPutPost())
                 .contentType(contentType)
                 .content(json(phone)))
@@ -202,6 +209,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         this.mockMvc.perform(
                 put(UserControllerTests.ROOT_URI_EMPLOYEES + user.getId() + "/phones/" + phone.getId())
+                        .with(csrf())
                         .session(createMockHttpSessionForPutPost())
                         .contentType(contentType)
                         .accept(contentType)
@@ -220,6 +228,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         // Act
         this.mockMvc.perform(delete(ROOT_URI_EMPLOYEES + user.getId() + "/phones/" +user.getPhones().get(0).getId())
+                .with(csrf())
                 .session(createMockHttpSessionForPutPost()))
         .andExpect(status().isOk());
 
@@ -237,6 +246,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
 
         // Act
         mockMvc.perform(put(ROOT_URI_EMPLOYEES + user.getId() + "/contracts/" + contract.getId())
+                .with(csrf())
                 .session(createMockHttpSessionForPutPost())
         ).andExpect(status().isAccepted());
 
@@ -251,6 +261,7 @@ public class UserControllerTests<U extends User> extends ControllerTests{
     private void createAddress(Address address) throws Exception {
         this.mockMvc.perform(
                 post(UserControllerTests.ROOT_URI_EMPLOYEES + user.getId() + "/address/")
+                        .with(csrf())
                         .session(createMockHttpSessionForPutPost())
                         .contentType(contentType)
                         .accept(contentType)
