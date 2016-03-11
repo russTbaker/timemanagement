@@ -52,8 +52,6 @@ public class UserControllerTests<U extends User> extends ControllerTests{
     @Autowired
     private ContractTestUtil contractTestUtil;
 
-    protected MockMvc mockMvc;
-
     //================== TESTS
 
     //--------- Email

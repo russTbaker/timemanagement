@@ -12,9 +12,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Filter;
 
 import static junit.framework.TestCase.assertNotNull;
 
@@ -26,6 +28,8 @@ public class ControllerTests {
     @Autowired
     @Qualifier("userDetailsService")
     protected UserDetailsService userDetailsService;
+    protected MockMvc mockMvc;
+
 
     protected MockHttpSession createMockHttpSessionForPutPost() {
         UsernamePasswordAuthenticationToken principal =
