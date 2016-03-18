@@ -4,6 +4,7 @@ import com.fasterxml.jackson.datatype.joda.JodaMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.rbc.timemanagmentservice.model.Administrator;
 import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.service.TimeManagementUserDetailsService;
 import com.rbc.timemanagmentservice.service.UserService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.apache.velocity.VelocityContext;
@@ -25,10 +26,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
@@ -47,6 +55,14 @@ public class TimemanagementServiceApplication {
 
     @Autowired
     private Environment environment;
+
+
+    private TimeManagementUserDetailsService timeManagementUserDetailsService;
+
+    @Autowired
+    public void setTimeManagementUserDetailsService(TimeManagementUserDetailsService timeManagementUserDetailsService) {
+        this.timeManagementUserDetailsService = timeManagementUserDetailsService;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(TimemanagementServiceApplication.class, args);
@@ -138,13 +154,13 @@ public class TimemanagementServiceApplication {
         return interceptor;
     }
 
-    @Bean
-    public InternalResourceViewResolver getInternalResourceViewResolver() {
-        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-        resolver.setPrefix("/WEB-INF/views/");
-        resolver.setSuffix(".jsp");
-        return resolver;
-    }
+//    @Bean
+//    public InternalResourceViewResolver getInternalResourceViewResolver() {
+//        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+//        resolver.setPrefix("/WEB-INF/views/");
+//        resolver.setSuffix(".jsp");
+//        return resolver;
+//    }
 
     //------------------- Velocity
     @Bean
@@ -181,12 +197,21 @@ public class TimemanagementServiceApplication {
         registrationBean.addUrlMappings("/h2-console/*");
         return registrationBean;
     }
-//    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
-//        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-//        builder.serializationInclusion(JsonInclude.Include.NON_NULL);
-//        builder.
-//        return builder;
-//    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(timeManagementUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+
 
 
 

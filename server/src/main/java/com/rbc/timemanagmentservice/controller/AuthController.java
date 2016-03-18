@@ -4,7 +4,6 @@ import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.security.core.Authentication;

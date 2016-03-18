@@ -45,6 +45,8 @@ public class EmployeeServiceTest extends UserServiceTest<Employee> {
     private JobService jobService;
 
 
+
+
     @Before
     public void setUp() {
         super.setUserService(employeeService);
@@ -266,7 +268,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee> {
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
         employee.setUsername("username" + System.currentTimeMillis());
-        employee.setPassword("password");
+        employee.setPassword(EMPLOYEE_PASSWORD);
         Roles employeeRole = new Roles();
         employeeRole.setRole(Roles.Role.employee);
         employee.getRoles().add(employeeRole);

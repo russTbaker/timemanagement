@@ -7,6 +7,7 @@
         <th><strong>State</strong></th>
         <th><strong>Zip Code</strong></th>
         <th><strong>Delete Address</strong></th>
+        <th><strong>Add Address</strong></th>
         <th>&nbsp;</th>
         <tr ng-repeat="address in addresses">
             <td>&nbsp;</td>
@@ -19,6 +20,11 @@
                         ng-click="deleteUserAddress(user,address)">
                 <span class="glyphicon glyphicon-trash"></span>
             </button></td>
+            <td>
+                <button class="pull-right btn btn-link" type="button" title="Add Address"
+                        ng-click="goToAddAddress(employee)">
+                    <span class="glyphicon glyphicon-edit"></span>
+            </td>
             <td>&nbsp;</td>
         </tr>
     </table>

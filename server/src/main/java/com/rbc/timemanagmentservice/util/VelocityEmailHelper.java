@@ -11,7 +11,6 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
-import javax.mail.internet.MimeMessage;
 import java.util.Map;
 
 /**

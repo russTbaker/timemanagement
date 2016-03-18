@@ -1,6 +1,5 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Roles;
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
@@ -22,12 +21,12 @@ import java.util.Optional;
  * Created by russbaker on 2/22/16.
  */
 @Service(value = "userDetailsService")
-public class TimeManagementUserDetailsService implements UserDetailsService{
-    private final UserRepository employeeRepository;
+public final class TimeManagementUserDetailsService implements UserDetailsService{
+    private final UserRepository userRepository;
 
     @Autowired
-    public TimeManagementUserDetailsService(UserRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
+    public TimeManagementUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Autowired
@@ -35,7 +34,7 @@ public class TimeManagementUserDetailsService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        Optional<User> user = employeeRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
                     user.get().getUsername(),  user.get().getPassword(), true, true, true, true,

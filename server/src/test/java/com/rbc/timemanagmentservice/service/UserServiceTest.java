@@ -1,18 +1,15 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.Address;
-import com.rbc.timemanagmentservice.model.Email;
-import com.rbc.timemanagmentservice.model.Phone;
-import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.NotFoundException;
@@ -27,12 +24,17 @@ import static junit.framework.TestCase.*;
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
 @SuppressWarnings("unchecked")
 public abstract class UserServiceTest<U extends User> {
+    public static final String EMPLOYEE_PASSWORD = "password";
     protected U user;
 
     @Autowired
     private StartupUtility startupUtility;
 
     private  UserService<U> userService;
+
+
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
 
     public void setUserService(UserService<U> userService) {
         this.userService = userService;
@@ -96,6 +98,9 @@ public abstract class UserServiceTest<U extends User> {
         // Act
         U result = userService.updateUser(user);
         assertEquals("Customer not updated", user.getDba(), result.getDba());
+        if( !(result instanceof Customer)){
+            assertTrue("Passwords don't match",passwordEncoder.matches(EMPLOYEE_PASSWORD,result.getPassword()));
+        }
     }
 
 

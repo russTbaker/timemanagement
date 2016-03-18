@@ -3,9 +3,10 @@ package com.rbc.timemanagmentservice.service;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.persistence.ContractRepository;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -21,21 +22,31 @@ public class UserService<U extends User> {
 
     protected final UserRepository userRepository;
     private final ContractRepository contractRepository;
+    private PasswordEncoder passwordEncoder;
+
 
     public UserService(UserRepository userRepository, ContractRepository contractRepository) {
         this.userRepository = userRepository;
         this.contractRepository = contractRepository;
     }
 
-
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
     //-- User CRUD
 
     @Transactional(propagation = Propagation.REQUIRED)
+    @PreAuthorize("hasRole('ROLE_ADMINISTRATOR')")
     public U createUser(U user) {
+        if(!(user instanceof Customer)){
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return (U) userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
+    @PreAuthorize("#user.username == authentication.name or hasRole('ROLE_ADMINISTRATOR')")
     public U getUser(final Integer userId){
         final U user = (U)userRepository.findOne(userId);
         if(user == null){
@@ -45,8 +56,9 @@ public class UserService<U extends User> {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public U updateUser(final U employee) {
-        return (U) userRepository.save(employee);
+    @PreAuthorize("#user.username == authentication.name or hasRole('ROLE_ADMINISTRATOR')")
+    public U updateUser(final U user) {
+        return (U) userRepository.save(user);
     }
 
 

@@ -1,6 +1,8 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.Job;
+import com.rbc.timemanagmentservice.model.TimeEntry;
 import com.rbc.timemanagmentservice.persistence.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;

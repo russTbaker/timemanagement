@@ -1,11 +1,11 @@
 package com.rbc.timemanagmentservice.security;
 
 import com.rbc.timemanagmentservice.filter.CsrfHeaderFilter;
-import com.rbc.timemanagmentservice.service.TimeManagementUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,16 +17,21 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 /**
  * Created by russbaker on 2/22/16.
  */
-//@Configuration
 @EnableWebSecurity
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private TimeManagementUserDetailsService timeManagementUserDetailsService;
+    private DaoAuthenticationProvider authProvider;
+    private CsrfTokenRepository csrfTokenRepository;
 
     @Autowired
-    public void setTimeManagementUserDetailsService(TimeManagementUserDetailsService timeManagementUserDetailsService) {
-        this.timeManagementUserDetailsService = timeManagementUserDetailsService;
+    public void setAuthProvider(DaoAuthenticationProvider authProvider) {
+        this.authProvider = authProvider;
+    }
+
+    @Autowired
+    public void setCsrfTokenRepository(CsrfTokenRepository csrfTokenRepository) {
+        this.csrfTokenRepository = csrfTokenRepository;
     }
 
     @Override
@@ -40,7 +45,7 @@ public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/index.html","/home.html","/login.html","/").permitAll()
+                .antMatchers("/index.html", "/home.html", "/login.html", "/").permitAll()
                 .antMatchers("/user/**").hasRole("ADMIN")
                 .antMatchers("/employee/addEmployee.html").hasRole("ADMIN")
                 .antMatchers("/employee/employee.html").hasRole("EMPLOYEE")
@@ -53,7 +58,7 @@ public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(timeManagementUserDetailsService);
+        auth.authenticationProvider(authProvider);
     }
 
     @Bean
@@ -62,7 +67,6 @@ public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter {
         repository.setHeaderName("X-XSRF-TOKEN");
         return repository;
     }
-
 
 
 }
