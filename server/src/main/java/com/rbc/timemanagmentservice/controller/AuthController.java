@@ -8,6 +8,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,10 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by russbaker on 2/22/16.
@@ -33,9 +31,14 @@ public class AuthController {
         this.employeeRepository = employeeRepository;
     }
 
+
     @RequestMapping("/user")
-    public Principal user(Principal user) {
-        return user;
+    public Map<String, Object> user(final Principal user) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", user.getName());
+        map.put("roles", AuthorityUtils.authorityListToSet(((Authentication) user)
+                .getAuthorities()));
+        return map;
     }
 
     @RequestMapping("/token")

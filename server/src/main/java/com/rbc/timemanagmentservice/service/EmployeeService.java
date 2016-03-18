@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.NotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,12 +40,12 @@ public class EmployeeService extends UserService<Employee> {
     }
 
     @Transactional(readOnly = true)
-    public Employee findByUsername(final String username){
+    public Employee findByUsername(final String username) {
         return employeeRepository.findByUsername(username).get();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteUser(final Integer employeeId){
+    public void deleteUser(final Integer employeeId) {
         final Employee employee = employeeRepository.findOne(employeeId);
         employee.getJobs()
                 .stream()
@@ -79,47 +78,56 @@ public class EmployeeService extends UserService<Employee> {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<TimeEntry> getTimeEntriesForEmployeeJobs(final Integer employeeId, final Integer jobId) {
-        Employee employee = (Employee) userRepository.findOne(employeeId);
-        final Job job = jobRepository.findOne(jobId);
-        addTimeSheetEntries(job);
-        employee.addJob(job);
-        return ((Employee)userRepository.save(employee)).getJobs()
-                .stream()
-                .filter(job1 -> job1.getId().equals(jobId))
-                .findFirst()
-                .get().getTimeEntries();
+        final Employee employee = getEmployeeWithTimeEntries(employeeId, jobId,
+                new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay());
+        return saveEmployeeReturnTimeEntries(jobId, employee);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<TimeEntry> getTimeEntriesForEmployeeJobs(Integer employeeId, Integer jobId, DateTime startDate) {
+        final Employee employee = getEmployeeWithTimeEntries(employeeId, jobId, startDate);
+        return saveEmployeeReturnTimeEntries(jobId, employee);
+    }
+
+
     @Transactional(readOnly = true)
-    public List<TimeEntry> getLatestTimeEntriesForEmployeeJobs(final Integer employeeId, final Integer jobId){
-        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
-        Interval interval = new Interval(weekStart,weekStart.plusDays(7));
+    public List<TimeEntry> getLatestTimeEntriesForEmployeeJobs(final Integer employeeId, final Integer jobId) {
+        final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+        final Interval interval = new Interval(weekStart, weekStart.plusDays(7));
         final Job job = jobRepository.findOne(jobId);
         List<TimeEntry> timeEntries = job.getTimeEntries()
                 .stream()
                 .filter(timeEntry -> interval.contains(timeEntry.getDate()))
                 .collect(Collectors.toList());
-        return  timeEntries;
+        return timeEntries;
     }
 
 
-
     @Transactional(propagation = Propagation.REQUIRED)
-    public void addTimeSheetEntries(List<TimeEntry> newTimeSheetEntries, Integer jobId) {
+    public void addTimeSheetEntries(final List<TimeEntry> newTimeSheetEntries, final Integer jobId) {
         final Job job = jobRepository.findOne(jobId);
-        for (TimeEntry newTimesheetEntry : newTimeSheetEntries) {
-            for (TimeEntry existingTimesheetEntry : job.getTimeEntries()) {
-                if (existingTimesheetEntry.equals(newTimesheetEntry)) {
-                    BeanUtils.copyProperties(newTimesheetEntry, existingTimesheetEntry, "id","job");
-                }
-            }
-        }
+        newTimeSheetEntries.parallelStream()
+                .forEachOrdered(timeEntry -> {
+                            BeanUtils.copyProperties(timeEntry, job.getTimeEntries().stream()
+                                    .filter(timeEntry1 -> timeEntry1.equals(timeEntry))
+                                    .findFirst()
+                                    .get(),"id","job");
+                        }
+                );
     }
 
     //---------- Private Methods
 
-    private void addTimeSheetEntries(Job job) {
-        final DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+    private Employee getEmployeeWithTimeEntries(final Integer employeeId, final Integer jobId, final DateTime startDate) {
+        final Employee employee = (Employee) userRepository.findOne(employeeId);
+        final Job job = jobRepository.findOne(jobId);
+        addTimeSheetEntries(job, startDate);
+        employee.addJob(job);
+        return employee;
+    }
+
+    private void addTimeSheetEntries(Job job, DateTime weekStart) {
+
         for (int i = 0; i < DAYS_PER_WEEK; i++) {
             final TimeEntry timeSheetEntry = new TimeEntry();
             timeSheetEntry.setDate(weekStart.plusDays(i));
@@ -127,6 +135,14 @@ public class EmployeeService extends UserService<Employee> {
             timeSheetEntryRepository.save(timeSheetEntry);
             job.addTimeEntry(timeSheetEntry);
         }
+    }
+
+    private List<TimeEntry> saveEmployeeReturnTimeEntries(final Integer jobId, final Employee employee) {
+        return ((Employee) userRepository.save(employee)).getJobs()
+                .stream()
+                .filter(job1 -> job1.getId().equals(jobId))
+                .findFirst()
+                .get().getTimeEntries();
     }
 
 }

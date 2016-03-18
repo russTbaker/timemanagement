@@ -29,7 +29,7 @@ import static junit.framework.TestCase.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
-public class EmployeeServiceTest extends UserServiceTest<Employee>{
+public class EmployeeServiceTest extends UserServiceTest<Employee> {
 
     public static final int HOURS = 8;
     @Autowired
@@ -45,23 +45,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     private JobService jobService;
 
 
-
     @Before
-    public void setUp(){
+    public void setUp() {
         super.setUserService(employeeService);
         super.setUp();
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         super.tearDown();
-       try {
-           if (employeeService.getUser(user.getId()) != null) {
-               employeeService.deleteUser(user.getId());
-           }
-       }catch (NotFoundException e){
-           // Don't care
-       }
+        try {
+            if (employeeService.getUser(user.getId()) != null) {
+                employeeService.deleteUser(user.getId());
+            }
+        } catch (NotFoundException e) {
+            // Don't care
+        }
     }
 
     @Test
@@ -92,7 +91,6 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     }
 
 
-
     //------------- Jobs
 
     @Test
@@ -101,7 +99,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         Contract firstContract = getContract();
         Contract secondContract = getContract();
         Job job = createPersistentJob(firstContract);
-        employeeService.addContractToUser(user.getId(),firstContract.getId());
+        employeeService.addContractToUser(user.getId(), firstContract.getId());
 
 
         // Act
@@ -110,12 +108,12 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         // Assert
         Employee result = employeeService.getUser(user.getId());
         final List<Job> jobs = result.getJobs();
-        assertEquals("Wrong number of jobs",1,jobs.size());
+        assertEquals("Wrong number of jobs", 1, jobs.size());
         assertFalse("No contract associated with employee", CollectionUtils.isEmpty(jobs));
 
         // Verify Job/Employee relationship
         Job jobResult = jobService.findJob(job.getId());
-        assertEquals("wrong number of employees",1,jobResult.getEmployees().size());
+        assertEquals("wrong number of employees", 1, jobResult.getEmployees().size());
     }
 
 
@@ -123,22 +121,22 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
     public void whenGettingEmployeesAvailableJobs_expectJobsReturned() throws Exception {
         // Assemble
         Contract contract = getContract();
-        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
-        employeeService.addContractToUser(user.getId(),contract.getId());
-        employeeService.addEmployeeToJob(user.getId(),job.getId());
+        Job job = contractService.addJobToContract(contractService.createJob(new Job()).getId(), contract.getId());
+        employeeService.addContractToUser(user.getId(), contract.getId());
+        employeeService.addEmployeeToJob(user.getId(), job.getId());
 
         // Act
         List<Job> result = employeeService.getEmployeeJobs(user.getId());
 
         // Assert
-        assertFalse("No jobs returned",CollectionUtils.isEmpty(result));
-        assertEquals("Wrong job size",1,result.size());
+        assertFalse("No jobs returned", CollectionUtils.isEmpty(result));
+        assertEquals("Wrong job size", 1, result.size());
     }
-//------------ Timesheets
+
+    //------------ Timesheets
 
     @Test
     public void whenRequestingEmployeesTimeEntriess_expectTimeEntriesReturned() throws Exception {
-        // Assemble
 
         // Act
         List<TimeEntry> employeeTimeEntries = getTimeEntries(user, getContract());
@@ -147,30 +145,48 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         // Assert
         assertNotNull("No timesheets returned", user);
         // TODO: Fix
-        for(TimeEntry timeSheetEntry:employeeTimeEntries){
-            assertNotNull("No Id",timeSheetEntry.getId());
-            assertEquals("Hours populated",0,timeSheetEntry.getHours(),0.0);
-            assertNotNull("No date",timeSheetEntry.getDate());
+        for (TimeEntry timeSheetEntry : employeeTimeEntries) {
+            assertNotNull("No Id", timeSheetEntry.getId());
+            assertEquals("Hours populated", 0, timeSheetEntry.getHours(), 0.0);
+            assertNotNull("No date", timeSheetEntry.getDate());
+        }
+    }
+
+    @Test
+    public void whenRequestingEmployeeTimesheetWithSpecificStartWeek_expectTimesheetWithCorrectStartDate() throws Exception {
+        // Assemble
+        DateTime lastWeek = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay().minusDays(7);
+
+        // Act
+        List<TimeEntry> employeeTimeEntries = getTimeEntries(user, getContract(), lastWeek);
+        user = employeeService.getUser(user.getId());
+
+        // Assert
+        Interval interval = new Interval(lastWeek, lastWeek.plusDays(7));
+        for (TimeEntry timeSheetEntry : employeeTimeEntries) {
+            assertNotNull("No Id", timeSheetEntry.getId());
+            assertEquals("Hours populated", 0, timeSheetEntry.getHours(), 0.0);
+            assertNotNull("No date", timeSheetEntry.getDate());
+            assertTrue("Date not within interval: " + interval.getStart() + " and  " + interval.getEnd(), interval.contains(timeSheetEntry.getDate()));
         }
     }
 
     @Test
     public void whenGettingEmployeeLatestTimeEntries_expectLatestReturned() throws Exception {
-        DateTimeFormatter dateTimeFormatter  = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
         // Assemble
         getTimeEntries(user, getContract());
         user = employeeService.getUser(user.getId());
 
         // Act
-        List<TimeEntry> results = employeeService.getLatestTimeEntriesForEmployeeJobs(user.getId(),user.getJobs().get(0).getId());
-        assertFalse("Results are empty",CollectionUtils.isEmpty(results));
-        assertEquals("Wrong number of time entries",7,results.size());
+        List<TimeEntry> results = employeeService.getLatestTimeEntriesForEmployeeJobs(user.getId(), user.getJobs().get(0).getId());
+        assertFalse("Results are empty", CollectionUtils.isEmpty(results));
+        assertEquals("Wrong number of time entries", 7, results.size());
         DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
-        Interval interval = new Interval(weekStart,weekStart.plusDays(7));
-        for(TimeEntry timeEntry:results){
-            assertTrue("Wrong date for time entry " + dateTimeFormatter.print(timeEntry.getDate()),interval.contains(timeEntry.getDate()));
+        Interval interval = new Interval(weekStart, weekStart.plusDays(7));
+        for (TimeEntry timeEntry : results) {
+            assertTrue("Wrong date for time entry " + dateTimeFormatter.print(timeEntry.getDate()), interval.contains(timeEntry.getDate()));
         }
-
     }
 
     @Test
@@ -181,36 +197,48 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         TimeEntry timeEntry = timeEntries.get(0);
         final int updatedHours = 20;
         timeEntry.setHours(updatedHours);
-        List<DateTime> expectedTimes = new ArrayList<>();
-        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
-        for(int i=0;i<7;i++){
-            expectedTimes.add(weekStart.plusDays(i));
-        }
+        List<DateTime> expectedTimes = getWeeksWorthOfTimeEntries();
 
         // Act
-        employeeService.addTimeSheetEntries(new ArrayList<>(timeEntries)  , timeEntries.get(0).getJob().getId());
+        Integer originalJobId = timeEntries.get(0).getJob().getId();
+        employeeService.addTimeSheetEntries(new ArrayList<>(timeEntries), originalJobId);
 
         // Assert
-        Employee result = employeeService.getUser(user.getId());
-        final List<TimeEntry> timeEntryResults = result.getJobs().get(0).getTimeEntries();
-        assertEquals("Wrong number of timesheet entries",7,timeEntryResults.size());
-        assertEquals("Wrong hours",updatedHours,timeEntryResults
-                .stream()
-                .filter(te -> te.getDate().equals(timeEntry.getDate()))
-                .findFirst()
-                .get().getHours(),0.0);
-
-
-        // Make sure the job also has the updated entries
-        final List<TimeEntry> jobTimesheetEntries = jobService.findJob(user.getJobs().get(0).getId()).getTimeEntries();
-        assertEquals("Wrong number of job time entries",7,jobTimesheetEntries.size());
-        assertTrue("Job doesn't have updates", jobTimesheetEntries.containsAll(timeEntries));
-        timeEntryResults
-                .stream()
-                .forEach(timeEntry1 -> assertTrue("Time entry not in collection",expectedTimes.contains(timeEntry1.getDate())));
+        assertTimesheetHydrated(timeEntries, timeEntry, updatedHours, expectedTimes);
 
     }
-//----------- Contracts
+
+
+
+
+    @Test
+    public void whenUpdatingTimeSheetEntriesWithNoIdOrJob_expectIdsFromOriginal() throws Exception {
+        // Assemble
+        List<TimeEntry> timeEntries = getTimeEntries(user, getContract());
+        Integer originalJobId = timeEntries.get(0).getJob().getId();
+
+        timeEntries
+                .stream()
+                .forEach(timeEntry1 -> {
+                    timeEntry1.setJob(null);
+                    timeEntry1.setId(null);
+                });
+
+        user = employeeService.getUser(user.getId());
+        TimeEntry timeEntry = timeEntries.get(0);
+        final int updatedHours = 20;
+        timeEntry.setHours(updatedHours);
+        List<DateTime> expectedTimes = getWeeksWorthOfTimeEntries();
+
+
+        // Act
+        employeeService.addTimeSheetEntries(new ArrayList<>(timeEntries), originalJobId);
+
+        // Assert
+        assertTimesheetHydrated(timeEntries, timeEntry, updatedHours, expectedTimes);
+    }
+
+    //----------- Contracts
 
     @Test
     public void whenGettingEmployeesContracts_expectNoneFound() throws Exception {
@@ -218,11 +246,11 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         Employee employee = user;//createUser();
         contractTestUtil.getJobCreator().invoke();
         Contract contract = contractTestUtil.getContract();
-        employeeService.addContractToUser(employee.getId(),contract.getId());
+        employeeService.addContractToUser(employee.getId(), contract.getId());
 
         // Act
         List<Contract> contracts = employeeService.getUserContracts(employee.getId());
-        assertFalse("No contracts returned",CollectionUtils.isEmpty(contracts));
+        assertFalse("No contracts returned", CollectionUtils.isEmpty(contracts));
 
     }
 
@@ -237,7 +265,7 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         Employee employee = new Employee();
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
-        employee.setUsername("username"+System.currentTimeMillis());
+        employee.setUsername("username" + System.currentTimeMillis());
         employee.setPassword("password");
         Roles employeeRole = new Roles();
         employeeRole.setRole(Roles.Role.employee);
@@ -251,12 +279,48 @@ public class EmployeeServiceTest extends UserServiceTest<Employee>{
         return employeeService.getTimeEntriesForEmployeeJobs(employee.getId(), job.getId());
     }
 
+    private List<TimeEntry> getTimeEntries(Employee employee, Contract contract, DateTime startDate) {
+        Job job = createPersistentJob(contract);
+        return employeeService.getTimeEntriesForEmployeeJobs(employee.getId(), job.getId(), startDate);
+    }
+
     private Job createPersistentJob(Contract contract) {
-        return contractService.addJobToContract(contractService.createJob(new Job()).getId(),contract.getId());
+        return contractService.addJobToContract(contractService.createJob(new Job()).getId(), contract.getId());
     }
 
     private Contract getContract() {
         return contractService.saveContract(new Contract());
+    }
+
+    private void assertTimesheetHydrated(List<TimeEntry> timeEntries, TimeEntry timeEntry, int updatedHours, List<DateTime> expectedTimes) {
+        Employee employeeResult = employeeService.getUser(user.getId());
+        List<TimeEntry> timeEntryResults = employeeResult.getJobs().get(0).getTimeEntries();
+        assertEquals("Wrong number of timesheet entries", 7, timeEntryResults.size());
+        assertEquals("Wrong hours", updatedHours, timeEntryResults
+                .stream()
+                .filter(te -> te.getDate().equals(timeEntry.getDate()))
+                .findFirst()
+                .get().getHours(), 0.0);
+        timeEntryResults
+                .stream()
+                .forEach(timeEntry2 -> assertNotNull("No jobId", timeEntry2.getJobId()));
+
+        // Make sure the job also has the updated entries
+        final List<TimeEntry> jobTimesheetEntries = jobService.findJob(user.getJobs().get(0).getId()).getTimeEntries();
+        assertEquals("Wrong number of job time entries", 7, jobTimesheetEntries.size());
+        assertTrue("Job doesn't have updates", jobTimesheetEntries.containsAll(timeEntries));
+        timeEntryResults
+                .stream()
+                .forEach(timeEntry1 -> assertTrue("Time entry not in collection", expectedTimes.contains(timeEntry1.getDate())));
+    }
+
+    private List<DateTime> getWeeksWorthOfTimeEntries() {
+        List<DateTime> expectedTimes = new ArrayList<>();
+        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
+        for (int i = 0; i < 7; i++) {
+            expectedTimes.add(weekStart.plusDays(i));
+        }
+        return expectedTimes;
     }
 
 }

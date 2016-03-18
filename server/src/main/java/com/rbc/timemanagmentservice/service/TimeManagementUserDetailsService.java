@@ -33,17 +33,14 @@ public class TimeManagementUserDetailsService implements UserDetailsService{
     private MessageSource messages;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         Optional<Employee> user = employeeRepository.findByUsername(username);
-        if (!user.isPresent()) {
+        if (user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
                     user.get().getUsername(),  user.get().getPassword(), true, true, true, true,
                     getAuthorities(user.get().getRoles()));
         }
-
-        return new org.springframework.security.core.userdetails.User(
-                user.get().getUsername(), user.get().getPassword(), true, true, true,
-                true, getAuthorities(user.get().getRoles()));
+        throw new UsernameNotFoundException("Could not find user with username: " + username);
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(List<Roles> roles) {

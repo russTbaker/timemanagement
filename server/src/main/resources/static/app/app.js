@@ -34,6 +34,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             .when('/timesheet', {
                 templateUrl: 'views/timesheet/timesheet.html'
             })
+            .when('/login', {
+                templateUrl: 'views/login.html',
+                controller : 'NavigationController',
+                controllerAs: 'controller'
+            })
             .otherwise({
                 redirectTo: '/'
             });
@@ -50,8 +55,11 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $http.get('user', {headers : headers}).success(function(data) {
                 if (data.name) {
                     $rootScope.authenticated = true;
+                    $scope.user = data.name;
+                    $scope.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>1;
                 } else {
                     $rootScope.authenticated = false;
+                    $scope.admin = false;
                 }
                 callback && callback();
             }).error(function() {
@@ -61,12 +69,16 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
         };
 
+
+
         $scope.logout = function() {
             $http.post('logout', {}).success(function() {
                 $rootScope.authenticated = false;
+                $scope.admin = false;
                 $location.path("/");
             }).error(function(data) {
                 $rootScope.authenticated = false;
+                $scope.admin = false;
             });
         };
 
@@ -84,6 +96,12 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             });
         };
 
+        $scope.logout = function() {
+            $http.post('logout', {}).finally(function() {
+                $rootScope.authenticated = false;
+                $location.path("/");
+            });
+        }
         $scope.navigateTo = function (path) {
             $location.path(path);
         };
@@ -795,6 +813,8 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             'employee',
             'customer',
             'guest'];
+        init();
+        function init() {
 
         var httpPromise = $http.get('/api/customers').success(function (response) {
             $scope.response = angular.toJson(response, true);
@@ -804,6 +824,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $scope.users = processedResponse._embeddedItems;
             $scope.processedResponse = angular.toJson(processedResponse, true);
         });
+    }
 
 
         $scope.goToEditUser = function (user) {
@@ -887,7 +908,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $scope.isEmailsCollapsed = !$scope.isEmailsCollapsed;
         };
 
-        $scope.deleteCustomer = function (customer) {
+        $scope.deleteUser = function (customer) {
             var httpPromiseTimesheet = $http.delete(customer._links.self.href, customer, 'Content-Type:application/json+hal').success(
                 function (response) {
                     $scope.response = angular.toJson(response, true);
@@ -896,10 +917,10 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 console.log("Customer deleted.")
             });
 
-            $route.reload();
+            init();
         };
 
-        $scope.deleteCustomerAddress = function (customer, address) {
+        $scope.deleteUserAddress = function (customer, address) {
             var customerHref = customer._links.self.href;
             var addressHref = address._links.self.href;
             var customerId = customerHref.substring(customerHref.lastIndexOf('/') + 1, customerHref.length);
@@ -912,7 +933,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $route.reload();
         };
 
-        $scope.deleteCustomerPhone = function (customer, phone) {
+        $scope.deleteUserPhone = function (customer, phone) {
             var customerHref = customer._links.self.href;
             var phoneHref = phone._links.self.href;
             var customerId = customerHref.substring(customerHref.lastIndexOf('/') + 1, customerHref.length);
@@ -925,7 +946,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             $route.reload();
         };
 
-        $scope.deleteCustomerEmail = function (customer, email) {
+        $scope.deleteUserEmail = function (customer, email) {
             var customerHref = customer._links.self.href;
             var emailHref = email._links.self.href;
             var customerId = customerHref.substring(customerHref.lastIndexOf('/') + 1, customerHref.length);
@@ -946,3 +967,22 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         }
 
     });
+angular.module('timesheetApp').factory('UserService',function(){
+    var currentUser = null;
+
+    var adminRoles = ['admin', 'editor'];
+    var otherRoles = ['user'];
+
+    return {
+        // some code that gets and sets the user to the singleton variable...
+
+
+        validateRoleAdmin: function () {
+            return _.contains(adminRoles, currentUser.role);
+        },
+
+        validateRoleOther: function () {
+            return _.contains(otherRoles, currentUser.role);
+        }
+    };
+});
