@@ -11,4 +11,10 @@ import javax.persistence.Table;
 @Table(name = "ADMINISTRATOR")
 @PrimaryKeyJoinColumn(name = "ADMINISTRATOR_ID")
 public class Administrator extends User{
+    public Administrator() {
+        super();
+        final Roles roles = new Roles();
+        roles.setRole(Roles.Role.administrator);
+        this.roles.add(roles);
+    }
 }

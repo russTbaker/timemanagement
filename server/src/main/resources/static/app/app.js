@@ -56,7 +56,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 if (data.name) {
                     $rootScope.authenticated = true;
                     $scope.user = data.name;
-                    $scope.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>1;
+                    $scope.admin = data && data.roles && data.roles.indexOf("ROLE_ADMINISTRATOR")!=-1;
                 } else {
                     $rootScope.authenticated = false;
                     $scope.admin = false;

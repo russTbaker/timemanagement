@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-@DiscriminatorColumn(name="USER_TYPE")
+//@DiscriminatorColumn(name="USER_TYPE")
 @ObjectTypeConverter(
         name = "roleEnumFromStringConversion",
         objectType = Roles.Role.class,
@@ -27,12 +27,15 @@ import java.util.List;
                 @ConversionValue(objectValue = "guest", dataValue = "guest")
         }
 )
+@Table(name = "USER",  uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 public abstract class User {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_CONTRACT",
     joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "id"))
     @JsonIgnore
     protected List<Contract> contracts = new ArrayList<>();
+    protected String username;
+    protected String password;
 
     @OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
     private List<Address> address = new ArrayList<>();
@@ -180,6 +183,22 @@ public abstract class User {
     }
 
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -198,6 +217,9 @@ public abstract class User {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (password != null ? password.hashCode() : 0);
         return result;
     }
+
 }

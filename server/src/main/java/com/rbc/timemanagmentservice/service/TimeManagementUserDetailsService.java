@@ -2,7 +2,8 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Roles;
-import com.rbc.timemanagmentservice.persistence.EmployeeRepository;
+import com.rbc.timemanagmentservice.model.User;
+import com.rbc.timemanagmentservice.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,10 +23,10 @@ import java.util.Optional;
  */
 @Service(value = "userDetailsService")
 public class TimeManagementUserDetailsService implements UserDetailsService{
-    private final EmployeeRepository employeeRepository;
+    private final UserRepository employeeRepository;
 
     @Autowired
-    public TimeManagementUserDetailsService(EmployeeRepository employeeRepository) {
+    public TimeManagementUserDetailsService(UserRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 
@@ -34,7 +35,7 @@ public class TimeManagementUserDetailsService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        Optional<Employee> user = employeeRepository.findByUsername(username);
+        Optional<User> user = employeeRepository.findByUsername(username);
         if (user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
                     user.get().getUsername(),  user.get().getPassword(), true, true, true, true,

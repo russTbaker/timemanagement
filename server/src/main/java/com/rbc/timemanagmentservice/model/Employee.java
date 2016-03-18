@@ -11,12 +11,9 @@ import java.util.List;
  * Created by rbaker on 2/6/16.
  */
 @Entity
-@Table(name = "EMPLOYEE",  uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
+@Table(name = "EMPLOYEE")
 @PrimaryKeyJoinColumn(name = "EMPLOYEE_ID")
 public class Employee extends User{
-    private String username;
-
-    private String password;
 
 
     @ManyToMany(mappedBy = "employees",fetch = FetchType.EAGER)
@@ -34,23 +31,6 @@ public class Employee extends User{
     public List<Job> getJobs() {
         return jobs;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
 
 
     @JsonIgnore
@@ -78,9 +58,8 @@ public class Employee extends User{
     }
 
     @Override
-    public int hashCode() {
-        int result = username != null ? username.hashCode() : 0;
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        return result;
+    public int hashCode(){
+        return super.hashCode();
     }
+
 }

@@ -1,10 +1,10 @@
 package com.rbc.timemanagmentservice;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.datatype.joda.JodaMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.rbc.timemanagmentservice.model.Administrator;
 import com.rbc.timemanagmentservice.model.Employee;
-import com.rbc.timemanagmentservice.service.EmployeeService;
+import com.rbc.timemanagmentservice.service.UserService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -25,12 +25,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -59,7 +56,7 @@ public class TimemanagementServiceApplication {
 
     @Bean
     @Transactional(propagation = Propagation.REQUIRED)
-    public CommandLineRunner demo(StartupUtility startupUtility, EmployeeService employeeService) {
+    public CommandLineRunner demo(StartupUtility startupUtility, UserService<Administrator> userService) {
         return (args) -> {
             List<String> profiles = Arrays.asList(environment.getActiveProfiles());
             if(environment.getActiveProfiles().length != 0 && profiles.contains("demo") ){
@@ -67,13 +64,13 @@ public class TimemanagementServiceApplication {
                 LOG.debug("Found employee: " + employee.getId());
             } else if(profiles.contains("runtime")) {
                 try{
-                    employeeService.findAll(null,null);
+                    userService.findAll(null,null);
                 }catch (NotFoundException e){
-                    Employee employee = new Employee();
-                    employee.setDba("Administrator");
-                    employee.setUsername("admin");
-                    employee.setPassword("password");
-                    employeeService.createUser(employee);
+                    Administrator administrator = new Administrator();
+                    administrator.setDba("Administrator");
+                    administrator.setUsername("admin");
+                    administrator.setPassword("password");
+                    userService.createUser(administrator);
                 }
             }
         };
