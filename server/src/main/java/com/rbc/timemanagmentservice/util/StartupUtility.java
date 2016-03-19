@@ -91,11 +91,11 @@ public class StartupUtility {
 //        employeeService.addContractToUser(russ.getId(),rbcContract.getId());
 
         // Now add the employee jobs
-//        employeeService.addEmployeeToJob(russ.getId(),softwareEngineeringJobId);
+        employeeService.addEmployeeToJob(russ.getId(),softwareEngineeringJobId);
 //        employeeService.addEmployeeToJob(russ.getId(),gaJobId);
 
         // Set up some time entries for each job
-//        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),softwareEngineeringJobId);
+        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),softwareEngineeringJobId);
 //        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),gaJobId);
         return employeeService.getUser(russ.getId());
     }

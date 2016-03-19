@@ -33,7 +33,7 @@ public class ControllerTests {
 
     protected MockHttpSession createMockHttpSessionForPutPost() {
         UsernamePasswordAuthenticationToken principal =
-                this.getPrincipal("admin");
+                this.getPrincipal("rbaker");
 
         SecurityContextHolder.getContext().setAuthentication(principal);
         MockHttpSession session = new MockHttpSession();
