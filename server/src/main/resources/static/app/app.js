@@ -51,33 +51,43 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
     angular.module('timesheetApp').factory('UserService',function(SpringDataRestAdapter,$http){
         var user;
-        var address;
         var response;
         var processedResponse;
         var error;
         return {
             addAddress:function (incomingAddress, userId) {
-                var httpPromise = $http.post('/api/addresses/', incomingAddress).success(
+                this.addAssociation(incomingAddress,userId,'address','addresses');
+            },
+
+            addPhone:function (incomingPhone, userId) {
+                this.addAssociation(incomingPhone,userId,'phone','phones');
+            },
+
+            addEmail:function (incomingEmail, userId) {
+                this.addAssociation(incomingEmail,userId,'email','emails');
+            },
+
+            addAssociation:function (association, userId,type,pluralType) {
+                var httpPromise = $http.post('/api/'+pluralType+'/', association).success(
                     function (incomingResponse) {
-                        address =incomingResponse._links.self.href;
-                        var addAddressToUserPromise = $http({method: 'PUT',
-                            url: '/api/users/' + userId + "/address",
-                            data: address,
+                        $http({method: 'PUT',
+                            url: '/api/users/' + userId + "/" + type,
+                            data: incomingResponse._links.self.href,
                             headers: {
                                 'Content-Type':'text/uri-list'
                             }
                         }).success(function(addAddressToUserResponse){
-                            }).error(function(errorAddAddressToUserResponse){
-                                error = errorAddAddressToUserResponse.message;
-                                console.log("An error has occurred." + error.message)
-                            });
+                        }).error(function(errorAddAddressToUserResponse){
+                            error = errorAddAddressToUserResponse.message;
+                            console.log("An error has occurred." + error.message)
+                        });
                     }).error(function(response){
-                        error = response.message;
-                        console.log("An error has occurred." + error.message);
+                    error = response.message;
+                    console.log("An error has occurred." + error.message);
                 });
 
                 SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
-                    console.log("Address Added!");
+                    console.log(type + " Added!");
                 });
             },
 
