@@ -16,7 +16,6 @@ import java.util.List;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-//@DiscriminatorColumn(name="USER_TYPE")
 @ObjectTypeConverter(
         name = "roleEnumFromStringConversion",
         objectType = Roles.Role.class,

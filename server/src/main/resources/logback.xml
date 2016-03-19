@@ -13,12 +13,12 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
-    <logger name="org.springframework" level="warn" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
+    <!--<logger name="org.springframework.data.rest" level="debug" additivity="false">-->
+        <!--<appender-ref ref="STDOUT" />-->
+    <!--</logger>-->
 
 
-    <logger name="org.apache.velocity.tools" level="debug" additivity="false">
+    <logger name="org.apache.velocity.tools" level="info" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 

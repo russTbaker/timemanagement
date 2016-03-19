@@ -15,9 +15,20 @@
                         </div>
                     </td>
                     <td><input name="street2" type="text" class="form-control" ng-model="address.street2" placeholder="{{address.street2}}"/></td>
-                    <td><input name="city" type="text" class="form-control" ng-model="address.city" placeholder="{{address.city}}"  required=""/></td>
-                    <td><input name="state" type="text" class="form-control" ng-model="address.state" placeholder="{{address.state}}"  required=""/></td>
-                    <td><input name="zip" type="text" class="form-control" ng-model="address.zip" placeholder="{{address.zip}}"  required=""/></td>
+                    <td><input name="city" type="text" class="form-control" ng-model="address.city" placeholder="{{address.city}}"  required=""/>
+                        <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.city.$touched">
+                            <div ng-show="addUserAddresForm.city.$error.required" class="help-block">City cannot be blank.</div>
+                        </div>
+                    </td>
+                    <td><input name="state" type="text" class="form-control" ng-model="address.state" placeholder="{{address.state}}"  required=""/>
+                        <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.state.$touched">
+                            <div ng-show="addUserAddresForm.state.$error.required" class="help-block">State cannot be blank.</div>
+                        </div></td>
+                    <td><input name="zip" type="text" class="form-control" ng-model="address.zip" placeholder="{{address.zip}}"  required=""/>
+                        <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.zip.$touched">
+                            <div ng-show="addUserAddresForm.zip.$error.required" class="help-block">Street 1 cannot be blank.</div>
+                        </div>
+                    </td>
                 </tr>
             </table>
             <span class="input-group-btn">

@@ -27,7 +27,6 @@ import java.util.List;
 @RequestMapping("/hydrated/employees")
 public class EmployeeController extends UserController<Employee>{
 
-    public static final String TIMESHEETS = "timesheets";
     private final EmployeeService employeeService;
 
     @Autowired
@@ -60,7 +59,6 @@ public class EmployeeController extends UserController<Employee>{
     @RequestMapping(path = "/{employeeId}/jobs/{jobId}", method = RequestMethod.POST)
     public ResponseEntity<?> addJobToEmployee(@PathVariable("employeeId") Integer employeeId,
                                               @PathVariable("jobId") Integer jobId) {
-//        final Integer employeeId = getCurrentEmployee().getId();
         employeeService.addEmployeeToJob(employeeId,jobId);
         return new ResponseEntity<>(null,getHttpHeadersForEntity(()->jobId,"jobs"),HttpStatus.ACCEPTED);
     }

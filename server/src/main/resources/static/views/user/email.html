@@ -3,6 +3,7 @@
         <th><strong>Email</strong></th>
         <th><strong>Type</strong></th>
         <th><strong>Delete Email</strong></th>
+        <th><strong>Add Email</strong></th>
         <tr ng-repeat="email in emails">
             <td>{{email.email}}</td>
             <td>{{email.emailType}}</td>
@@ -10,6 +11,11 @@
                         ng-click="deleteUserEmail(user,email)">
                 <span class="glyphicon glyphicon-trash"></span>
             </button></td>
+            <td>
+                <button class="pull-right btn btn-link" type="button" title="Add Email"
+                        ng-click="goToAddEmail(user)">
+                    <span class="glyphicon glyphicon-edit"></span></button>
+            </td>
         </tr>
     </table>
 </div>

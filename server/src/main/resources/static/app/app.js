@@ -1,4 +1,5 @@
 'use strict';
+
 var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetimepicker', 'ngResource', 'ngRoute', 'hljs', 'spring-data-rest'])
     .config(['$routeProvider', '$httpProvider',function ($routeProvider,$httpProvider) {
         $routeProvider.when('/', {
@@ -20,10 +21,13 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 templateUrl: 'views/user/editUserProfile.html'
             })
             .when('/editEmail/:userId', {
-                templateUrl: 'views/employee/email.html'
+                templateUrl: 'views/user/email.html'
             })
-            .when('/addPhone/:employeeId', {
-                templateUrl: 'views/employee/addPhone.html'
+            .when('/addPhone/:userId', {
+                templateUrl: 'views/user/addPhone.html'
+            })
+            .when('/addAddress/:userId', {
+                templateUrl: 'views/user/addAddress.html'
             })
             .when('/customer', {
                 templateUrl: 'views/customer/customer.html'
@@ -43,8 +47,55 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 redirectTo: '/'
             });
         $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
-    }])
-    .controller('NavigationController', function ($rootScope, $scope, $http, $location) {
+    }]);
+
+    angular.module('timesheetApp').factory('UserService',function(SpringDataRestAdapter,$http){
+        var user;
+        var address;
+        var response;
+        var processedResponse;
+        var error;
+        return {
+            addAddress:function (incomingAddress, userId) {
+                var httpPromise = $http.post('/api/addresses/', incomingAddress).success(
+                    function (incomingResponse) {
+                        address =incomingResponse._links.self.href;
+                        var addAddressToUserPromise = $http({method: 'PUT',
+                            url: '/api/users/' + userId + "/address",
+                            data: address,
+                            headers: {
+                                'Content-Type':'text/uri-list'
+                            }
+                        }).success(function(addAddressToUserResponse){
+                            }).error(function(errorAddAddressToUserResponse){
+                                error = errorAddAddressToUserResponse.message;
+                                console.log("An error has occurred." + error.message)
+                            });
+                    }).error(function(response){
+                        error = response.message;
+                        console.log("An error has occurred." + error.message);
+                });
+
+                SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+                    console.log("Address Added!");
+                });
+            },
+
+            getUser: function(){
+                return user;
+            },
+
+            getResponse: function(){
+                return response;
+            },
+
+            getProcessedResponse: function(){
+                return processedResponse;
+            }
+        };
+    });
+
+    app.controller('NavigationController', function ($rootScope, $scope, $http, $location) {
 
         var authenticate = function(credentials, callback) {
 
@@ -421,7 +472,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
         }
     })
-    .controller('AddUserController', function ($scope, $http, SpringDataRestAdapter) {
+    .controller('AddUserController', function ($scope, $http, SpringDataRestAdapter,UserService) {
         $scope.roles = [
             {name: 'administrator', value: 'administrators'},
             {name: 'employee', value: 'employees'},
@@ -445,17 +496,21 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
                 console.log("User Added ");
             });
         };
-        $scope.addAddress = function (address, userId) {
-            var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/address', address,
-                'Content-Type:application/json+hal').success(
-                function (response) {
-                    $scope.response = angular.toJson(response, true);
-                });
-            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
-                $scope.processedResponse = angular.toJson(processedResponse, true);
-                $scope.employee = processedResponse
-                console.log("Address Added!");
-            });
+        //$scope.addAddress = function (address, userId) {
+        //    var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/address', address,
+        //        'Content-Type:application/json+hal').success(
+        //        function (response) {
+        //            $scope.response = angular.toJson(response, true);
+        //        });
+        //    SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
+        //        $scope.processedResponse = angular.toJson(processedResponse, true);
+        //        $scope.employee = processedResponse
+        //        console.log("Address Added!");
+        //    });
+        //};
+
+        $scope.addAddress = function(address,userId){
+            UserService.addAddress(address,userId);
         };
 
         $scope.addEmail = function (email, userId) {
@@ -487,7 +542,7 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         };
 
     })
-    .controller('EditUserController', function ($scope, $routeParams, $http, SpringDataRestAdapter) {
+    .controller('EditUserController', function ($scope, $routeParams, $http, SpringDataRestAdapter,UserService) {
         $scope.emailTypes = ['billing',
             'business',
             'both'];
@@ -530,20 +585,13 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
 
         };
-
-
-        $scope.addAddress = function (employee) {
-            var httpPromiseTimesheet = $http.post('/hydrated/employees/' + userId + '/address', employee.address,
-                'Content-Type:application/json+hal').success(
-                function (response) {
-                    $scope.response = angular.toJson(response, true);
-                });
-            SpringDataRestAdapter.process(httpPromiseTimesheet).then(function (processedResponse) {
-                $scope.processedResponse = angular.toJson(processedResponse, true);
-                $scope.employee = processedResponse
-                console.log("Address Added!");
-            });
+        
+        $scope.addAddress = function(address){
+            UserService.addAddress(address,userId);
+            $scope.response = UserService.getResponse();
+            $scope.processedResponse = UserService.getProcessedResponse();
         };
+
 
         $scope.updateAddress = function (employee, address) {
             var employeeHref = employee._links.self.href;
@@ -624,12 +672,6 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
 
             });
 
-            //SpringDataRestAdapter.process($http.get(usersUri + '/roles').success(function (response) {
-            //    $scope.response = angular.toJson(response, true);
-            //})).then(function (processedResponse) {
-            //    $scope.roles = processedResponse._embeddedItems;
-            //
-            //});
 
             SpringDataRestAdapter.process($http.get(usersUri + '/address').success(function (response) {
                 $scope.response = angular.toJson(response, true);
@@ -668,6 +710,24 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
             var href = user._links.self.href;
             var userId = href.substr(href.lastIndexOf("/") + 1, href.length);
             $location.path('editUser/' + userId);
+        };
+
+        $scope.goToAddAddress = function (user) {
+            var href = user._links.self.href;
+            var employeeId = href.substr(href.lastIndexOf("/") + 1, href.length);
+            $location.path('addAddress/' + employeeId);
+        };
+
+        $scope.goToAddPhone = function (user) {
+            var href = user._links.self.href;
+            var userId = href.substr(href.lastIndexOf("/") + 1, href.length);
+            $location.path('addPhone/' + userId);
+        };
+
+        $scope.goToAddEmail = function (user) {
+            var href = user._links.self.href;
+            var userId = href.substr(href.lastIndexOf("/") + 1, href.length);
+            $location.path('addEmail/' + userId);
         };
 
 
@@ -967,22 +1027,4 @@ var app = angular.module('timesheetApp', ['ui.bootstrap', 'ui.bootstrap.datetime
         }
 
     });
-angular.module('timesheetApp').factory('UserService',function(){
-    var currentUser = null;
 
-    var adminRoles = ['admin', 'editor'];
-    var otherRoles = ['user'];
-
-    return {
-        // some code that gets and sets the user to the singleton variable...
-
-
-        validateRoleAdmin: function () {
-            return _.contains(adminRoles, currentUser.role);
-        },
-
-        validateRoleOther: function () {
-            return _.contains(otherRoles, currentUser.role);
-        }
-    };
-});

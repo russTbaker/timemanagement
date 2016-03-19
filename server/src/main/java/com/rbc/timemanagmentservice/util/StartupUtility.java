@@ -1,15 +1,11 @@
 package com.rbc.timemanagmentservice.util;
 
 import com.rbc.timemanagmentservice.model.*;
-import com.rbc.timemanagmentservice.service.ContractService;
-import com.rbc.timemanagmentservice.service.CustomerService;
-import com.rbc.timemanagmentservice.service.EmployeeService;
-import com.rbc.timemanagmentservice.service.JobService;
+import com.rbc.timemanagmentservice.service.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 /**
  * Created by russbaker on 2/12/16.
@@ -19,19 +15,24 @@ public class StartupUtility {
 
 
     public static final double RATE = 87.5;
+    private final AdministratorService administratorService;
     private final EmployeeService employeeService;
     private final CustomerService customerService;
     private final ContractService contractService;
     private final JobService jobService;
+    private final PasswordEncoder passwordEncoder;
     private Customer customer;
 
 
     @Autowired
-    public StartupUtility(EmployeeService employeeService, CustomerService customerService, ContractService contractService, JobService jobService) {
+    public StartupUtility(AdministratorService administratorService, EmployeeService employeeService, CustomerService customerService,
+                          ContractService contractService, JobService jobService, PasswordEncoder passwordEncoder) {
+        this.administratorService = administratorService;
         this.employeeService = employeeService;
         this.customerService = customerService;
         this.contractService = contractService;
         this.jobService = jobService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public static final String DBA = "Z2M4";
@@ -56,6 +57,17 @@ public class StartupUtility {
         Contract z2M4Contract = getContractForCustomer(customer,"HDS Social Innovation" ,"HDS Social Innovation - Second Phase" );
 //        Contract rbcContract = getContractForCustomer(rbc,"GA" , "General Overhead");
 
+        // JOB
+        Job softwareEngineering = getJob("BT");
+//        Job gA = getJob("GA");
+
+        // Administrator
+        Administrator admin = new Administrator();
+        admin.setUsername("admin");
+        admin.setPassword("password");//passwordEncoder.encode("password"));
+        admin.setDba("Administrator");
+        administratorService.createUser(admin);
+
 
         // EMPLOYEE
         // Set up employee with softwareEngineering
@@ -65,9 +77,7 @@ public class StartupUtility {
         russ.addPhone(getPhone());
         russ = employeeService.updateUser(russ);
 
-        // JOB
-        Job softwareEngineering = getJob("BT");
-//        Job gA = getJob("GA");
+
 
         Integer softwareEngineeringJobId = contractService.createJob(softwareEngineering).getId();
 //        Integer gaJobId = contractService.createJob(gA).getId();
@@ -85,9 +95,8 @@ public class StartupUtility {
 //        employeeService.addEmployeeToJob(russ.getId(),gaJobId);
 
         // Set up some time entries for each job
-        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),softwareEngineeringJobId);
+//        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),softwareEngineeringJobId);
 //        employeeService.getTimeEntriesForEmployeeJobs(russ.getId(),gaJobId);
-Job test = jobService.findJob(softwareEngineeringJobId);
         return employeeService.getUser(russ.getId());
     }
 
@@ -116,15 +125,9 @@ Job test = jobService.findJob(softwareEngineeringJobId);
         Employee employee = new Employee();
         employee.setFirstName("Russ");
         employee.setLastName("Baker");
-        employee.setUsername("admin");
+        employee.setUsername("rbaker");
         employee.setPassword("password");
         employee.setDba("RussBaker");
-        Roles adminRole = new Roles();
-        adminRole.setRole(Roles.Role.administrator);
-
-        Roles employeeRole = new Roles();
-        employeeRole.setRole(Roles.Role.employee);
-        employee.getRoles().addAll(Arrays.asList(adminRole,employeeRole));
         return employee;
     }
 
@@ -134,9 +137,6 @@ Job test = jobService.findJob(softwareEngineeringJobId);
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
         customer.setDba(dba);
-        Roles customerRole = new Roles();
-        customerRole.setRole(Roles.Role.customer);
-        customer.getRoles().add(customerRole);
         return customer;
     }
 

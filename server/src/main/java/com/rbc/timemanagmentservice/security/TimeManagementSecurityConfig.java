@@ -22,17 +22,12 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 public class TimeManagementSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DaoAuthenticationProvider authProvider;
-    private CsrfTokenRepository csrfTokenRepository;
 
     @Autowired
     public void setAuthProvider(DaoAuthenticationProvider authProvider) {
         this.authProvider = authProvider;
     }
 
-    @Autowired
-    public void setCsrfTokenRepository(CsrfTokenRepository csrfTokenRepository) {
-        this.csrfTokenRepository = csrfTokenRepository;
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
