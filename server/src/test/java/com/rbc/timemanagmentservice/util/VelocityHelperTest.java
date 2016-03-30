@@ -6,6 +6,7 @@ import com.rbc.timemanagmentservice.service.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(TimemanagementServiceApplication.class)
+@Ignore("This needs to be mocked")
 public class VelocityHelperTest {
     public static final Contract.Terms NET_30 = Contract.Terms.net30;
     public static final String JOB_NAME = "Second Phase";

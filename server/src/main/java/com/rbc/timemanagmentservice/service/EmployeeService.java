@@ -41,12 +41,7 @@ public class EmployeeService extends UserService<Employee> {
         this.timeSheetEntryRepository = timeSheetEntryRepository;
     }
 
-//    @Transactional(readOnly = true)
-//    public Employee findByUsername(final String username) {
-//        return employeeRepository.findByUsername(username).get();
-//    }
-
-//    @Transactional(propagation = Propagation.REQUIRED)
+    //    @Transactional(propagation = Propagation.REQUIRED)
 //    public void deleteUser(final Integer employeeId) {
 //        final Employee employee = employeeRepository.findOne(employeeId);
 //        employee.getJobs()

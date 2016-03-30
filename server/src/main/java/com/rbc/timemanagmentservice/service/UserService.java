@@ -55,6 +55,11 @@ public class UserService<U extends User> {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public U findByUsername(final String username) {
+        return (U) userRepository.findByUsername(username).get();
+    }
+
     @Transactional(propagation = Propagation.REQUIRED)
     @PreAuthorize("#user.username == authentication.name or hasRole('ROLE_ADMINISTRATOR')")
     public U updateUser(final U user) {
@@ -138,20 +143,20 @@ public class UserService<U extends User> {
 //                .get();
 //    }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void removePhoneFromUser(final Integer userId, final Integer phoneId) {
-        final U user = (U) userRepository.findOne(userId);
-        final List<Phone> phones = user.getPhones();
-//        phones.stream()
-//                .filter(phone -> phone.getId().equals(phoneId))
-//                .forEach(phone1 -> phone1.setUser(null));
-        user.getPhones().remove(user.getPhones()
-        .stream()
-        .filter(phone -> phone.getId().equals(phoneId))
-        .findFirst()
-        .get());
-        userRepository.save(user);
-    }
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public void removePhoneFromUser(final Integer userId, final Integer phoneId) {
+//        final U user = (U) userRepository.findOne(userId);
+//        final List<Phone> phones = user.getPhones();
+////        phones.stream()
+////                .filter(phone -> phone.getId().equals(phoneId))
+////                .forEach(phone1 -> phone1.setUser(null));
+//        user.getPhones().remove(user.getPhones()
+//        .stream()
+//        .filter(phone -> phone.getId().equals(phoneId))
+//        .findFirst()
+//        .get());
+//        userRepository.save(user);
+//    }
 
     //--------- Email
 
@@ -184,15 +189,15 @@ public class UserService<U extends User> {
 
     //--------- Contracts
 
-//    @Transactional(propagation = Propagation.REQUIRED)
-//    public void addContractToUser(Integer customerId, Integer contractId) {
-//        final U user = (U) userRepository.findOne(customerId);
-//        Contract contract = contractRepository.findOne(contractId);
-//        if(contract == null){
-//            contract = contractRepository.save(contract);
-//        }
-//        user.addContract(contract);
-//    }
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void addContractToUser(Integer customerId, Integer contractId) {
+        final U user = (U) userRepository.findOne(customerId);
+        Contract contract = contractRepository.findOne(contractId);
+        if(contract == null){
+            contract = contractRepository.save(contract);
+        }
+        user.getContracts().add(contract);
+    }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<Contract> getUserContracts(Integer userId) {
@@ -202,4 +207,6 @@ public class UserService<U extends User> {
         }
         return user.getContracts();
     }
+
+
 }

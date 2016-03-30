@@ -87,7 +87,7 @@ public class StartupUtility {
 
 
         // Add the employee to the contract
-//        employeeService.addContractToUser(russ.getId(),z2M4Contract.getId());
+        employeeService.addContractToUser(russ.getId(),z2M4Contract.getId());
 //        employeeService.addContractToUser(russ.getId(),rbcContract.getId());
 
         // Now add the employee jobs

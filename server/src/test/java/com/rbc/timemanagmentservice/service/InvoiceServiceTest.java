@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.Rollback;
@@ -29,9 +30,10 @@ import static junit.framework.TestCase.*;
 /**
  * Created by russbaker on 3/2/16.
  */
-//@RunWith(PowerMockRunner.class)
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(TimemanagementServiceApplication.class)
+@RunWith(PowerMockRunner.class)
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringApplicationConfiguration(TimemanagementServiceApplication.class)
+@Ignore("Needs to be mocked")
 public class InvoiceServiceTest {
 
     public static final Contract.Terms NET_30 = Contract.Terms.net30;
