@@ -36,14 +36,14 @@ public abstract class User {
     }
 
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany
     @JsonIgnore
     private List<Address> addresses = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany
     private List<Email> emails= new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany
     private List<Phone> phones= new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -51,6 +51,7 @@ public abstract class User {
             joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "id"))
     @JsonIgnore
     protected List<Contract> contracts = new ArrayList<>();
+    
     protected String username;
     protected String password;
 
@@ -58,12 +59,7 @@ public abstract class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Integer id;
 
-//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "id"),
-//        inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
     @Enumerated(value = EnumType.STRING)
-//    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-//    @RestResource(rel = "role")
     protected Role role;// = new ArrayList<>();
 
     private String firstName;
