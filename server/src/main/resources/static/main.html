@@ -4,12 +4,15 @@
 
         <p>From this page you can:</p>
         <ul role="tablist">
-            <li ng-show="authenticated && admin"><a href="#/employee"><span class="glyphicon glyphicon-edit"></span> Manage Employees</a>  </li>
-            <li ng-show="authenticated && admin"><a href="#/customer"><span class="glyphicon glyphicon-edit"></span> Manage Customers </a> </li>
-            <li ng-show="authenticated && admin"><a href="#/contract"><span class="glyphicon glyphicon-edit"></span> Create Jobs </a> </li>
-            <li ng-show="authenticated"><a href="#/timesheet"><span class="glyphicon glyphicon-edit"></span> Create and Enter Timesheets</a> </li>
+            <li ng-show="authenticated && admin"><a href="#/addUser"><span class="glyphicon glyphicon-user"></span>Manage Users</a></li>
+            <li ng-show="authenticated && admin"><a href="#/employee"><span class="glyphicon glyphicon-user"></span> Manage Employees</a>  </li>
+            <li ng-show="authenticated && admin"><a href="#/customer"><span class="glyphicon glyphicon-user"></span> Manage Customers </a> </li>
+            <li ng-show="authenticated && admin"><a href="#/contract"><span class="glyphicon glyphicon-file"></span>Manage Contracts</a></li>
+            <li ng-show="authenticated && admin"><a href="#/contract"><span class="glyphicon glyphicon-pencil"></span> Create Jobs </a> </li>
+            <li ng-show="authenticated"><a href="#/timesheet"><span class="glyphicon glyphicon-pencil"></span> Create and Enter Timesheets</a> </li>
             <li ng-show="authenticated && admin"><a href="#/invoice"><span class="glyphicon glyphicon-usd"></span> Create and Send Invoices</a> </li>
             <li ng-show="authenticated && admin"><a href="#/invoiceStatus"><span class="glyphicon glyphicon-file"></span> Show Invoice Status</a> </li>
+            <li ng-show="authenticated"><a href="#/editUser"><span class="glyphicon glyphicon-file"></span>User Self Service</a></li>
             <li ng-show="!authenticated"><a href="#/login" ><span class="glyphicon glyphicon-log-in"></span> Log In</a> </li>
             <li ng-show="authenticated"><a href="" ng-click="logout()"><span class="glyphicon glyphicon-log-out"></span> Log Out</a> </li>
         </ul>

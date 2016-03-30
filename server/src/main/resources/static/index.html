@@ -23,50 +23,72 @@
 
 <body>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavigationController">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                        aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"><a href="#/login">Login</a> </span>
-                    <span class="icon-bar"><a href="/logout">Logout</a></span>
-                </button>
-                <a class="navbar-brand" href="/#/">Timesheet Management Application</a>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavigationController">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/#/">Timesheet Management Application</a>
+        </div>
+        <div class="btn-group" uib-dropdown>
+            <button id="split-button" type="button" class="btn btn-primary" ng-click="navigateTo('/views')">Action
+            </button>
+            <button type="button" class="btn btn-primary" uib-dropdown-toggle>
+                <span class="caret"></span>
+                <span class="sr-only">Split button!</span>
+            </button>
+            <ul uib-dropdown-menu role="menu" aria-labelledby="split-button">
+                <li class="active" role="menuitem"><a href="#/">Home</a></li>
+                <li ng-show="authenticated && admin" role="menuitem"><a href="#/addUser">Manage Users</a></li>
+                <li ng-show="authenticated && admin" role="menuitem"><a href="#/employee">Manage Employees</a></li>
+                <li ng-show="authenticated && admin" role="menuitem"><a href="#/customer">Manage Customers</a></li>
+                <li ng-show="authenticated && admin" role="menuitem"><a href="#/contract">Manage Contracts</a></li>
+                <li ng-show="authenticated && admin" role="menuitem"><a href="#/contract">Create Jobs </a></li>
+                <li ng-show="authenticated" role="menuitem"><a href="#/editUser">User Self Service</a></li>
+                <li ng-show="authenticated" role="menuitem"><a href="#/timesheet">Timesheets</a></li>
+                <li ng-show="authenticated"><a href="" ng-click="logout()">Log Out</a></li>
+                <li ng-show="!authenticated"><a href="#/login">Log In</a></li>
+            </ul>
+
+            <div ng-show="!authenticated" style="align-content: flex-end">
+
             </div>
-            <div class="btn-group" uib-dropdown>
-                <button id="split-button" type="button" class="btn btn-primary" ng-click="navigateTo('/views')">Action
-                </button>
-                <button type="button" class="btn btn-primary" uib-dropdown-toggle>
-                    <span class="caret"></span>
-                    <span class="sr-only">Split button!</span>
-                </button>
-                <ul uib-dropdown-menu role="menu" aria-labelledby="split-button">
-                    <li class="active" role="menuitem"><a href="#/">Home</a></li>
-                    <li ng-show="authenticated && admin" role="menuitem"><a href="#/addUser">Manage Users</a></li>
-                    <li ng-show="authenticated && admin" role="menuitem"><a href="#/employee">Manage Employees</a></li>
-                    <li ng-show="authenticated && admin" role="menuitem"><a href="#/customer">Manage Customers</a></li>
-                    <li ng-show="authenticated && admin" role="menuitem"><a href="#/contract">Manage Contracts</a></li>
-                    <li ng-show="authenticated" role="menuitem"><a href="#/timesheet">Timesheets</a></li>
-                    <li ng-show="authenticated"><a href="" ng-click="logout()">Log Out</a></li>
-                    <li ng-show="!authenticated"><a href="#/login">Log In</a></li>
-                </ul>
+            <div ng-show="authenticated" style="align-content: flex-end">
+
             </div>
         </div>
-    </nav>
 
-    <div ng-view class="container"></div>
-    <script src="lib/bower/angular/angular.js"></script>
-    <script src="lib/bower/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="lib/bower/angular-resource/angular-resource.js"></script>
-    <script src="lib/bower/angular-route/angular-route.js"></script>
-    <script src="lib/bower/highlightjs/highlight.pack.js"></script>
-    <script src="lib/bower/angular-highlightjs/build/angular-highlightjs.js"></script>
-    <script src="lib/bower/angular-spring-data-rest/dist/angular-spring-data-rest.js"></script>
-    <script src="lib/bower/angular-ui-bootstrap-datetimepicker/datetimepicker.js"></script>
-    <script src="lib/bower/angular-messages/angular-messages.js"></script>
-    <script src="lib/bower/underscore/underscore-min.js"></script>
-    <script src="app/app.js"></script>
+        <div class="navbar-right">
+            <span class="icon-bar"><a ng-show="!authenticated" href="#/login" ng-click="navigateTo('#/login')">Log In</a></span>
+            <span class="icon-bar"><a ng-show="authenticated" href="" ng-click="logout()">Log Out</a></span>
+        </div>
+    </div>
+</nav>
+
+<div ng-view class="container"></div>
+<script src="lib/bower/angular/angular.js"></script>
+<script src="lib/bower/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="lib/bower/angular-resource/angular-resource.js"></script>
+<script src="lib/bower/angular-route/angular-route.js"></script>
+<script src="lib/bower/highlightjs/highlight.pack.js"></script>
+<script src="lib/bower/angular-highlightjs/build/angular-highlightjs.js"></script>
+<script src="lib/bower/angular-spring-data-rest/dist/angular-spring-data-rest.js"></script>
+<script src="lib/bower/angular-ui-bootstrap-datetimepicker/datetimepicker.js"></script>
+<script src="lib/bower/angular-messages/angular-messages.js"></script>
+<script src="lib/bower/underscore/underscore-min.js"></script>
+<script src="app/app.js"></script>
+<script src="app/userService.js"></script>
+<script src="app/common.js"></script>
+<script src="app/addUser.js"></script>
+<script src="app/editUser.js"></script>
+<script src="app/navigation.js"></script>
+<script src="app/contracts.js"></script>
+<script src="app/timesheets.js"></script>
+<script src="app/employees.js"></script>
+<script src="app/customers.js"></script>
+<script src="app/userSelfService.js"></script>
 </body>
 </html>
