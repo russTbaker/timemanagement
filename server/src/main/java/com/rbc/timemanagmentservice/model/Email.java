@@ -1,6 +1,10 @@
 package com.rbc.timemanagmentservice.model;
 
+import com.rbc.timemanagmentservice.model.validation.ValidEmail;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by russbaker on 2/19/16.
@@ -16,7 +20,9 @@ public class Email implements EntityMarkerInterface{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @org.hibernate.validator.constraints.Email
+    @ValidEmail
+    @NotNull
+    @NotEmpty
     private String email;
 
 

@@ -1,12 +1,13 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,15 +53,23 @@ public abstract class User {
     @JsonIgnore
     protected List<Contract> contracts = new ArrayList<>();
     
+//    @NotNull
+//    @NotEmpty
     protected String username;
+
+//    @NotNull
+//    @NotEmpty
     protected String password;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Integer id;
 
     @Enumerated(value = EnumType.STRING)
-    protected Role role;// = new ArrayList<>();
+    protected Role role;
+
+    private Boolean accountLocked;
 
     private String firstName;
     private String lastName;
@@ -83,6 +92,14 @@ public abstract class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Boolean getAccountLocked() {
+        return accountLocked;
+    }
+
+    public void setAccountLocked(Boolean accountLocked) {
+        this.accountLocked = accountLocked;
     }
 
     public String getFirstName() {
@@ -108,9 +125,6 @@ public abstract class User {
     public void setDba(String dba) {
         this.dba = dba;
     }
-
-
-
 
 
     public List<Address> getAddresses() {

@@ -80,7 +80,8 @@ public class EmployeeServiceTest extends UserServiceTest<Employee> {
     public void whenAddingUsernameAndPasswordToExistingEmployee_expectAdded() throws Exception {
         // Assemble
         user.setUsername("otherUsername");
-        user.setPassword("otherPassword");
+        final String otherPassword = "otherPassword";
+        user.setPassword(otherPassword);
 
         // Act
         Employee result = employeeService.updateUser(user);

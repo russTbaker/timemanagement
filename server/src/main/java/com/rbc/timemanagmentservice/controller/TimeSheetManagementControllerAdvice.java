@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.ConstraintViolation;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -54,6 +57,18 @@ public class TimeSheetManagementControllerAdvice  {
         errorPayload.getMessages().add(message);
         LOG.error(message,e);
         return new ResponseEntity(errorPayload,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(value = {javax.validation.ConstraintViolationException.class})
+    public ResponseEntity<ErrorPayload> validationException(javax.validation.ConstraintViolationException e){
+        final ErrorPayload errorPayload = new ErrorPayload();
+        List<String> messages = e.getConstraintViolations()
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+        errorPayload.getMessages().addAll(messages);
+        return new ResponseEntity(errorPayload,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {DataIntegrityViolationException.class})
