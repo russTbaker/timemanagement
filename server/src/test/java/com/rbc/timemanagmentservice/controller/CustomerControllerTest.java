@@ -52,8 +52,8 @@ public class CustomerControllerTest extends UserControllerTests<Customer> {
 
     @After
     public void tearDown(){
-        if(user != null){
-            customerService.deleteUser(user.getId());
-        }
+//        if(user != null){
+//            customerService.deleteUser(user.getId());
+//        }
     }
 }

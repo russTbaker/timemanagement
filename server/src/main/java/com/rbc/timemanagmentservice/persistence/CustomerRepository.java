@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
  * Created by rbaker on 2/6/16.
  */
 @RepositoryRestResource
-@CrossOrigin(origins = "http://localhost:8888")
-public interface CustomerRepository extends PagingAndSortingRepository<Customer, Integer> {
+public interface CustomerRepository extends UserRepository<Customer> {
 
 }

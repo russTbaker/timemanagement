@@ -60,8 +60,8 @@ public class ContractTestUtil {
             final Employee employee1 = startupUtility.getEmployee();
             employee1.setUsername(employee1.getUsername() + System.currentTimeMillis());
             Employee employee = employeeService.createUser(employee1);
-            customerService.addContractToUser(customer.getId(), contract.getId());
-            employeeService.addContractToUser(employee.getId(), contract.getId());
+//            customerService.addContractToUser(customer.getId(), contract.getId());
+//            employeeService.addContractToUser(employee.getId(), contract.getId());
             Job job = new Job();
             job.setName("Job name");
             job.setDescription(TEST_JOB_DESCRIPTION);

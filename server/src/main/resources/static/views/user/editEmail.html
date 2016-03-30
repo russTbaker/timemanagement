@@ -1,5 +1,5 @@
 <div class="container">
-    <form class="form-horizontal" role="form" ng-submit="updateEmail(user,email)">
+    <form class="form-horizontal" role="form" ng-submit="updateEmail(email)">
         <div class="input-group">
             <table class="table" width="100px">
                 <tr>
@@ -10,18 +10,36 @@
                     <td><input type="text" class="form-control" ng-model="email.email"
                                placeholder="{{email.email}}"/></td>
                     <td>
-                    <td><select name="repeatSelect1" id="repeatSelect1" ng-model="email.emailType">
-                        <option value=""> ---- Select Email Type ----</option>
-                        <option ng-selected="option==email.emailType" ng-repeat="option in emailTypes" value="{{option}}">{{option}}</option>
-                    </select></td>
+                    <td>
+                        <select name="repeatSelect1" id="repeatSelect1" ng-model="email.emailType">
+                            <option value=""> ---- Select Email Type ----</option>
+                            <option ng-selected="option==email.emailType" ng-repeat="option in emailTypes"
+                                    value="{{option}}">{{option}}
+                            </option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-default" type="submit" title="Update Email">
+                            <span class="glyphicon glyphicon-check"></span>
+                            Update
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" type="button" href ng-click="showAddEmailForm()" title="Add New Email">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Add
+                        </button>
+                    </td>
+                    <td>
+                        <button class="pull-right btn btn-danger" type="button" title="Delete"
+                                ng-click="deleteEmail(email)">
+                            <span class="glyphicon glyphicon-trash"></span>
+                            Delete
+                        </button>
                     </td>
                 </tr>
             </table>
-            <span class="input-group-btn">
-            <button class="btn btn-default" type="submit" title="Add">
-                <span class="glyphicon glyphicon-plus"></span>
-            </button>
-            </span>
         </div>
     </form>
 </div>

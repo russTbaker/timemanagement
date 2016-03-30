@@ -1,0 +1,32 @@
+<form class="form-horizontal" name="form" role="form" ng-submit="submitForm(phone)">
+    <div class="modal-body">
+        <table class="table">
+            <th><strong>Phone Number</strong></th>
+            <th><strong>Phone Type</strong></th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+            <tr>
+                <td width="250px"><input type="text" class="form-control" ng-model="phone.phone"
+                                         placeholder="Add Phone (XXX)XXX-XXXX"/></td>
+                <td>
+                    <select name="repeatSelect1" id="repeatSelect1" ng-model="phone.phoneType">
+                        <option value=""> ---- Select Phone Type ----</option>
+                        <option ng-selected="option==phone.phoneType" ng-repeat="option in phoneTypes"
+                                value="{{option}}">{{option}}
+                        </option>
+                    </select>
+                </td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" type="submit" title="Add" ng-disabled="form.$invalid">
+            <span class="glyphicon glyphicon-plus"></span>OK
+        </button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</form>

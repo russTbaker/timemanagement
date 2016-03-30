@@ -11,4 +11,13 @@ import javax.persistence.Table;
 @Table(name = "GUEST")
 @PrimaryKeyJoinColumn(name = "GUEST_ID")
 public class Guest extends User{
+    public Guest() {
+        super();
+        setRole(Role.guest);
+    }
+
+    @Override
+    public Role getRole() {
+        return Role.guest;
+    }
 }

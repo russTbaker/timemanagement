@@ -112,7 +112,8 @@ public class EmployeeController extends UserController<Employee>{
     private Employee getCurrentEmployee(){
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         final String username = auth.getName();
-        return employeeService.findByUsername(username);
+//        return employeeService.findByUsername(username);
+        return null;
     }
 
 }

@@ -1,6 +1,5 @@
 package com.rbc.timemanagmentservice.service;
 
-import com.rbc.timemanagmentservice.model.Roles;
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,20 +37,20 @@ public final class TimeManagementUserDetailsService implements UserDetailsServic
         if (user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
                     user.get().getUsername(),  user.get().getPassword(), true, true, true, true,
-                    getAuthorities(user.get().getRoles()));
+                    getAuthorities(user.get().getRole()));
         }
         throw new UsernameNotFoundException("Could not find user with username: " + username);
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(List<Roles> roles) {
-        return getGrantedAuthorities(roles);
+    private Collection<? extends GrantedAuthority> getAuthorities(User.Role role) {
+        return getGrantedAuthorities(role);
     }
 
 
 
-    private List<SimpleGrantedAuthority> getGrantedAuthorities(List<Roles> roles) {
+    private List<SimpleGrantedAuthority> getGrantedAuthorities(User.Role role) {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        roles.stream().forEach(role ->authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole().name().toUpperCase())));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name().toUpperCase()));
         return authorities;
     }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.eclipse.persistence.annotations.ConversionValue;
 import org.eclipse.persistence.annotations.ObjectTypeConverter;
 import org.joda.time.DateTime;
-import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.List;
 @Inheritance(strategy=InheritanceType.JOINED)
 @ObjectTypeConverter(
         name = "roleEnumFromStringConversion",
-        objectType = Roles.Role.class,
+        objectType = User.Role.class,
         dataType = String.class,
         conversionValues = {
                 @ConversionValue(objectValue = "administrator", dataValue = "administrator"),
@@ -28,46 +27,44 @@ import java.util.List;
 )
 @Table(name = "USER",  uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 public abstract class User {
+
+    public enum Role {
+        administrator,
+        employee,
+        customer,
+        guest
+    }
+
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Address> addresses = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private List<Email> emails= new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Phone> phones= new ArrayList<>();
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_CONTRACT",
-    joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "id"))
+            joinColumns = @JoinColumn(name="CONTRACT_ID",referencedColumnName = "id"))
     @JsonIgnore
     protected List<Contract> contracts = new ArrayList<>();
     protected String username;
     protected String password;
 
-    @OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
-    private List<Address> address = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private List<Email> emails = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Phone> phones = new ArrayList<>();
-
-    @JsonIgnore
-    public void addContract(Contract contract){
-        if(!this.contracts.contains(contract)){
-            this.contracts.add(contract);
-            if(!contract.getUsers().contains(this)){
-                contract.getUsers().add(this);
-            }
-        } else {
-            this.contracts.remove(contract);
-            this.contracts.add(contract);
-        }
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "id"),
-        inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-    @RestResource(rel = "roles")
-    protected List<Roles> roles = new ArrayList<>();
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "id"),
+//        inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    @Enumerated(value = EnumType.STRING)
+//    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+//    @RestResource(rel = "role")
+    protected Role role;// = new ArrayList<>();
 
     private String firstName;
     private String lastName;
@@ -86,12 +83,10 @@ public abstract class User {
         this.id = id;
     }
 
-    public List<Roles> getRoles() {
-        return roles;
-    }
+    public abstract Role getRole();
 
-    public void setRoles(List<Roles> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public String getFirstName() {
@@ -122,22 +117,28 @@ public abstract class User {
 
 
 
-    public List<Address> getAddress() {
-        return address;
+    public List<Address> getAddresses() {
+        return addresses;
     }
 
-    public void setAddress(List<Address> address){
-        for(Address address1:address){
-            addAddress(address1);
-        }
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
     }
 
     public List<Email> getEmails() {
         return emails;
     }
 
+    public void setEmails(List<Email> emails) {
+        this.emails = emails;
+    }
+
     public List<Phone> getPhones() {
         return phones;
+    }
+
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
     }
 
     public DateTime getDeleteDate() {
@@ -146,39 +147,6 @@ public abstract class User {
 
     public void setDeleteDate(DateTime deleteDate) {
         this.deleteDate = deleteDate;
-    }
-
-    @JsonIgnore
-    public void addAddress(Address address){
-        if (!this.address.contains(address)) {
-            this.address.add(address);
-            address.setUser(this);
-        } else {
-            this.address.remove(address);
-            this.address.add(address);
-        }
-    }
-
-    @JsonIgnore
-    public void addEmail(Email email){
-        if (!this.emails.contains(email)) {
-            this.emails.add(email);
-            email.setUser(this);
-        } else {
-            this.emails.remove(email);
-            this.emails.add(email);
-        }
-    }
-
-    @JsonIgnore
-    public void addPhone(Phone phone){
-        if (!this.phones.contains(phone)) {
-            this.phones.add(phone);
-            phone.setUser(this);
-        } else {
-            this.phones.remove(phone);
-            this.phones.add(phone);
-        }
     }
 
 

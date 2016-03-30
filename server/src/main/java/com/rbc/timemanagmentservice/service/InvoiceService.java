@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.service;
 
+import com.rbc.timemanagmentservice.exception.NotFoundException;
 import com.rbc.timemanagmentservice.model.Customer;
 import com.rbc.timemanagmentservice.model.Email;
 import com.rbc.timemanagmentservice.model.Invoice;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.ws.rs.NotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

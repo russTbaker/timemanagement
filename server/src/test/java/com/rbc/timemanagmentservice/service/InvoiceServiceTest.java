@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
+import com.rbc.timemanagmentservice.exception.NotFoundException;
 import com.rbc.timemanagmentservice.model.*;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.VelocityEmailHelper;
@@ -12,19 +13,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
 
-import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Mockito.when;
 
 
 /**
@@ -205,9 +204,6 @@ public class InvoiceServiceTest {
         employee.setLastName("Baker");
         employee.setUsername("username" + System.currentTimeMillis());
         employee.setPassword("password");
-        Roles employeeRole = new Roles();
-        employeeRole.setRole(Roles.Role.employee);
-        employee.getRoles().add(employeeRole);
         employee.setDba("Russ Baker");
         return employeeService.createUser(employee);
     }
@@ -219,8 +215,8 @@ public class InvoiceServiceTest {
         Contract contract = getContract();
         Job job = createPersistentJob(contract);
 
-        customerService.addContractToUser(customer.getId(), contract.getId());
-        employeeService.addContractToUser(employee.getId(), contract.getId());
+//        customerService.addContractToUser(customer.getId(), contract.getId());
+//        employeeService.addContractToUser(employee.getId(), contract.getId());
 
         contractService.addJobToContract(job.getId(), contract.getId());
         employeeService.addEmployeeToJob(employee.getId(), job.getId());
@@ -243,10 +239,7 @@ public class InvoiceServiceTest {
         Email email = new Email();
         email.setEmail("russabaker@gmail.com");
         email.setEmailType(Email.EmailTypes.billing);
-        customer.addEmail(email);
-        Roles customerRole = new Roles();
-        customerRole.setRole(Roles.Role.customer);
-        customer.getRoles().add(customerRole);
+        customer.setEmails(Collections.singletonList(email));
         return customerService.createUser(customer);
     }
 

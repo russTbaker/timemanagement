@@ -1,5 +1,5 @@
 <div class="container">
-    <form novalidate name="addUserEmailForm" class="form-horizontal" role="form" ng-submit="addEmail(email,userId)">
+    <form novalidate name="addUserEmailForm" class="form-horizontal" role="form" ng-submit="addEmail(email)">
         <div class="input-group">
             <table class="table" width="100px">
                 <tr>
@@ -8,20 +8,22 @@
                 </tr>
                 <tr>
                     <td><input type="email" class="form-control" ng-model="email.email"
-                               placeholder="{{email.email}}"/></td>
+                               placeholder="user@domain.com"/></td>
                     <td>
-                    <td><select name="repeatSelect1" id="repeatSelect1" ng-model="email.emailType">
-                        <option value=""> ---- Select Email Type ----</option>
-                        <option ng-selected="option==email.emailType" ng-repeat="option in emailTypes" value="{{option}}">{{option}}</option>
-                    </select></td>
+                        <select name="repeatSelect1" id="repeatSelect1" ng-model="email.emailType">
+                            <option value=""> ---- Select Email Type ----</option>
+                            <option ng-selected="option==email.emailType" ng-repeat="option in emailTypes"
+                                    value="{{option}}">{{option}}
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" type="submit" title="Add">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
                     </td>
                 </tr>
             </table>
-            <span class="input-group-btn">
-            <button class="btn btn-default" type="submit" title="Add">
-                <span class="glyphicon glyphicon-plus"></span>
-            </button>
-            </span>
         </div>
     </form>
 </div>

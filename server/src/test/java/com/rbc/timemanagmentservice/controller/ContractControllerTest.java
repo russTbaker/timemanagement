@@ -1,12 +1,12 @@
 package com.rbc.timemanagmentservice.controller;
 
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
+import com.rbc.timemanagmentservice.exception.NotFoundException;
 import com.rbc.timemanagmentservice.model.Contract;
 import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
-import com.rbc.timemanagmentservice.service.UserService;
 import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.joda.time.DateTime;
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.ws.rs.NotFoundException;
 
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
@@ -79,9 +78,9 @@ public class ContractControllerTest extends ControllerTests {
 
     @After
     public void tearDown(){
-        if(user != null){
-            userService.deleteUser(user.getId());
-        }
+//        if(user != null){
+//            userService.deleteUser(user.getId());
+//        }
     }
 
     @Test

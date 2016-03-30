@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Filter;
 
 import static junit.framework.TestCase.assertNotNull;
 

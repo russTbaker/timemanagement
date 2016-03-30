@@ -1,26 +1,45 @@
 <div class="container">
-    <form class="form-horizontal" role="form" ng-submit="updatePhone(user,phone)">
+    <form class="form-horizontal" role="form" ng-submit="updatePhone(phone)">
         <div class="input-group">
             <table class="table">
                 <th><strong>Phone Number</strong></th>
-                <th>&nbsp;</th>
+                <th><strong>Phone Type</strong></th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
                 <th>&nbsp;</th>
                 <tr>
                     <td width="250px"><input type="text" class="form-control" ng-model="phone.phone"
                                              placeholder="{{phone.phone}}"/></td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
+                    <td>
+                        <select name="repeatSelect1" id="repeatSelect1" ng-model="phone.phoneType">
+                            <option value=""> ---- Select Phone Type ----</option>
+                            <option ng-selected="option==phone.phoneType" ng-repeat="option in phoneTypes"
+                                    value="{{option}}">{{option}}
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" type="submit" title="Update Phone">
+                            <span class="glyphicon glyphicon-check"></span>
+                            Update
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-default" type="button" href ng-click="showAddPhoneForm()" title="Add New Phone">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Add
+                        </button>
+                    </td>
+                    <td>
+                        <button class="pull-right btn btn-danger" type="button" title="Delete"
+                                ng-click="deletePhone(phone)">
+                            <span class="glyphicon glyphicon-trash"></span>
+                            Delete
+                        </button>
+                    </td>
                     <td>&nbsp;</td>
                 </tr>
             </table>
-            <span class="input-group-btn">
-            <button class="btn btn-default" type="submit" title="Add">
-                <span class="glyphicon glyphicon-plus"></span>
-            </button>
-            </span>
         </div>
     </form>
 </div>

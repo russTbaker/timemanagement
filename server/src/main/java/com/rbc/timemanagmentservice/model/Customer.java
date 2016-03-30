@@ -13,9 +13,7 @@ import java.util.List;
 public class Customer extends User{
     public Customer() {
         super();
-        Roles roles = new Roles();
-        roles.setRole(Roles.Role.customer);
-        this.roles.add(roles);
+        setRole(Role.customer);
     }
 
 
@@ -37,6 +35,11 @@ public class Customer extends User{
             invoices.remove(invoice);
             invoices.add(invoice);
         }
+    }
+
+    @Override
+    public Role getRole() {
+        return Role.customer;
     }
 
     @Override

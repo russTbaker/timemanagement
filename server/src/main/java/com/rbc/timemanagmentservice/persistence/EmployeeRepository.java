@@ -10,6 +10,5 @@ import java.util.Optional;
  * Created by rbaker on 2/6/16.
  */
 @RepositoryRestResource(itemResourceRel = "employee", collectionResourceRel = "employees")
-public interface EmployeeRepository extends JpaRepository<Employee,Integer> {
-    Optional<Employee> findByUsername(String username);
+public interface EmployeeRepository extends UserRepository<Employee> {
 }

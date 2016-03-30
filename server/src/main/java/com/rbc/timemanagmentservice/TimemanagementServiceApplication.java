@@ -1,7 +1,6 @@
 package com.rbc.timemanagmentservice;
 
-import com.fasterxml.jackson.datatype.joda.JodaMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.rbc.timemanagmentservice.exception.NotFoundException;
 import com.rbc.timemanagmentservice.model.Administrator;
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.service.TimeManagementUserDetailsService;
@@ -29,8 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.velocity.VelocityEngineFactoryBean;
@@ -38,12 +35,10 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -100,8 +95,6 @@ public class TimemanagementServiceApplication {
                 registry.addMapping("/api/**")
                         .allowedOrigins("http://localhost:9090")
                         .allowedMethods("POST, PUT, GET, OPTIONS, DELETE");
-
-
             }
 
         };
@@ -122,9 +115,10 @@ public class TimemanagementServiceApplication {
                         "POST,GET,OPTIONS,DELETE");
                 response.setHeader("Access-Control-Max-Age", Long.toString(60 * 60));
                 response.setHeader("Access-Control-Allow-Credentials", "true");
+                response.setHeader("X-Frame-Options","SAMEORIGIN");
                 response.setHeader(
                         "Access-Control-Allow-Headers",
-                        "Origin,Accept,X-Requested-With,Content-Type," +
+                        "Origin,Accept,X-Requested-With,Content-Type,X-Frame-Options,"+
                         "Access-Control-Request-Method,Access-Control-Request-Headers,Authorization");
                 if ("OPTIONS".equals(method)) {
                     response.setStatus(HttpStatus.OK.value());
@@ -183,12 +177,12 @@ public class TimemanagementServiceApplication {
         return velocityContext;
     }
 
-    @Bean
-    public JacksonJaxbJsonProvider jacksonJaxbJsonProvider(){
-        JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
-        provider.setMapper(new JodaMapper());
-        return provider;
-    }
+//    @Bean
+//    public JacksonJaxbJsonProvider jacksonJaxbJsonProvider(){
+//        JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
+//        provider.setMapper(new JodaMapper());
+//        return provider;
+//    }
 
     @Profile("demo")
     @Bean

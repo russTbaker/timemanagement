@@ -40,14 +40,14 @@ public class StartupUtility {
     public  Employee init(){
         // Set up business relationship
         customer = customerService.createUser(getCustomer("Jonathan", "Bein", DBA));
-        customer.addEmail(getEmail(customer.getDba()));
-        customer.addAddress(getAddress());
-        customer.addPhone(getPhone());
+//        customer.addEmail(getEmail(customer.getDba()));
+//        customer.addAddress(getAddress());
+//        customer.addPhone(getPhone());
         customer = customerService.updateUser(customer);
 
 //        Customer rbc = customerService.createUser(getCustomer("Russ","Baker","Russ Baker"));
 //        rbc.addEmail(getEmail(rbc.getFirstName()));
-//        rbc.addAddress(getAddress());
+//        rbc.addAddress(getAddresses());
 //        rbc.addPhone(getPhone());
 //        rbc = customerService.updateUser(rbc);
 
@@ -72,9 +72,9 @@ public class StartupUtility {
         // EMPLOYEE
         // Set up employee with softwareEngineering
         Employee russ = employeeService.createUser(getEmployee());
-        russ.addEmail(getEmail(russ.getUsername()));
-        russ.addAddress(getAddress());
-        russ.addPhone(getPhone());
+//        russ.addEmail(getEmail(russ.getUsername()));
+//        russ.addAddress(getAddress());
+//        russ.addPhone(getPhone());
         russ = employeeService.updateUser(russ);
 
 
@@ -87,7 +87,7 @@ public class StartupUtility {
 
 
         // Add the employee to the contract
-        employeeService.addContractToUser(russ.getId(),z2M4Contract.getId());
+//        employeeService.addContractToUser(russ.getId(),z2M4Contract.getId());
 //        employeeService.addContractToUser(russ.getId(),rbcContract.getId());
 
         // Now add the employee jobs
@@ -115,7 +115,7 @@ public class StartupUtility {
         contract.setName(contractName);
         contract.setDescription(contractDescription);
         contract = contractService.saveContract(contract);
-        customerService.addContractToUser(customer.getId(),contract.getId());
+//        customerService.addContractToUser(customer.getId(),contract.getId());
         return contract;
     }
 

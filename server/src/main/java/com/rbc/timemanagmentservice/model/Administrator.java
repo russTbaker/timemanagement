@@ -1,6 +1,7 @@
 package com.rbc.timemanagmentservice.model;
 
 import javax.persistence.Entity;
+import javax.persistence.PostLoad;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -13,8 +14,12 @@ import javax.persistence.Table;
 public class Administrator extends User{
     public Administrator() {
         super();
-        final Roles roles = new Roles();
-        roles.setRole(Roles.Role.administrator);
-        this.roles.add(roles);
+        this.setRole(Role.administrator);
+    }
+
+
+    @Override
+    public Role getRole() {
+        return Role.administrator;
     }
 }

@@ -1,5 +1,6 @@
 package com.rbc.timemanagmentservice.service;
 
+import com.rbc.timemanagmentservice.exception.NotFoundException;
 import com.rbc.timemanagmentservice.model.Employee;
 import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.model.TimeEntry;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.ws.rs.NotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,19 +41,19 @@ public class EmployeeService extends UserService<Employee> {
         this.timeSheetEntryRepository = timeSheetEntryRepository;
     }
 
-    @Transactional(readOnly = true)
-    public Employee findByUsername(final String username) {
-        return employeeRepository.findByUsername(username).get();
-    }
+//    @Transactional(readOnly = true)
+//    public Employee findByUsername(final String username) {
+//        return employeeRepository.findByUsername(username).get();
+//    }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteUser(final Integer employeeId) {
-        final Employee employee = employeeRepository.findOne(employeeId);
-        employee.getJobs()
-                .stream()
-                .forEach(job -> job.getEmployees().remove(employee));
-        super.deleteUser(employeeId);
-    }
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public void deleteUser(final Integer employeeId) {
+//        final Employee employee = employeeRepository.findOne(employeeId);
+//        employee.getJobs()
+//                .stream()
+//                .forEach(job -> job.getEmployees().remove(employee));
+//        super.deleteUser(employeeId);
+//    }
 
 
     //------------- Job

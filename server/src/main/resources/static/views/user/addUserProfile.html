@@ -1,7 +1,13 @@
 <div class="container" ng-controller="AddUserController">
     <div class="page-header">
-        <h1>Add User Profile</h1>
-    </div>
+        <h1>Add User Profile {{user.dba}} </h1>
+        <div class="alert alert-error"  ng-if="error.length != 0" role="alert">
+            <ul>
+                <li ng-repeat="message in error" class="error"><stong>{{message}}</stong></li>
+            </ul>
+        </div>
+
+
     <div id="User" class="container" ng-include="'views/user/addUser.html'"></div>
     <div id="Address" class="container" ng-include="'views/user/addAddress.html'"></div>
     <div id="Phone" class="container" ng-include="'views/user/addPhone.html'" ></div>

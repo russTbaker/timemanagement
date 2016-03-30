@@ -2,10 +2,11 @@ package com.rbc.timemanagmentservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rbc.timemanagmentservice.TimemanagementServiceApplication;
-import com.rbc.timemanagmentservice.model.*;
+import com.rbc.timemanagmentservice.model.Employee;
+import com.rbc.timemanagmentservice.model.Job;
+import com.rbc.timemanagmentservice.model.TimeEntry;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
-import com.rbc.timemanagmentservice.testutils.ContractTestUtil;
 import com.rbc.timemanagmentservice.util.StartupUtility;
 import org.junit.After;
 import org.junit.Before;
@@ -65,9 +66,9 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
 
     @After
     public void tearDown(){
-        if(user != null){
-            employeeService.deleteUser(user.getId());
-        }
+//        if(user != null){
+//            employeeService.deleteUser(user.getId());
+//        }
     }
 
     @Test

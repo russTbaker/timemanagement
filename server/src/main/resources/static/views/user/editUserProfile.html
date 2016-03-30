@@ -3,10 +3,16 @@
         <h1>{{user.dba}} - Profile</h1>
     </div>
     <div id="User" class="container" ng-include="'views/user/editUser.html'"></div>
-    <div ng-if="address.length != 0" id="Address" class="container" ng-include="'views/user/editAddress.html'" ng-repeat="address in address"></div>
-    <div ng-if="address.length == 0" id="Address" class="container" ng-include="'views/user/addAddress.html'"></div>
-    <div ng-if="phones.length != 0" id="Phone" class="container" ng-include="'views/user/editPhone.html'" ng-repeat="phone in phones"></div>
-    <div ng-if="phones.length == 0" id="Phone" class="container" ng-include="'views/user/addPhone.html'"></div>
-    <div ng-if="phones.length != 0" id="Email" class="container" ng-include="'views/user/editEmail.html'" ng-repeat="email in emails"></div>
-    <div ng-if="phones.length == 0" id="Email" class="container" ng-include="'views/user/addEmail.html'" ></div>
+
+    <div ng-if="user.addresses.length != 0" id="Address" class="container" ng-include="'views/user/editAddress.html'"
+         ng-repeat="address in user.addresses"></div>
+    <div ng-if="user.addresses.length == 0" id="Address" class="container" ng-include="'views/user/addAddress.html'"></div>
+
+    <div ng-if="user.phones.length != 0" id="Phone" class="container" ng-include="'views/user/editPhone.html'"
+         ng-repeat="phone in user.phones"></div>
+    <div ng-if="user.phones.length == 0" id="Phone" class="container" ng-include="'views/user/addPhone.html'"> adding phone</div>
+
+    <div ng-if="user.emails.length != 0" id="Email" class="container" ng-include="'views/user/editEmail.html'"
+         ng-repeat="email in user.emails"></div>
+    <div ng-if="user.emails.length == 0" id="Email" class="container" ng-include="'views/user/addEmail.html'"></div>
 </div>

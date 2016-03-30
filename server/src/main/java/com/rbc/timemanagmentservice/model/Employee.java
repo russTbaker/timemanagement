@@ -20,10 +20,9 @@ public class Employee extends User{
 
     public Employee() {
         super();
-        final Roles roles = new Roles();
-        roles.setRole(Roles.Role.employee);
-        this.roles.add(roles);
+        setRole(Role.employee);
     }
+
 
 
 
@@ -49,6 +48,11 @@ public class Employee extends User{
     public void removeJob(Job job){
         this.jobs.remove(job);
         job.getEmployees().remove(this);
+    }
+
+    @Override
+    public Role getRole() {
+        return Role.employee;
     }
 
     @Override

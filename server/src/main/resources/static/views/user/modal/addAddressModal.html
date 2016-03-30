@@ -1,0 +1,56 @@
+<div class="modal-header">
+    <h3>Create A New Address</h3>
+</div>
+<form novalidate class="form-horizontal" name="form" role="form" ng-submit="submitForm(address)">
+    <div class="modal-body">
+        <table class="table">
+            <th>Street 1</th>
+            <th>Street 2</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zip Code</th>
+            <tr>
+                <td><input name="street1" type="text" class="form-control" ng-model="address.street1"
+                           placeholder="Street 1" required=""/>
+                    <div ng-show="form.$submitted || form.street1.$touched">
+                        <div ng-show="form.street1.$error.required" class="help-block">Street 1
+                            cannot be blank.
+                        </div>
+                    </div>
+                </td>
+                <td><input name="street2" type="text" class="form-control" ng-model="address.street2"
+                           placeholder="Street 2"/></td>
+                <td><input name="city" type="text" class="form-control" ng-model="address.city"
+                           placeholder="City" required=""/>
+                    <div ng-show="form.$submitted || form.city.$touched">
+                        <div ng-show="form.city.$error.required" class="help-block">City cannot be
+                            blank.
+                        </div>
+                    </div>
+                </td>
+                <td><input name="state" type="text" class="form-control" ng-model="address.state"
+                           placeholder="State" required=""/>
+                    <div ng-show="form.$submitted || form.state.$touched">
+                        <div ng-show="form.state.$error.required" class="help-block">State cannot
+                            be blank.
+                        </div>
+                    </div>
+                </td>
+                <td><input name="zip" type="text" class="form-control" ng-model="address.zip"
+                           placeholder="Zip Code" required=""/>
+                    <div ng-show="form.$submitted || form.zip.$touched">
+                        <div ng-show="form.zip.$error.required" class="help-block">Street 1 cannot
+                            be blank.
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" type="submit" title="Add" ng-disabled="form.$invalid">
+            <span class="glyphicon glyphicon-plus"></span>OK
+        </button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</form>

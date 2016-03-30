@@ -16,10 +16,12 @@
             <td>{{address.city}}</td>
             <td>{{address.state}}</td>
             <td>{{address.zip}}</td>
-            <td><button class="pull-right btn btn-danger" type="button" title="Delete"
+            <td>
+                <button class="pull-right btn btn-danger" type="button" title="Delete"
                         ng-click="deleteUserAddress(user,address)">
-                <span class="glyphicon glyphicon-trash"></span>
-            </button></td>
+                    <span class="glyphicon glyphicon-trash"></span>
+                </button>
+            </td>
             <td>
                 <button class="pull-right btn btn-link" type="button" title="Add Address"
                         ng-click="goToAddAddress(user)">

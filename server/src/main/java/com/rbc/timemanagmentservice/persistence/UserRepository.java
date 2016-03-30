@@ -11,5 +11,5 @@ import java.util.Optional;
  */
 @RepositoryRestResource
 public  interface UserRepository<U extends User> extends PagingAndSortingRepository<U,Integer>{
-    Optional<User> findByUsername(String username);
+    Optional<U> findByUsername(String username);
 }

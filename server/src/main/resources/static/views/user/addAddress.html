@@ -1,6 +1,5 @@
 <div class="container">
-
-    <form novalidate class="form-horizontal" name="addUserAddresForm" role="form" ng-submit="addAddress(address,userId)">
+    <form novalidate class="form-horizontal" name="addUserAddresForm" role="form" ng-submit="addAddress(address)">
         <div class="input-group">
             <table class="table">
                 <th>Street 1</th>
@@ -9,33 +8,33 @@
                 <th>State</th>
                 <th>Zip Code</th>
                 <tr>
-                    <td><input name="street1" type="text" class="form-control" ng-model="address.street1" placeholder="{{address.street1}}" required="" />
+                    <td><input name="street1" type="text" class="form-control" ng-model="address.street1" placeholder="Street 1" required="" />
                         <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.street1.$touched">
                             <div ng-show="addUserAddresForm.street1.$error.required" class="help-block">Street 1 cannot be blank.</div>
                         </div>
                     </td>
-                    <td><input name="street2" type="text" class="form-control" ng-model="address.street2" placeholder="{{address.street2}}"/></td>
-                    <td><input name="city" type="text" class="form-control" ng-model="address.city" placeholder="{{address.city}}"  required=""/>
+                    <td><input name="street2" type="text" class="form-control" ng-model="address.street2" placeholder="Street 2"/></td>
+                    <td><input name="city" type="text" class="form-control" ng-model="address.city" placeholder="City"  required=""/>
                         <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.city.$touched">
                             <div ng-show="addUserAddresForm.city.$error.required" class="help-block">City cannot be blank.</div>
                         </div>
                     </td>
-                    <td><input name="state" type="text" class="form-control" ng-model="address.state" placeholder="{{address.state}}"  required=""/>
+                    <td><input name="state" type="text" class="form-control" ng-model="address.state" placeholder="State"  required=""/>
                         <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.state.$touched">
                             <div ng-show="addUserAddresForm.state.$error.required" class="help-block">State cannot be blank.</div>
                         </div></td>
-                    <td><input name="zip" type="text" class="form-control" ng-model="address.zip" placeholder="{{address.zip}}"  required=""/>
+                    <td><input name="zip" type="text" class="form-control" ng-model="address.zip" placeholder="Zip Code"  required=""/>
                         <div ng-show="addUserAddresForm.$submitted || addUserAddresForm.zip.$touched">
                             <div ng-show="addUserAddresForm.zip.$error.required" class="help-block">Street 1 cannot be blank.</div>
                         </div>
                     </td>
+                    <td>
+                        <button class="btn btn-default" type="submit" title="Add" ng-disabled="addUserAddresForm.$invalid">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </td>
                 </tr>
             </table>
-            <span class="input-group-btn">
-            <button class="btn btn-default" type="submit" title="Add" ng-disabled="addUserAddresForm.$invalid">
-                <span class="glyphicon glyphicon-plus"></span>
-            </button>
-            </span>
         </div>
     </form>
 </div>

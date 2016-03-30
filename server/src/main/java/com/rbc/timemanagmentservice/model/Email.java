@@ -1,8 +1,5 @@
 package com.rbc.timemanagmentservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.rest.core.annotation.RestResource;
-
 import javax.persistence.*;
 
 /**
@@ -22,10 +19,6 @@ public class Email implements EntityMarkerInterface{
     @org.hibernate.validator.constraints.Email
     private String email;
 
-    @ManyToOne//(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @RestResource(exported = false)
-    private User user;
 
     @Enumerated(value = EnumType.STRING)
     private EmailTypes emailType;
@@ -44,14 +37,6 @@ public class Email implements EntityMarkerInterface{
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public EmailTypes getEmailType() {
