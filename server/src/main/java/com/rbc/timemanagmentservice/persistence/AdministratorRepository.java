@@ -8,5 +8,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * Created by russbaker on 3/7/16.
  */
 @RepositoryRestResource
-public interface AdministratorRepository extends PagingAndSortingRepository<Administrator,Integer>{
+public interface AdministratorRepository extends UserRepository<Administrator>{
 }

@@ -23,6 +23,7 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Properties;
 
 @SpringBootApplication
+@PropertySource("${property.source}")
 public class TimemanagementServiceApplication {
     private static final Logger LOG = LoggerFactory.getLogger(TimemanagementServiceApplication.class);
 

@@ -19,18 +19,11 @@ app.controller('UserSelfServiceController', function ($scope, $http, SpringDataR
         if (data.name) {
             username = data.name;
         }
-
-        var httpPromise = $http.get(usernameSearch + '?username=' + username).success(function (response) {
+        SpringDataRestAdapter.process($http.get(usernameSearch + '?username=' + username).success(function (response) {
             $scope.response = angular.toJson(response, true);
-        });
-
-        SpringDataRestAdapter.process(httpPromise).then(function (processedResponse) {
+        })).then(function (processedResponse) {
             var usersUri = processedResponse._links.self.href;
             init(SpringDataRestAdapter, $http, $scope, usersUri);
-
-
-
-
         });
     }).error(function (response) {
         console.error("Could not find current user.");

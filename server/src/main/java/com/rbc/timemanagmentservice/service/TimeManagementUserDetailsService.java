@@ -2,8 +2,10 @@ package com.rbc.timemanagmentservice.service;
 
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.persistence.UserRepository;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +23,9 @@ import java.util.Optional;
  */
 @Service(value = "userDetailsService")
 public final class TimeManagementUserDetailsService implements UserDetailsService{
+    @Value("${login.lockout.period}")
+    private Integer lockoutPeriod;
+
     private final UserRepository userRepository;
 
     @Autowired
@@ -28,15 +33,17 @@ public final class TimeManagementUserDetailsService implements UserDetailsServic
         this.userRepository = userRepository;
     }
 
-    @Autowired
-    private MessageSource messages;
 
     @Override
+    @SuppressWarnings("unchecked")
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        Interval interval = new Interval(new DateTime().minusHours(lockoutPeriod),new DateTime());
+
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isPresent()) {
             return new org.springframework.security.core.userdetails.User(
-                    user.get().getUsername(),  user.get().getPassword(), true, true, true, true,
+                    user.get().getUsername(),  user.get().getPassword(), true, true, true,
+                    !interval.contains(user.get().getAccountLockedDateTime()),
                     getAuthorities(user.get().getRole()));
         }
         throw new UsernameNotFoundException("Could not find user with username: " + username);
@@ -53,4 +60,5 @@ public final class TimeManagementUserDetailsService implements UserDetailsServic
         authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name().toUpperCase()));
         return authorities;
     }
+
 }

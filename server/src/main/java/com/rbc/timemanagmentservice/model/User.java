@@ -69,7 +69,9 @@ public abstract class User {
     @Enumerated(value = EnumType.STRING)
     protected Role role;
 
-    private Boolean accountLocked;
+    private Integer loginAttempts = 0;
+
+    private DateTime accountLockedDateTime;
 
     private String firstName;
     private String lastName;
@@ -94,12 +96,22 @@ public abstract class User {
         this.role = role;
     }
 
-    public Boolean getAccountLocked() {
-        return accountLocked;
+    public Integer getLoginAttempts() {
+        return loginAttempts;
     }
 
-    public void setAccountLocked(Boolean accountLocked) {
-        this.accountLocked = accountLocked;
+    public void setLoginAttempts(Integer loginAttempts) {
+        this.loginAttempts = loginAttempts;
+    }
+
+
+
+    public DateTime getAccountLockedDateTime() {
+        return accountLockedDateTime;
+    }
+
+    public void setAccountLockedDateTime(DateTime accountLockedDateTime) {
+        this.accountLockedDateTime = accountLockedDateTime;
     }
 
     public String getFirstName() {
