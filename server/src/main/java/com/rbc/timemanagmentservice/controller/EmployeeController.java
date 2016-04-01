@@ -5,6 +5,8 @@ import com.rbc.timemanagmentservice.model.Job;
 import com.rbc.timemanagmentservice.model.TimeEntry;
 import com.rbc.timemanagmentservice.model.User;
 import com.rbc.timemanagmentservice.service.EmployeeService;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
@@ -41,10 +43,13 @@ public class EmployeeController extends UserController<Employee>{
     }
 
     //------------- Timesheet
-    @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{jobId}")
-    public ResponseEntity<?> createNewEmployeeTimesheet(@PathVariable("jobId") Integer jobId){
+
+    @RequestMapping(method = RequestMethod.PUT, path = "/{employeeId}/timesheets/{jobId}/")
+    public ResponseEntity<?> createNewEmployeeTimesheetWithDate(@PathVariable("jobId") Integer jobId,
+                                                                @RequestParam(value = "startDate") String startDateString){
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
         final Integer employeeId = getCurrentEmployee().getId();
-        List<TimeEntry> timeEntries = employeeService.getTimeEntriesForEmployeeJobs(employeeId,jobId);
+        List<TimeEntry> timeEntries = employeeService.getTimeEntriesForEmployeeJobs(employeeId,jobId,fmt.parseDateTime(startDateString));
         return new ResponseEntity<>(null,getHttpHeadersForEntity(()->employeeId,"timeentries"),HttpStatus.OK);
     }
 

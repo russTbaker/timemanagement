@@ -38,6 +38,7 @@ function init(SpringDataRestAdapter, $http, $scope, usersUri) {
         getUserEmails(SpringDataRestAdapter, $http, usersUri, $scope);
 
     });
+    $scope.userId = usersUri.substring(usersUri.lastIndexOf('/') + 1, usersUri.length);
 }
 function openModal($uibModal, ModalInstanceCtrl, $scope, $log, templateUrl) {
     var modalInstance = $uibModal.open({
@@ -72,4 +73,28 @@ function getCurrentUser($http, headers, $rootScope, $scope, callback) {
         $rootScope.authenticated = false;
         callback && callback();
     });
+}
+
+function getCurrentUser($http, SpringDataRestAdapter, $scope) {
+    $http.get('user').success(function (data) {
+        var usernameSearch = 'api/users/search/findByUsername';
+        var username;
+        if (data.name) {
+            username = data.name;
+        }
+        SpringDataRestAdapter.process($http.get(usernameSearch + '?username=' + username).success(function (response) {
+            $scope.response = angular.toJson(response, true);
+        })).then(function (processedResponse) {
+            var usersUri = processedResponse._links.self.href;
+
+            init(SpringDataRestAdapter, $http, $scope, usersUri);
+        });
+    }).error(function (response) {
+        console.error("Could not find current user.");
+    });
+}
+
+function getCurrentUsersHref($http,SpringDataRestAdapter,$scope){
+    var userHref = $scope.user._links.self.href;
+
 }

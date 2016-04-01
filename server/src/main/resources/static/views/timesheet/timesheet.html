@@ -1,23 +1,54 @@
-<div class="container" ng-controller="TimesheetController">
+<div class="container">
     <h1>Time Entry</h1>
-    <table class="table" cellpadding="2" cellspacing="2">
-        <tr>
-            <td>
-                <select name="jobSelect1" id="jobSelect1" ng-model="jobId"
-                        ng-change="onClickCreateTimesheet(jobId)">
-                    <option value="" selected> ---- Select Job ----</option>
-                    <option ng-repeat="option in jobs" value="{{option.jobId}}">
-                        {{option.job.name}}
-                    </option>
-                </select>
-            </td>
-            <td ng-if="jobs.length>0" ng-repeat="timesheetEntry in jobs[0].timeEntries"><strong>{{timesheetEntry.date  | date:'EEE MMM dd, yyyy'}}</strong></td>
-        </tr>
-    </table>
+    <form novalidate class="form-group-sm" name="form" role="form" ng-submit="onClickCreateTimesheet(jobId,timesheet.startDate)">
+        <table class="table" cellpadding="2" cellspacing="2" style="width: 25%">
+            <th><strong>Select Job</strong></th>
+            <th><strong>Start Date</strong></th>
+            <tr>
+                <td>
+                    <select name="jobSelect1" id="jobSelect1" ng-model="jobId" ng-required="true">
+                        <option value="" selected> ---- Select Job ----</option>
+                        <option ng-repeat="option in jobs" value="{{option.jobId}}">
+                            {{option.job.name}}
+                        </option>
+                    </select>
+                    <div ng-show="form.$submitted || form.jobId.$touched">
+                        <div ng-show="form.jobId.$error.required" class="help-block">Job cannot be blank.</div>
+                    </div>
+                </td>
+                <td>
+                    <p class="input-group">
+                        <input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd"
+                               ng-model="timesheet.startDate" is-open="startDate.opened"
+                               datepicker-options="dateOptions" ng-required="true"
+                               close-text="Close" alt-input-formats="altInputFormats"/>
+                                  <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="openStartDate()"><i
+                                            class="glyphicon glyphicon-calendar"></i></button>
+                                  </span>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Create Timesheet</strong>
+                    <button class="btn btn-default" type="submit" title="Add" ng-disabled="form.$invalid">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <table class="table" cellpadding="2" cellspacing="2">
+            <tr>
+                <td>&nbsp;</td>
+                <!-- TODO: Need to split this up, all time periods shown up on same row -->
+                <td ng-if="jobs.length>0" ng-repeat="timesheetEntry in jobs[0].timeEntries"><strong>{{timesheetEntry.date | date:'EEE MMM dd, yyyy'}}</strong></td>
+            </tr>
+        </table>
+    </form>
     <form class="form-group" role="form" ng-submit="updateTimesheet(jobs)">
         <table class="table">
             <tr ng-repeat="job in jobs">
-                <td ng-if="job.timeEntries.length>0" width="15%">
+                <td ng-if="job.timeEntries.length== 0" width="15%">
 
                     <table>
                         <tr>
@@ -34,7 +65,7 @@
 
                     </table>
                 </td>
-                <td ng-if="job.timeEntries.length>0">
+                <td ng-if="job.timeEntries.length > 0">
                     <table>
                         <tr>
                             <td colspan="2">&nbsp;</td>

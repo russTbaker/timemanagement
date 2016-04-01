@@ -1,12 +1,19 @@
 app.controller('TimesheetController', function ($scope, $http, SpringDataRestAdapter, $location, $route) {
-    console.log("");
+    getCurrentUser($http,SpringDataRestAdapter,$scope);
+    getJobsForEmployee();
+
+
     angular.element(document).ready(function () {
-        getEmployeeId();
+        // getEmployeeId();
         console.log('page loading completed');
     });
 
-
-    getJobsForEmployee();
+    $scope.startDate = {
+        opened: false
+    };
+    $scope.openStartDate = function () {
+        $scope.startDate.opened = true;
+    };
 
     $scope.changeJob = function (job) {
         var i = 0
@@ -15,9 +22,9 @@ app.controller('TimesheetController', function ($scope, $http, SpringDataRestAda
         }
     };
 
-    // TODO: This is hardcoded
-    $scope.onClickCreateTimesheet = function (jobId) {
-        SpringDataRestAdapter.process($http.put('/hydrated/employees/2/timesheets/' + jobId).success(
+    $scope.onClickCreateTimesheet = function (jobId,startDate) {
+        var theDate = Date.parse(startDate);
+        SpringDataRestAdapter.process($http.put('/hydrated/employees/'+$scope.userId+'/timesheets/' + jobId + '/?startDate=' + theDate.toString('yyyy-MM-dd')).success(
             function (response) {
                 $scope.response = angular.toJson(response, true);
             })).then(function (processedResponse) {
@@ -25,7 +32,6 @@ app.controller('TimesheetController', function ($scope, $http, SpringDataRestAda
         });
     }
 
-    // TODO: This is hardcoded
     $scope.updateTimesheet = function (jobs) {
         var i;
         for (i = 0; i < jobs.length; i++) {
@@ -45,7 +51,7 @@ app.controller('TimesheetController', function ($scope, $http, SpringDataRestAda
     };
 
     // Functions
-
+    // todo: hardcoded!!!!
     function loadTimesheetEntries() {
         SpringDataRestAdapter.process($http.get('/api/jobs/1/timeEntries').success(function (response) {
             $scope.response = angular.toJson(response, true);

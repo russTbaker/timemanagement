@@ -8,6 +8,9 @@ import com.rbc.timemanagmentservice.model.TimeEntry;
 import com.rbc.timemanagmentservice.service.ContractService;
 import com.rbc.timemanagmentservice.service.EmployeeService;
 import com.rbc.timemanagmentservice.util.StartupUtility;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +23,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
@@ -74,11 +78,14 @@ public class EmployeeControllerTest extends UserControllerTests<Employee> {
     @Test
     public void whenRequestingNewEmployeeTimesheet_expectTimesheetReturned() throws Exception {
         // Assemble
+        org.joda.time.format.DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTime weekStart = new DateTime().withDayOfWeek(DateTimeConstants.MONDAY).withTimeAtStartOfDay();
         ((Employee)user).getJobs().get(0).getTimeEntries().clear();
         employeeService.updateUser((Employee) user);
 
         // Act
-        mockMvc.perform(put(ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + ((Employee) user).getJobs().get(0).getId())
+        mockMvc.perform(put(ROOT_URI_EMPLOYEES + user.getId() + "/timesheets/" + ((Employee) user).getJobs().get(0).getId()
+        + "/?startDate=" + fmt.print(weekStart))
         .session(createMockHttpSessionForPutPost()))
                 .andExpect(status().isOk());
 

@@ -152,7 +152,7 @@ app.controller('ContractsController', function ($scope, $http, SpringDataRestAda
         SpringDataRestAdapter.process($http.get('/api/employees').success(function (response) {
             $scope.response = angular.toJson(response, true);
         })).then(function (processedResponse) {
-            $scope.users = processedResponse._embeddedItems;
+            $scope.employees = processedResponse._embeddedItems;
             $scope.processedResponse = angular.toJson(processedResponse, true);
         });
     }

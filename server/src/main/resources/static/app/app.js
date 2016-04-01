@@ -15,7 +15,9 @@ var app = angular.module('timesheetApp', ['ui.bootstrap','ui.bootstrap.datetimep
                 templateUrl: 'views/contract/contract.html'
             })
             .when('/timesheet', {
-                templateUrl: 'views/timesheet/timesheet.html'
+                templateUrl: 'views/timesheet/timesheet.html',
+                controller: 'TimesheetController',
+                controllerAs: 'controller'
             })
             .when('/addUser', {
                 templateUrl: 'views/user/addUserProfile.html'

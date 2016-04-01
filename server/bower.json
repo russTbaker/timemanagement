@@ -37,6 +37,7 @@
     "angular-spring-data-rest": "0.4.4",
     "highlightjs": "9.2.0",
     "jasmine-core": "2.4.1",
-    "underscore": "~1.8.3"
+    "underscore": "~1.8.3",
+    "DateJS" : "1.0.0-rc1"
   }
 }
